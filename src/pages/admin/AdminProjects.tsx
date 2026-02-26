@@ -20,13 +20,11 @@ export default function AdminProjects() {
   const [total, setTotal] = useState(0);
   const PAGE_SIZE = 10;
 
-  // Form
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
   const [form, setForm] = useState({ name: '', description: '', status: 'Active', program_id: '', entrepreneur_id: '', coach_id: '' });
   const [saving, setSaving] = useState(false);
 
-  // Detail modal
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [trackNotes, setTrackNotes] = useState<any[]>([]);
   const [newNote, setNewNote] = useState('');
@@ -36,7 +34,6 @@ export default function AdminProjects() {
     setLoading(true);
     let query = supabase.from('projects').select('*', { count: 'exact' });
 
-    // Role-based filtering
     if (userRole === 'program_admin' && programId) {
       query = query.eq('program_id', programId);
     } else if (userRole === 'coach' && coachId) {
@@ -51,7 +48,6 @@ export default function AdminProjects() {
     setProjects(data || []);
     setTotal(count ?? 0);
 
-    // Fetch programs, entrepreneurs, coaches for dropdowns
     const [progsRes, entsRes, coachesRes] = await Promise.all([
       supabase.from('programs').select('id, name'),
       supabase.from('entrepreneurs').select('id, name, business_name'),
@@ -66,18 +62,45 @@ export default function AdminProjects() {
   useEffect(() => { fetchData(); }, [page, search, statusFilter, programFilter]);
 
   const fetchNotes = async (projectId: string) => {
-    const { data } = await supabase
+    const { data: notes } = await supabase
       .from('project_track_notes')
-      .select('*, profiles:author_id(full_name)')
+      .select('*')
       .eq('project_id', projectId)
       .order('created_at', { ascending: false });
-    setTrackNotes(data || []);
+
+    if (notes && notes.length > 0) {
+      // Fetch author names from profiles using user_id
+      const authorIds = [...new Set(notes.map(n => n.author_id).filter(Boolean))];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, full_name')
+        .in('user_id', authorIds);
+      const profileMap: Record<string, string> = {};
+      (profiles || []).forEach(p => { profileMap[p.user_id] = p.full_name || 'Unknown'; });
+      
+      const enriched = notes.map(n => ({
+        ...n,
+        author_name: n.author_id ? (profileMap[n.author_id] || 'Unknown') : 'System',
+      }));
+      setTrackNotes(enriched);
+    } else {
+      setTrackNotes([]);
+    }
   };
 
   const handleAddNote = async () => {
     if (!newNote.trim() || !selectedProject) return;
     setAddingNote(true);
-    await supabase.from('project_track_notes').insert({ project_id: selectedProject.id, author_id: user?.id, note: newNote.trim() });
+    const { error } = await supabase.from('project_track_notes').insert({
+      project_id: selectedProject.id,
+      author_id: user?.id,
+      note: newNote.trim(),
+    });
+    if (error) {
+      toast.error('Failed to add note: ' + error.message);
+    } else {
+      toast.success('Note added');
+    }
     setNewNote('');
     await fetchNotes(selectedProject.id);
     setAddingNote(false);
@@ -96,7 +119,6 @@ export default function AdminProjects() {
       await logActivity('Updated project', 'project', editing, { name: form.name });
       toast.success('Project updated');
     } else {
-      // Auto-create match
       if (form.entrepreneur_id && form.coach_id) {
         const { data: match } = await supabase.from('matches').insert({
           entrepreneur_id: form.entrepreneur_id, coach_id: form.coach_id,
@@ -283,18 +305,20 @@ export default function AdminProjects() {
             </div>
             {selectedProject.description && <p className="text-sm text-muted-foreground mb-4">{selectedProject.description}</p>}
 
-            <h4 className="font-bold flex items-center gap-2 mb-3"><MessageSquare className="h-4 w-4" /> Track Notes</h4>
+            <h4 className="font-bold flex items-center gap-2 mb-3"><MessageSquare className="h-4 w-4" /> Track Notes ({trackNotes.length})</h4>
             <div className="flex gap-2 mb-3">
               <input value={newNote} onChange={e => setNewNote(e.target.value)} placeholder="Add a note..."
                 className="flex-1 px-3 py-2 rounded-xl border border-border bg-background text-sm"
                 onKeyDown={e => e.key === 'Enter' && handleAddNote()} />
-              <Button size="sm" onClick={handleAddNote} disabled={addingNote || !newNote.trim()}>Add</Button>
+              <Button size="sm" onClick={handleAddNote} disabled={addingNote || !newNote.trim()}>
+                {addingNote ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Add'}
+              </Button>
             </div>
             <div className="space-y-2 max-h-60 overflow-y-auto">
               {trackNotes.map(note => (
                 <div key={note.id} className="bg-secondary/30 rounded-xl p-3 text-sm">
                   <div className="flex justify-between mb-1">
-                    <span className="font-medium">{(note as any).profiles?.full_name || 'System'}</span>
+                    <span className="font-medium">{note.author_name}</span>
                     <span className="text-xs text-muted-foreground">{new Date(note.created_at).toLocaleString()}</span>
                   </div>
                   <p className="text-muted-foreground">{note.note}</p>

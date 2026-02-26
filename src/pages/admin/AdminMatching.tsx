@@ -10,7 +10,7 @@ type MatchStatusFilter = 'all' | 'active' | 'completed' | 'cancelled';
 const PAGE_SIZE = 9;
 
 export default function AdminMatching() {
-  const { user } = useAuth();
+  const { user, userRole, coachId, programId } = useAuth();
   const [matches, setMatches] = useState<any[]>([]);
   const [entrepreneurs, setEntrepreneurs] = useState<any[]>([]);
   const [coaches, setCoaches] = useState<any[]>([]);
@@ -25,10 +25,22 @@ export default function AdminMatching() {
   const [selectedMatch, setSelectedMatch] = useState<any | null>(null);
   const [page, setPage] = useState(0);
 
+  const isReadOnly = userRole === 'coach';
+  const canCreate = userRole === 'admin' || userRole === 'program_admin';
+
   const fetchData = async () => {
     setLoading(true);
+    let matchQuery = supabase.from('matches').select('*').order('created_at', { ascending: false });
+
+    // Role-based filtering
+    if (userRole === 'coach' && coachId) {
+      matchQuery = matchQuery.eq('coach_id', coachId);
+    } else if (userRole === 'program_admin' && programId) {
+      matchQuery = matchQuery.eq('program_id', programId);
+    }
+
     const [matchRes, entRes, coachRes, allEntRes, allCoachRes] = await Promise.all([
-      supabase.from('matches').select('*').order('created_at', { ascending: false }),
+      matchQuery,
       supabase.from('entrepreneurs').select('id, name, business_name, status').eq('status', 'Admitted'),
       supabase.from('coaches').select('id, name, organization, status').in('status', ['Accepted', 'Unmatched']),
       supabase.from('entrepreneurs').select('*'),
@@ -125,9 +137,11 @@ export default function AdminMatching() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">Matches ({matches.length})</h2>
-        <Button onClick={() => setShowForm(true)} className="bg-primary text-primary-foreground">
-          <Plus className="h-4 w-4 mr-2" /> Create Match
-        </Button>
+        {canCreate && (
+          <Button onClick={() => setShowForm(true)} className="bg-primary text-primary-foreground">
+            <Plus className="h-4 w-4 mr-2" /> Create Match
+          </Button>
+        )}
       </div>
 
       {/* Filters */}
@@ -151,7 +165,7 @@ export default function AdminMatching() {
       </div>
 
       {/* Create Match Modal */}
-      {showForm && (
+      {showForm && canCreate && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={() => setShowForm(false)}>
           <div className="bg-card rounded-2xl border border-border p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
@@ -260,17 +274,19 @@ export default function AdminMatching() {
             <div className="mt-3 text-xs text-muted-foreground">
               Created: {new Date(selectedMatch.created_at).toLocaleDateString()} at {new Date(selectedMatch.created_at).toLocaleTimeString()}
             </div>
-            <div className="flex gap-3 mt-5">
-              {selectedMatch.status === 'active' && (
-                <>
-                  <Button size="sm" onClick={() => handleEndCoaching(selectedMatch)} className="flex-1 bg-accent text-accent-foreground">End Coaching</Button>
-                  <Button size="sm" variant="outline" onClick={() => handleUnmatch(selectedMatch)} className="flex-1">Unmatch</Button>
-                </>
-              )}
-              <Button size="sm" variant="outline" onClick={() => handleDelete(selectedMatch.id)} className="text-destructive border-destructive/30">
-                <Trash2 className="h-4 w-4 mr-1" /> Delete
-              </Button>
-            </div>
+            {!isReadOnly && (
+              <div className="flex gap-3 mt-5">
+                {selectedMatch.status === 'active' && (
+                  <>
+                    <Button size="sm" onClick={() => handleEndCoaching(selectedMatch)} className="flex-1 bg-accent text-accent-foreground">End Coaching</Button>
+                    <Button size="sm" variant="outline" onClick={() => handleUnmatch(selectedMatch)} className="flex-1">Unmatch</Button>
+                  </>
+                )}
+                <Button size="sm" variant="outline" onClick={() => handleDelete(selectedMatch.id)} className="text-destructive border-destructive/30">
+                  <Trash2 className="h-4 w-4 mr-1" /> Delete
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -298,7 +314,7 @@ export default function AdminMatching() {
               <div><span className="text-muted-foreground">Coach:</span><p className="font-medium">{getCoachName(match.coach_id)}</p></div>
               {match.notes && <p className="text-xs text-muted-foreground line-clamp-2">{match.notes}</p>}
               <div className="text-xs text-muted-foreground pt-1">{new Date(match.created_at).toLocaleDateString()}</div>
-              {match.status === 'active' && (
+              {!isReadOnly && match.status === 'active' && (
                 <div className="flex gap-2 pt-2">
                   <Button size="sm" onClick={(e) => { e.stopPropagation(); handleEndCoaching(match); }} className="bg-accent text-accent-foreground text-xs">End Coaching</Button>
                   <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); handleUnmatch(match); }} className="text-xs">Unmatch</Button>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Users, UserPlus, GitMerge, Handshake, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Users, UserPlus, GitMerge, Handshake, Loader2, ChevronLeft, ChevronRight, FolderKanban, Award } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Button } from '@/components/ui/button';
 
@@ -9,12 +9,14 @@ interface Stats {
   coaches: number;
   requests: number;
   matches: number;
+  programs: number;
+  projects: number;
 }
 
 const PAGE_SIZE = 5;
 
 export default function DashboardHome() {
-  const [stats, setStats] = useState<Stats>({ entrepreneurs: 0, coaches: 0, requests: 0, matches: 0 });
+  const [stats, setStats] = useState<Stats>({ entrepreneurs: 0, coaches: 0, requests: 0, matches: 0, programs: 0, projects: 0 });
   const [recentRequests, setRecentRequests] = useState<any[]>([]);
   const [totalRequests, setTotalRequests] = useState(0);
   const [reqPage, setReqPage] = useState(0);
@@ -32,11 +34,13 @@ export default function DashboardHome() {
 
   useEffect(() => {
     const fetchStats = async () => {
-      const [ent, coach, req, match] = await Promise.all([
+      const [ent, coach, req, match, prog, proj] = await Promise.all([
         supabase.from('entrepreneurs').select('id', { count: 'exact', head: true }),
         supabase.from('coaches').select('id', { count: 'exact', head: true }),
         supabase.from('matching_requests').select('id', { count: 'exact', head: true }),
         supabase.from('matches').select('id', { count: 'exact', head: true }),
+        supabase.from('programs').select('id', { count: 'exact', head: true }),
+        supabase.from('projects').select('id', { count: 'exact', head: true }),
       ]);
 
       setStats({
@@ -44,6 +48,8 @@ export default function DashboardHome() {
         coaches: coach.count ?? 0,
         requests: req.count ?? 0,
         matches: match.count ?? 0,
+        programs: prog.count ?? 0,
+        projects: proj.count ?? 0,
       });
 
       await fetchRequests(0);
@@ -60,6 +66,8 @@ export default function DashboardHome() {
     { label: 'Coaches', value: stats.coaches, icon: UserPlus, color: 'bg-accent/10 text-accent' },
     { label: 'Requests', value: stats.requests, icon: GitMerge, color: 'bg-grow-gold/10 text-grow-gold' },
     { label: 'Matches', value: stats.matches, icon: Handshake, color: 'bg-grow-sage/10 text-grow-sage' },
+    { label: 'Programs', value: stats.programs, icon: Award, color: 'bg-primary/10 text-primary' },
+    { label: 'Projects', value: stats.projects, icon: FolderKanban, color: 'bg-accent/10 text-accent' },
   ];
 
   const chartData = [
@@ -67,9 +75,11 @@ export default function DashboardHome() {
     { name: 'Coaches', value: stats.coaches },
     { name: 'Requests', value: stats.requests },
     { name: 'Matches', value: stats.matches },
+    { name: 'Programs', value: stats.programs },
+    { name: 'Projects', value: stats.projects },
   ];
 
-  const COLORS = ['#FC5647', '#0EA5A0', '#F5A623', '#7CB69D'];
+  const COLORS = ['#FC5647', '#0EA5A0', '#F5A623', '#7CB69D', '#8B5CF6', '#D946EF'];
   const reqTotalPages = Math.ceil(totalRequests / PAGE_SIZE);
 
   if (loading) {
@@ -83,7 +93,7 @@ export default function DashboardHome() {
   return (
     <div className="space-y-6">
       {/* Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {statCards.map(card => (
           <div key={card.label} className="bg-card rounded-2xl border border-border p-5">
             <div className="flex items-center justify-between mb-3">
