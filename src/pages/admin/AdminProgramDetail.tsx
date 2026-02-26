@@ -18,14 +18,13 @@ export default function AdminProgramDetail() {
   const [matches, setMatches] = useState<any[]>([]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [activeSection, setActiveSection] = useState<'projects' | 'matches'>('projects');
 
-  // Project form
   const [showProjectForm, setShowProjectForm] = useState(false);
   const [editingProject, setEditingProject] = useState<string | null>(null);
   const [projectForm, setProjectForm] = useState({ name: '', description: '', status: 'Active', entrepreneur_id: '', coach_id: '' });
   const [saving, setSaving] = useState(false);
 
-  // Project detail modal
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [trackNotes, setTrackNotes] = useState<any[]>([]);
   const [newNote, setNewNote] = useState('');
@@ -51,12 +50,28 @@ export default function AdminProgramDetail() {
   useEffect(() => { if (id) fetchData(); }, [id]);
 
   const fetchNotes = async (projectId: string) => {
-    const { data } = await supabase
+    const { data: notes } = await supabase
       .from('project_track_notes')
-      .select('*, profiles:author_id(full_name)')
+      .select('*')
       .eq('project_id', projectId)
       .order('created_at', { ascending: false });
-    setTrackNotes(data || []);
+
+    if (notes && notes.length > 0) {
+      const authorIds = [...new Set(notes.map(n => n.author_id).filter(Boolean))];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, full_name')
+        .in('user_id', authorIds);
+      const profileMap: Record<string, string> = {};
+      (profiles || []).forEach(p => { profileMap[p.user_id] = p.full_name || 'Unknown'; });
+      
+      setTrackNotes(notes.map(n => ({
+        ...n,
+        author_name: n.author_id ? (profileMap[n.author_id] || 'Unknown') : 'System',
+      })));
+    } else {
+      setTrackNotes([]);
+    }
   };
 
   const handleOpenProject = async (project: any) => {
@@ -67,10 +82,39 @@ export default function AdminProgramDetail() {
   const handleAddNote = async () => {
     if (!newNote.trim() || !selectedProject) return;
     setAddingNote(true);
-    await supabase.from('project_track_notes').insert({ project_id: selectedProject.id, author_id: user?.id, note: newNote.trim() });
+    const { error } = await supabase.from('project_track_notes').insert({
+      project_id: selectedProject.id, author_id: user?.id, note: newNote.trim(),
+    });
+    if (error) { toast.error('Failed to add note: ' + error.message); }
+    else { toast.success('Note added'); }
     setNewNote('');
     await fetchNotes(selectedProject.id);
     setAddingNote(false);
+  };
+
+  // Match status controls
+  const handleEndCoaching = async (match: any) => {
+    if (!confirm('End coaching? The entrepreneur will become Alumni and the coach will be Unmatched.')) return;
+    await Promise.all([
+      supabase.from('matches').update({ status: 'completed' }).eq('id', match.id),
+      supabase.from('entrepreneurs').update({ status: 'Alumni' }).eq('id', match.entrepreneur_id),
+      supabase.from('coaches').update({ status: 'Unmatched' }).eq('id', match.coach_id),
+    ]);
+    await logActivity('Completed match', 'match', match.id);
+    toast.success('Coaching session ended.');
+    fetchData();
+  };
+
+  const handleUnmatch = async (match: any) => {
+    if (!confirm('Unmatch? The entrepreneur will return to Admitted and the coach to Unmatched.')) return;
+    await Promise.all([
+      supabase.from('matches').update({ status: 'cancelled' }).eq('id', match.id),
+      supabase.from('entrepreneurs').update({ status: 'Admitted' }).eq('id', match.entrepreneur_id),
+      supabase.from('coaches').update({ status: 'Unmatched' }).eq('id', match.coach_id),
+    ]);
+    await logActivity('Unmatched', 'match', match.id);
+    toast.success('Match cancelled.');
+    fetchData();
   };
 
   const handleSaveProject = async () => {
@@ -81,7 +125,6 @@ export default function AdminProgramDetail() {
       created_by: user?.id,
     };
 
-    // Auto-create match if both entrepreneur and coach are assigned
     if (projectForm.entrepreneur_id && projectForm.coach_id && !editingProject) {
       const { data: match } = await supabase.from('matches').insert({
         entrepreneur_id: projectForm.entrepreneur_id, coach_id: projectForm.coach_id,
@@ -89,7 +132,6 @@ export default function AdminProgramDetail() {
       }).select('id').single();
       if (match) {
         payload.match_id = match.id;
-        // Update statuses
         await supabase.from('entrepreneurs').update({ status: 'Matched' }).eq('id', projectForm.entrepreneur_id);
         await supabase.from('coaches').update({ status: 'Matched' }).eq('id', projectForm.coach_id);
       }
@@ -117,7 +159,7 @@ export default function AdminProgramDetail() {
   };
 
   const getEntName = (entId: string | null) => entrepreneurs.find(e => e.id === entId)?.name || '—';
-  const getCoachName = (coachId: string | null) => coaches.find(c => c.id === coachId)?.name || '—';
+  const getCoachName = (cId: string | null) => coaches.find(c => c.id === cId)?.name || '—';
 
   const filteredProjects = projects.filter(p => {
     if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
@@ -154,75 +196,136 @@ export default function AdminProgramDetail() {
         ))}
       </div>
 
-      {/* Projects Section */}
-      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
-        <h3 className="text-lg font-bold">Projects</h3>
-        {(userRole === 'admin' || userRole === 'program_admin') && (
-          <Button size="sm" onClick={() => { setProjectForm({ name: '', description: '', status: 'Active', entrepreneur_id: '', coach_id: '' }); setEditingProject(null); setShowProjectForm(true); }}>
-            <Plus className="h-4 w-4 mr-1" /> New Project
-          </Button>
-        )}
+      {/* Section Tabs */}
+      <div className="flex gap-1 border-b border-border">
+        <button onClick={() => setActiveSection('projects')}
+          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeSection === 'projects' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>
+          Projects ({projects.length})
+        </button>
+        <button onClick={() => setActiveSection('matches')}
+          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeSection === 'matches' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>
+          Matches ({matches.length})
+        </button>
       </div>
 
-      <div className="flex gap-3">
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search projects..."
-            className="w-full pl-10 pr-4 py-2 rounded-xl border border-border bg-background text-sm" />
-        </div>
-        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
-          className="px-3 py-2 rounded-xl border border-border bg-background text-sm">
-          <option value="">All Status</option>
-          <option value="Active">Active</option>
-          <option value="Completed">Completed</option>
-          <option value="On Hold">On Hold</option>
-        </select>
-      </div>
-
-      {/* Projects List */}
-      <div className="bg-card rounded-2xl border border-border overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-secondary/50 text-muted-foreground">
-            <tr>
-              <th className="text-left px-4 py-3 font-medium">Project</th>
-              <th className="text-left px-4 py-3 font-medium hidden md:table-cell">Entrepreneur</th>
-              <th className="text-left px-4 py-3 font-medium hidden md:table-cell">Coach</th>
-              <th className="text-left px-4 py-3 font-medium">Status</th>
-              <th className="text-right px-4 py-3 font-medium">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {filteredProjects.map(p => (
-              <tr key={p.id} className="hover:bg-secondary/30 cursor-pointer" onClick={() => handleOpenProject(p)}>
-                <td className="px-4 py-3 font-medium">{p.name}</td>
-                <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{getEntName(p.entrepreneur_id)}</td>
-                <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{getCoachName(p.coach_id)}</td>
-                <td className="px-4 py-3">
-                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${p.status === 'Active' ? 'bg-accent/10 text-accent' : p.status === 'Completed' ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
-                    {p.status}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-right" onClick={e => e.stopPropagation()}>
-                  {(userRole === 'admin' || userRole === 'program_admin') && (
-                    <div className="flex gap-1 justify-end">
-                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => {
-                        setProjectForm({ name: p.name, description: p.description || '', status: p.status, entrepreneur_id: p.entrepreneur_id || '', coach_id: p.coach_id || '' });
-                        setEditingProject(p.id); setShowProjectForm(true);
-                      }}><Pencil className="h-3.5 w-3.5" /></Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteProject(p.id)}>
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                  )}
-                </td>
-              </tr>
-            ))}
-            {filteredProjects.length === 0 && (
-              <tr><td colSpan={5} className="px-4 py-10 text-center text-muted-foreground">No projects found.</td></tr>
+      {activeSection === 'projects' && (
+        <>
+          <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+            <h3 className="text-lg font-bold">Projects</h3>
+            {(userRole === 'admin' || userRole === 'program_admin') && (
+              <Button size="sm" onClick={() => { setProjectForm({ name: '', description: '', status: 'Active', entrepreneur_id: '', coach_id: '' }); setEditingProject(null); setShowProjectForm(true); }}>
+                <Plus className="h-4 w-4 mr-1" /> New Project
+              </Button>
             )}
-          </tbody>
-        </table>
-      </div>
+          </div>
+
+          <div className="flex gap-3">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search projects..."
+                className="w-full pl-10 pr-4 py-2 rounded-xl border border-border bg-background text-sm" />
+            </div>
+            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
+              className="px-3 py-2 rounded-xl border border-border bg-background text-sm">
+              <option value="">All Status</option>
+              <option value="Active">Active</option>
+              <option value="Completed">Completed</option>
+              <option value="On Hold">On Hold</option>
+            </select>
+          </div>
+
+          <div className="bg-card rounded-2xl border border-border overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-secondary/50 text-muted-foreground">
+                <tr>
+                  <th className="text-left px-4 py-3 font-medium">Project</th>
+                  <th className="text-left px-4 py-3 font-medium hidden md:table-cell">Entrepreneur</th>
+                  <th className="text-left px-4 py-3 font-medium hidden md:table-cell">Coach</th>
+                  <th className="text-left px-4 py-3 font-medium">Status</th>
+                  <th className="text-right px-4 py-3 font-medium">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {filteredProjects.map(p => (
+                  <tr key={p.id} className="hover:bg-secondary/30 cursor-pointer" onClick={() => handleOpenProject(p)}>
+                    <td className="px-4 py-3 font-medium">{p.name}</td>
+                    <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{getEntName(p.entrepreneur_id)}</td>
+                    <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{getCoachName(p.coach_id)}</td>
+                    <td className="px-4 py-3">
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${p.status === 'Active' ? 'bg-accent/10 text-accent' : p.status === 'Completed' ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
+                        {p.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right" onClick={e => e.stopPropagation()}>
+                      {(userRole === 'admin' || userRole === 'program_admin') && (
+                        <div className="flex gap-1 justify-end">
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => {
+                            setProjectForm({ name: p.name, description: p.description || '', status: p.status, entrepreneur_id: p.entrepreneur_id || '', coach_id: p.coach_id || '' });
+                            setEditingProject(p.id); setShowProjectForm(true);
+                          }}><Pencil className="h-3.5 w-3.5" /></Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteProject(p.id)}>
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+                {filteredProjects.length === 0 && (
+                  <tr><td colSpan={5} className="px-4 py-10 text-center text-muted-foreground">No projects found.</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+
+      {/* Matches Section */}
+      {activeSection === 'matches' && (
+        <div className="space-y-4">
+          <h3 className="text-lg font-bold">Matches</h3>
+          <div className="bg-card rounded-2xl border border-border overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-secondary/50 text-muted-foreground">
+                <tr>
+                  <th className="text-left px-4 py-3 font-medium">Entrepreneur</th>
+                  <th className="text-left px-4 py-3 font-medium">Coach</th>
+                  <th className="text-left px-4 py-3 font-medium">Status</th>
+                  <th className="text-left px-4 py-3 font-medium hidden md:table-cell">Date</th>
+                  <th className="text-right px-4 py-3 font-medium">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {matches.map(m => (
+                  <tr key={m.id} className="hover:bg-secondary/30">
+                    <td className="px-4 py-3 font-medium">{getEntName(m.entrepreneur_id)}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{getCoachName(m.coach_id)}</td>
+                    <td className="px-4 py-3">
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                        m.status === 'active' || m.status === 'Active' ? 'bg-accent/10 text-accent' :
+                        m.status === 'completed' ? 'bg-primary/10 text-primary' :
+                        'bg-muted text-muted-foreground'
+                      }`}>{m.status}</span>
+                    </td>
+                    <td className="px-4 py-3 text-muted-foreground hidden md:table-cell text-xs">{new Date(m.created_at).toLocaleDateString()}</td>
+                    <td className="px-4 py-3 text-right">
+                      {(m.status === 'active' || m.status === 'Active') && (userRole === 'admin' || userRole === 'program_admin') && (
+                        <div className="flex gap-1 justify-end">
+                          <Button size="sm" variant="outline" className="text-xs" onClick={() => handleEndCoaching(m)}>End Coaching</Button>
+                          <Button size="sm" variant="outline" className="text-xs" onClick={() => handleUnmatch(m)}>Unmatch</Button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+                {matches.length === 0 && (
+                  <tr><td colSpan={5} className="px-4 py-10 text-center text-muted-foreground">No matches found.</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* Project Form Modal */}
       {showProjectForm && (
@@ -313,7 +416,7 @@ export default function AdminProgramDetail() {
                   {trackNotes.map(note => (
                     <div key={note.id} className="bg-secondary/30 rounded-xl p-3 text-sm">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="font-medium text-foreground">{(note as any).profiles?.full_name || 'System'}</span>
+                        <span className="font-medium text-foreground">{note.author_name}</span>
                         <span className="text-xs text-muted-foreground">{new Date(note.created_at).toLocaleString()}</span>
                       </div>
                       <p className="text-muted-foreground">{note.note}</p>

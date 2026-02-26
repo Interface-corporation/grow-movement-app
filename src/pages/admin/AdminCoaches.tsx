@@ -12,11 +12,11 @@ const emptyForm = {
   name: '', photo_url: '', email: '', phone: '', organization: '',
   specialization: '', country: '', bio: '', status: 'Accepted',
   linkedin: '', preferred_client_type: '', experience: '',
-  availability: '', preferred_communication: '',
+  availability: '', preferred_communication: '', program_id: '',
 };
 
 export default function AdminCoaches() {
-  const { user } = useAuth();
+  const { user, userRole, programId, coachId } = useAuth();
   const [coaches, setCoaches] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -26,15 +26,46 @@ export default function AdminCoaches() {
   const [editing, setEditing] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [programs, setPrograms] = useState<any[]>([]);
+  const [coachProgramMap, setCoachProgramMap] = useState<Record<string, string>>({});
   const PAGE_SIZE = 10;
 
   const fetchData = async () => {
     setLoading(true);
-    let query = supabase.from('coaches').select('*', { count: 'exact' });
-    if (search) query = query.or(`name.ilike.%${search}%,organization.ilike.%${search}%`);
-    const { data, count } = await query.order('created_at', { ascending: false }).range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
-    setCoaches(data || []);
-    setTotal(count ?? 0);
+
+    // Fetch programs
+    const { data: progs } = await supabase.from('programs').select('id, name');
+    setPrograms(progs || []);
+
+    // If program_admin, get coaches via program_coaches junction
+    if (userRole === 'program_admin' && programId) {
+      const { data: pcData } = await supabase
+        .from('program_coaches')
+        .select('coach_id')
+        .eq('program_id', programId);
+      const coachIds = (pcData || []).map(pc => pc.coach_id);
+      if (coachIds.length === 0) {
+        setCoaches([]); setTotal(0); setLoading(false); return;
+      }
+      let query = supabase.from('coaches').select('*', { count: 'exact' }).in('id', coachIds);
+      if (search) query = query.or(`name.ilike.%${search}%,organization.ilike.%${search}%`);
+      const { data, count } = await query.order('created_at', { ascending: false }).range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
+      setCoaches(data || []);
+      setTotal(count ?? 0);
+    } else {
+      let query = supabase.from('coaches').select('*', { count: 'exact' });
+      if (search) query = query.or(`name.ilike.%${search}%,organization.ilike.%${search}%`);
+      const { data, count } = await query.order('created_at', { ascending: false }).range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
+      setCoaches(data || []);
+      setTotal(count ?? 0);
+    }
+
+    // Fetch all program_coaches to show program assignments
+    const { data: allPc } = await supabase.from('program_coaches').select('coach_id, program_id');
+    const map: Record<string, string> = {};
+    (allPc || []).forEach(pc => { map[pc.coach_id] = pc.program_id; });
+    setCoachProgramMap(map);
+
     setLoading(false);
   };
 
@@ -52,13 +83,28 @@ export default function AdminCoaches() {
       preferred_communication: form.preferred_communication || null,
     };
 
+    let coachRecordId = editing;
+
     if (editing) {
       await supabase.from('coaches').update(payload).eq('id', editing);
       await logActivity('Updated coach', 'coach', editing, { name: form.name });
     } else {
       const { data: inserted } = await supabase.from('coaches').insert(payload).select('id').single();
+      coachRecordId = inserted?.id || null;
       await logActivity('Created coach', 'coach', inserted?.id, { name: form.name });
     }
+
+    // Handle program assignment via program_coaches
+    if (coachRecordId) {
+      const selectedProgramId = form.program_id || (userRole === 'program_admin' ? programId : null);
+      // Remove existing program_coaches for this coach
+      await supabase.from('program_coaches').delete().eq('coach_id', coachRecordId);
+      // Insert new assignment if selected
+      if (selectedProgramId) {
+        await supabase.from('program_coaches').insert({ coach_id: coachRecordId, program_id: selectedProgramId });
+      }
+    }
+
     setSaving(false); setShowForm(false); setEditing(null); setForm(emptyForm); fetchData();
   };
 
@@ -71,6 +117,7 @@ export default function AdminCoaches() {
       linkedin: coach.linkedin || '', preferred_client_type: coach.preferred_client_type || '',
       experience: coach.experience || '', availability: coach.availability || '',
       preferred_communication: coach.preferred_communication || '',
+      program_id: coachProgramMap[coach.id] || '',
     });
     setEditing(coach.id); setShowForm(true);
   };
@@ -78,12 +125,17 @@ export default function AdminCoaches() {
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure?')) return;
     const coach = coaches.find(c => c.id === id);
+    await supabase.from('program_coaches').delete().eq('coach_id', id);
     await supabase.from('coaches').delete().eq('id', id);
     await logActivity('Deleted coach', 'coach', id, { name: coach?.name });
     fetchData();
   };
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
+  const getProgramName = (coachRecId: string) => {
+    const pid = coachProgramMap[coachRecId];
+    return programs.find(p => p.id === pid)?.name || '—';
+  };
 
   return (
     <div className="space-y-4">
@@ -130,6 +182,13 @@ export default function AdminCoaches() {
                 <option value="Unmatched">Unmatched</option>
                 <option value="Rejected">Rejected</option>
               </select>
+              {/* Program Assignment Dropdown */}
+              {userRole === 'admin' && (
+                <select value={form.program_id} onChange={e => setForm({...form, program_id: e.target.value})} className="px-3 py-2 rounded-xl border border-border bg-background text-sm">
+                  <option value="">No Program</option>
+                  {programs.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                </select>
+              )}
               <input value={form.preferred_client_type} onChange={e => setForm({...form, preferred_client_type: e.target.value})} placeholder="Preferred Client Type" className="px-3 py-2 rounded-xl border border-border bg-background text-sm" />
               <input value={form.availability} onChange={e => setForm({...form, availability: e.target.value})} placeholder="Availability & Preferred Times" className="px-3 py-2 rounded-xl border border-border bg-background text-sm" />
             </div>
@@ -154,6 +213,7 @@ export default function AdminCoaches() {
                   <th className="text-left px-4 py-3 font-medium">Name</th>
                   <th className="text-left px-4 py-3 font-medium hidden md:table-cell">Organization</th>
                   <th className="text-left px-4 py-3 font-medium hidden md:table-cell">Specialization</th>
+                  <th className="text-left px-4 py-3 font-medium hidden lg:table-cell">Program</th>
                   <th className="text-left px-4 py-3 font-medium hidden lg:table-cell">Status</th>
                   <th className="text-right px-4 py-3 font-medium">Actions</th>
                 </tr>
@@ -164,6 +224,9 @@ export default function AdminCoaches() {
                     <td className="px-4 py-3 font-medium">{coach.name}</td>
                     <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{coach.organization || '—'}</td>
                     <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{coach.specialization || '—'}</td>
+                    <td className="px-4 py-3 hidden lg:table-cell">
+                      <span className="text-xs text-muted-foreground">{getProgramName(coach.id)}</span>
+                    </td>
                     <td className="px-4 py-3 hidden lg:table-cell">
                       <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
                         coach.status === 'Accepted' ? 'bg-accent/10 text-accent' :
@@ -184,7 +247,7 @@ export default function AdminCoaches() {
                   </tr>
                 ))}
                 {coaches.length === 0 && (
-                  <tr><td colSpan={5} className="px-4 py-10 text-center text-muted-foreground">No coaches found.</td></tr>
+                  <tr><td colSpan={6} className="px-4 py-10 text-center text-muted-foreground">No coaches found.</td></tr>
                 )}
               </tbody>
             </table>

@@ -14,14 +14,14 @@ interface SidebarLink {
   icon: any;
   label: string;
   end?: boolean;
-  roles: UserRole[]; // which roles can see this
+  roles: UserRole[];
 }
 
 const sidebarLinks: SidebarLink[] = [
   { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true, roles: ['admin', 'program_admin', 'coach'] },
   { to: '/admin/applications', icon: Users, label: 'Applications', roles: ['admin'] },
-  { to: '/admin/entrepreneurs', icon: UserPlus, label: 'Entrepreneurs', roles: ['admin'] },
-  { to: '/admin/coaches', icon: UserPlus, label: 'Coaches', roles: ['admin'] },
+  { to: '/admin/entrepreneurs', icon: UserPlus, label: 'Entrepreneurs', roles: ['admin', 'program_admin'] },
+  { to: '/admin/coaches', icon: UserPlus, label: 'Coaches', roles: ['admin', 'program_admin'] },
   { to: '/admin/matching-requests', icon: GitMerge, label: 'Matching Requests', roles: ['admin'] },
   { to: '/admin/my-requests', icon: GitMerge, label: 'My Requests', roles: ['coach'] },
   { to: '/admin/matching', icon: Handshake, label: 'Matching', roles: ['admin', 'program_admin', 'coach'] },
@@ -74,7 +74,6 @@ export default function AdminLayout() {
 
   if (!user) return <Navigate to="/auth" replace />;
 
-  // Filter links by role
   const visibleLinks = sidebarLinks.filter(link => {
     if (!userRole) return false;
     return link.roles.includes(userRole);
@@ -87,12 +86,10 @@ export default function AdminLayout() {
 
   const displayName = profile?.full_name || user.email?.split('@')[0] || 'User';
   const initials = displayName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
-
   const roleBadge = userRole === 'admin' ? 'Admin' : userRole === 'program_admin' ? 'Program Admin' : userRole === 'coach' ? 'Coach' : '';
 
   return (
     <div className="min-h-screen bg-background flex">
-      {/* Sidebar */}
       <aside
         className={`fixed inset-y-0 left-0 z-50 w-64 bg-card border-r border-border transform transition-transform duration-200 lg:translate-x-0 lg:static ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
@@ -149,12 +146,10 @@ export default function AdminLayout() {
         </div>
       </aside>
 
-      {/* Overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black/40 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Main Content */}
       <div className="flex-1 flex flex-col min-h-screen">
         <header className="sticky top-0 z-30 bg-card/80 backdrop-blur-lg border-b border-border px-4 py-3 flex items-center justify-between lg:px-6">
           <div className="flex items-center gap-3">
@@ -168,7 +163,6 @@ export default function AdminLayout() {
             </h1>
           </div>
 
-          {/* Profile Dropdown */}
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setProfileOpen(!profileOpen)}

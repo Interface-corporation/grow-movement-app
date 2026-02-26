@@ -18,11 +18,11 @@ const emptyForm = {
   employees_fulltime: '', employees_parttime: '', impact: '', financials: '',
   financial_recording_method: '', products_services: '', market_size: '',
   competition: '', top_challenges: '', main_challenge: '', opportunities: '',
-  industry_analysis: '', linkedin: '',
+  industry_analysis: '', linkedin: '', program_id: '',
 };
 
 export default function AdminEntrepreneurs() {
-  const { user } = useAuth();
+  const { user, userRole, programId } = useAuth();
   const [entrepreneurs, setEntrepreneurs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -34,6 +34,7 @@ export default function AdminEntrepreneurs() {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
+  const [programs, setPrograms] = useState<any[]>([]);
   const PAGE_SIZE = 10;
 
   const fetchData = async () => {
@@ -41,9 +42,17 @@ export default function AdminEntrepreneurs() {
     let query = supabase.from('entrepreneurs').select('*', { count: 'exact' });
     if (search) query = query.or(`name.ilike.%${search}%,business_name.ilike.%${search}%`);
     if (filterSector) query = query.eq('sector', filterSector);
+    // Program admin filtering
+    if (userRole === 'program_admin' && programId) {
+      query = query.eq('program_id', programId);
+    }
     const { data, count } = await query.order('created_at', { ascending: false }).range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
     setEntrepreneurs(data || []);
     setTotal(count ?? 0);
+
+    // Fetch programs for dropdown
+    const { data: progs } = await supabase.from('programs').select('id, name');
+    setPrograms(progs || []);
     setLoading(false);
   };
 
@@ -72,6 +81,7 @@ export default function AdminEntrepreneurs() {
       competition: form.competition || null, top_challenges: form.top_challenges || null,
       main_challenge: form.main_challenge || null, opportunities: form.opportunities || null,
       industry_analysis: form.industry_analysis || null, linkedin: form.linkedin || null,
+      program_id: form.program_id || (userRole === 'program_admin' ? programId : null),
     };
 
     if (editing) {
@@ -104,6 +114,7 @@ export default function AdminEntrepreneurs() {
       competition: ent.competition || '', top_challenges: ent.top_challenges || '',
       main_challenge: ent.main_challenge || '', opportunities: ent.opportunities || '',
       industry_analysis: ent.industry_analysis || '', linkedin: ent.linkedin || '',
+      program_id: ent.program_id || '',
     });
     setEditing(ent.id); setShowForm(true); setActiveTab(0);
   };
@@ -118,6 +129,7 @@ export default function AdminEntrepreneurs() {
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
   const tabs = ['Basic Info', 'Contact & Background', 'Business Details', 'Market & Challenges'];
+  const getProgramName = (id: string | null) => programs.find(p => p.id === id)?.name || '—';
 
   const f = (key: string, placeholder: string, type = 'text') => (
     <input value={(form as any)[key]} onChange={e => setForm({ ...form, [key]: e.target.value })}
@@ -209,6 +221,14 @@ export default function AdminEntrepreneurs() {
                   <option value="Alumni">Alumni</option>
                   <option value="Rejected">Rejected</option>
                 </select>
+                {/* Program Assignment Dropdown */}
+                {userRole === 'admin' && (
+                  <select value={form.program_id} onChange={e => setForm({ ...form, program_id: e.target.value })}
+                    className="px-3 py-2 rounded-xl border border-border bg-background text-sm">
+                    <option value="">No Program</option>
+                    {programs.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                  </select>
+                )}
                 {f('video_url', 'Video URL (YouTube or other)')}
                 {f('website', 'Website / Online Presence')}
               </div>
@@ -293,6 +313,7 @@ export default function AdminEntrepreneurs() {
                   <th className="text-left px-4 py-3 font-medium">Business</th>
                   <th className="text-left px-4 py-3 font-medium hidden md:table-cell">Country</th>
                   <th className="text-left px-4 py-3 font-medium hidden md:table-cell">Sector</th>
+                  <th className="text-left px-4 py-3 font-medium hidden lg:table-cell">Program</th>
                   <th className="text-left px-4 py-3 font-medium hidden lg:table-cell">Status</th>
                   <th className="text-right px-4 py-3 font-medium">Actions</th>
                 </tr>
@@ -305,6 +326,9 @@ export default function AdminEntrepreneurs() {
                     <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{ent.country}</td>
                     <td className="px-4 py-3 hidden md:table-cell">
                       <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">{ent.sector}</span>
+                    </td>
+                    <td className="px-4 py-3 hidden lg:table-cell">
+                      <span className="text-xs text-muted-foreground">{getProgramName(ent.program_id)}</span>
                     </td>
                     <td className="px-4 py-3 hidden lg:table-cell">
                       <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
@@ -326,7 +350,7 @@ export default function AdminEntrepreneurs() {
                   </tr>
                 ))}
                 {entrepreneurs.length === 0 && (
-                  <tr><td colSpan={6} className="px-4 py-10 text-center text-muted-foreground">No entrepreneurs found.</td></tr>
+                  <tr><td colSpan={7} className="px-4 py-10 text-center text-muted-foreground">No entrepreneurs found.</td></tr>
                 )}
               </tbody>
             </table>

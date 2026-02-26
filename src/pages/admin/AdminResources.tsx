@@ -17,7 +17,6 @@ export default function AdminResources() {
   const [total, setTotal] = useState(0);
   const PAGE_SIZE = 10;
 
-  // Form
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ title: '', description: '', category: 'General', visibility: 'public', program_id: '' });
   const [file, setFile] = useState<File | null>(null);
@@ -27,10 +26,34 @@ export default function AdminResources() {
 
   const fetchData = async () => {
     setLoading(true);
+
+    // Get coach's assigned program IDs
+    let coachProgramIds: string[] = [];
+    if (userRole === 'coach' && coachId) {
+      const { data: pcData } = await supabase
+        .from('program_coaches')
+        .select('program_id')
+        .eq('coach_id', coachId);
+      coachProgramIds = (pcData || []).map(pc => pc.program_id);
+    }
+
     let query = supabase.from('resources').select('*', { count: 'exact' });
     if (search) query = query.ilike('title', `%${search}%`);
     if (visibilityFilter) query = query.eq('visibility', visibilityFilter);
     if (categoryFilter) query = query.eq('category', categoryFilter);
+
+    // Role-based filtering
+    if (userRole === 'coach') {
+      // Coaches see public + private resources from their programs
+      if (coachProgramIds.length > 0) {
+        query = query.or(`visibility.eq.public,and(visibility.eq.private,program_id.in.(${coachProgramIds.join(',')}))`);
+      } else {
+        query = query.eq('visibility', 'public');
+      }
+    } else if (userRole === 'program_admin' && programId) {
+      // Program admins see public + private resources from their program
+      query = query.or(`visibility.eq.public,and(visibility.eq.private,program_id.eq.${programId})`);
+    }
 
     const { data, count } = await query.order('created_at', { ascending: false }).range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
     setResources(data || []);
@@ -47,7 +70,6 @@ export default function AdminResources() {
     if (!file || !form.title) return;
     setSaving(true);
 
-    const ext = file.name.split('.').pop();
     const path = `${Date.now()}-${file.name}`;
     const { error: uploadErr } = await supabase.storage.from('resources').upload(path, file);
     if (uploadErr) {
@@ -62,7 +84,7 @@ export default function AdminResources() {
       title: form.title,
       description: form.description || null,
       file_url: urlData.publicUrl,
-      file_type: ext || null,
+      file_type: file.name.split('.').pop() || null,
       category: form.category,
       visibility: form.visibility,
       program_id: form.visibility === 'private' ? (form.program_id || (userRole === 'program_admin' ? programId : null)) : null,
@@ -84,7 +106,6 @@ export default function AdminResources() {
 
   const getProgramName = (id: string | null) => programs.find(p => p.id === id)?.name || '—';
   const totalPages = Math.ceil(total / PAGE_SIZE);
-
   const categories = [...new Set(resources.map(r => r.category).filter(Boolean))];
 
   return (
@@ -119,7 +140,6 @@ export default function AdminResources() {
         )}
       </div>
 
-      {/* Upload Modal */}
       {showForm && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={() => setShowForm(false)}>
           <div className="bg-card rounded-2xl border border-border p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
