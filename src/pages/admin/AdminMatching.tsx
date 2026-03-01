@@ -16,9 +16,10 @@ export default function AdminMatching() {
   const [coaches, setCoaches] = useState<any[]>([]);
   const [allEntrepreneurs, setAllEntrepreneurs] = useState<any[]>([]);
   const [allCoaches, setAllCoaches] = useState<any[]>([]);
+  const [matchingRequests, setMatchingRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ entrepreneur_id: '', coach_id: '', notes: '' });
+  const [form, setForm] = useState({ entrepreneur_id: '', coach_id: '', notes: '', request_id: '' });
   const [saving, setSaving] = useState(false);
   const [statusFilter, setStatusFilter] = useState<MatchStatusFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -32,46 +33,59 @@ export default function AdminMatching() {
     setLoading(true);
     let matchQuery = supabase.from('matches').select('*').order('created_at', { ascending: false });
 
-    // Role-based filtering
     if (userRole === 'coach' && coachId) {
       matchQuery = matchQuery.eq('coach_id', coachId);
     } else if (userRole === 'program_admin' && programId) {
       matchQuery = matchQuery.eq('program_id', programId);
     }
 
-    const [matchRes, entRes, coachRes, allEntRes, allCoachRes] = await Promise.all([
+    const [matchRes, entRes, coachRes, allEntRes, allCoachRes, reqRes] = await Promise.all([
       matchQuery,
       supabase.from('entrepreneurs').select('id, name, business_name, status').eq('status', 'Admitted'),
       supabase.from('coaches').select('id, name, organization, status').in('status', ['Accepted', 'Unmatched']),
       supabase.from('entrepreneurs').select('*'),
       supabase.from('coaches').select('*'),
+      supabase.from('matching_requests').select('id, requester_name, requester_email, status').in('status', ['pending', 'reviewed']),
     ]);
     setMatches(matchRes.data || []);
     setEntrepreneurs(entRes.data || []);
     setCoaches(coachRes.data || []);
     setAllEntrepreneurs(allEntRes.data || []);
     setAllCoaches(allCoachRes.data || []);
+    setMatchingRequests(reqRes.data || []);
     setLoading(false);
   };
 
   useEffect(() => { fetchData(); }, []);
+
+  // Sync matching request status when match status changes
+  const syncRequestStatus = async (match: any, newStatus: string) => {
+    if (match.request_id) {
+      const requestStatus = newStatus === 'completed' ? 'matched' : newStatus === 'cancelled' ? 'cancelled' : newStatus;
+      await supabase.from('matching_requests').update({ status: requestStatus }).eq('id', match.request_id);
+    }
+  };
 
   const handleCreate = async () => {
     setSaving(true);
     const { data: inserted, error } = await supabase.from('matches').insert({
       entrepreneur_id: form.entrepreneur_id, coach_id: form.coach_id,
       notes: form.notes || null, created_by: user?.id,
+      request_id: form.request_id || null,
     }).select('id').single();
     if (error) { toast.error('Failed to create match: ' + error.message); setSaving(false); return; }
+    
     await Promise.all([
       supabase.from('entrepreneurs').update({ status: 'Matched' }).eq('id', form.entrepreneur_id),
       supabase.from('coaches').update({ status: 'Matched' }).eq('id', form.coach_id),
+      // If linked to a matching request, update its status to "matched"
+      form.request_id ? supabase.from('matching_requests').update({ status: 'matched' }).eq('id', form.request_id) : Promise.resolve(),
     ]);
     const entName = entrepreneurs.find(e => e.id === form.entrepreneur_id)?.name;
     const coachName = coaches.find(c => c.id === form.coach_id)?.name;
     await logActivity('Created match', 'match', inserted?.id, { entrepreneur: entName, coach: coachName });
     toast.success('Match created successfully!');
-    setSaving(false); setShowForm(false); setForm({ entrepreneur_id: '', coach_id: '', notes: '' }); fetchData();
+    setSaving(false); setShowForm(false); setForm({ entrepreneur_id: '', coach_id: '', notes: '', request_id: '' }); fetchData();
   };
 
   const handleEndCoaching = async (match: any) => {
@@ -81,6 +95,7 @@ export default function AdminMatching() {
       supabase.from('entrepreneurs').update({ status: 'Alumni' }).eq('id', match.entrepreneur_id),
       supabase.from('coaches').update({ status: 'Unmatched' }).eq('id', match.coach_id),
     ]);
+    await syncRequestStatus(match, 'completed');
     await logActivity('Completed match', 'match', match.id);
     toast.success('Coaching session ended. Entrepreneur is now Alumni.');
     setSelectedMatch(null); fetchData();
@@ -93,6 +108,7 @@ export default function AdminMatching() {
       supabase.from('entrepreneurs').update({ status: 'Admitted' }).eq('id', match.entrepreneur_id),
       supabase.from('coaches').update({ status: 'Unmatched' }).eq('id', match.coach_id),
     ]);
+    await syncRequestStatus(match, 'cancelled');
     await logActivity('Unmatched', 'match', match.id);
     toast.success('Match cancelled. Both parties are now available.');
     setSelectedMatch(null); fetchData();
@@ -110,6 +126,7 @@ export default function AdminMatching() {
   const getCoach = (id: string) => allCoaches.find(c => c.id === id);
   const getEntName = (id: string) => getEnt(id)?.name || 'Unknown';
   const getCoachName = (id: string) => getCoach(id)?.name || 'Unknown';
+  const getRequestName = (id: string | null) => matchingRequests.find(r => r.id === id)?.requester_name || null;
 
   const filteredMatches = matches.filter(m => {
     const matchesStatus = statusFilter === 'all' || m.status === statusFilter;
@@ -173,6 +190,17 @@ export default function AdminMatching() {
               <button onClick={() => setShowForm(false)}><X className="h-5 w-5" /></button>
             </div>
             <div className="space-y-3">
+              {/* Link to matching request (optional) */}
+              {matchingRequests.length > 0 && (
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Link to Matching Request (optional)</label>
+                  <select value={form.request_id} onChange={e => setForm({...form, request_id: e.target.value})}
+                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm">
+                    <option value="">No linked request</option>
+                    {matchingRequests.map(r => <option key={r.id} value={r.id}>{r.requester_name} — {r.requester_email} ({r.status})</option>)}
+                  </select>
+                </div>
+              )}
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1 block">Entrepreneur (Admitted only)</label>
                 <select value={form.entrepreneur_id} onChange={e => setForm({...form, entrepreneur_id: e.target.value})}
@@ -218,6 +246,15 @@ export default function AdminMatching() {
               </div>
               <button onClick={() => setSelectedMatch(null)}><X className="h-5 w-5" /></button>
             </div>
+
+            {/* Linked request indicator */}
+            {selectedMatch.request_id && (
+              <div className="mb-4 text-xs bg-secondary/50 rounded-xl p-3 flex items-center gap-2">
+                <span className="text-muted-foreground">Linked Request:</span>
+                <span className="font-medium">{getRequestName(selectedMatch.request_id) || selectedMatch.request_id}</span>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="bg-secondary/30 rounded-xl p-4">
                 <h4 className="text-sm font-bold text-primary mb-3">Entrepreneur</h4>
@@ -232,7 +269,6 @@ export default function AdminMatching() {
                       {ent.country && <div><span className="text-muted-foreground">Country:</span> <p>{ent.country}</p></div>}
                       {ent.sector && <div><span className="text-muted-foreground">Sector:</span> <p>{ent.sector}</p></div>}
                       {ent.email && <div><span className="text-muted-foreground">Email:</span> <p>{ent.email}</p></div>}
-                      {ent.phone && <div><span className="text-muted-foreground">Phone:</span> <p>{ent.phone}</p></div>}
                       <div><span className="text-muted-foreground">Status:</span>
                         <span className={`ml-2 text-xs font-semibold px-2 py-0.5 rounded-full ${
                           ent.status === 'Matched' ? 'bg-accent/10 text-accent' : ent.status === 'Alumni' ? 'bg-primary/10 text-primary' : 'bg-secondary text-muted-foreground'
@@ -254,10 +290,9 @@ export default function AdminMatching() {
                       {coach.organization && <div><span className="text-muted-foreground">Organization:</span> <p>{coach.organization}</p></div>}
                       {coach.specialization && <div><span className="text-muted-foreground">Specialization:</span> <p>{coach.specialization}</p></div>}
                       {coach.email && <div><span className="text-muted-foreground">Email:</span> <p>{coach.email}</p></div>}
-                      {coach.country && <div><span className="text-muted-foreground">Country:</span> <p>{coach.country}</p></div>}
                       <div><span className="text-muted-foreground">Status:</span>
                         <span className={`ml-2 text-xs font-semibold px-2 py-0.5 rounded-full ${
-                          coach.status === 'Matched' ? 'bg-accent/10 text-accent' : coach.status === 'Unmatched' ? 'bg-grow-gold/10 text-grow-gold' : 'bg-secondary text-muted-foreground'
+                          coach.status === 'Matched' ? 'bg-accent/10 text-accent' : 'bg-secondary text-muted-foreground'
                         }`}>{coach.status}</span>
                       </div>
                     </div>
@@ -312,6 +347,11 @@ export default function AdminMatching() {
             <div className="space-y-2 text-sm">
               <div><span className="text-muted-foreground">Entrepreneur:</span><p className="font-medium">{getEntName(match.entrepreneur_id)}</p></div>
               <div><span className="text-muted-foreground">Coach:</span><p className="font-medium">{getCoachName(match.coach_id)}</p></div>
+              {match.request_id && (
+                <div className="text-xs text-muted-foreground bg-secondary/50 rounded-lg px-2 py-1">
+                  📋 Linked to request
+                </div>
+              )}
               {match.notes && <p className="text-xs text-muted-foreground line-clamp-2">{match.notes}</p>}
               <div className="text-xs text-muted-foreground pt-1">{new Date(match.created_at).toLocaleDateString()}</div>
               {!isReadOnly && match.status === 'active' && (

@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Loader2, CheckCircle, ArrowLeft } from 'lucide-react';
+import { Loader2, CheckCircle, ArrowLeft, AlertCircle } from 'lucide-react';
 import { countries } from '@/data/mockEntrepreneurs';
+import { toast } from 'sonner';
 
 const communicationOptions = ['Email', 'WhatsApp', 'Phone Call', 'SMS', 'Zoom/Video Call'];
 
@@ -24,30 +25,46 @@ export default function ApplyCoach() {
       setError('Please fill in all required fields (marked with *).');
       return;
     }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      setError('Please enter a valid email address.');
+      return;
+    }
     setError('');
     setSubmitting(true);
 
-    const { error: dbError } = await supabase.from('coaches').insert({
-      name: form.name,
-      email: form.email || null,
-      phone: form.phone || null,
-      organization: form.organization || null,
-      specialization: form.specialization || null,
-      country: form.country || null,
-      bio: form.bio || null,
-      experience: form.experience || null,
-      availability: form.availability || null,
-      preferred_communication: form.preferred_communication || null,
-      preferred_client_type: form.preferred_client_type || null,
-      linkedin: form.linkedin || null,
-      status: 'Pending',
-    });
+    try {
+      const { error: dbError } = await supabase.from('coaches').insert({
+        name: form.name.trim(),
+        email: form.email.trim().toLowerCase(),
+        phone: form.phone.trim() || null,
+        organization: form.organization.trim() || null,
+        specialization: form.specialization.trim() || null,
+        country: form.country || null,
+        bio: form.bio.trim() || null,
+        experience: form.experience.trim() || null,
+        availability: form.availability.trim() || null,
+        preferred_communication: form.preferred_communication || null,
+        preferred_client_type: form.preferred_client_type.trim() || null,
+        linkedin: form.linkedin.trim() || null,
+        status: 'Pending',
+      });
 
-    setSubmitting(false);
-    if (dbError) {
-      setError('Failed to submit application. Please try again.');
-    } else {
-      setSubmitted(true);
+      if (dbError) {
+        if (dbError.message?.includes('duplicate') || dbError.message?.includes('unique')) {
+          setError('An application with this email already exists.');
+        } else {
+          setError('Failed to submit application. Please try again.');
+        }
+        toast.error('Submission failed');
+      } else {
+        setSubmitted(true);
+        toast.success('Application submitted successfully!');
+      }
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again.');
+      toast.error('Submission failed');
+    } finally {
+      setSubmitting(false);
     }
   };
 

@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Loader2, CheckCircle, ArrowLeft } from 'lucide-react';
+import { Loader2, CheckCircle, ArrowLeft, AlertCircle } from 'lucide-react';
 import { sectors, countries, stages } from '@/data/mockEntrepreneurs';
 import FileUpload from '@/components/FileUpload';
+import { toast } from 'sonner';
 
 const communicationOptions = ['Email', 'WhatsApp', 'Phone Call', 'SMS', 'Zoom/Video Call'];
 
@@ -30,46 +31,63 @@ export default function Apply() {
   const handleSubmit = async () => {
     if (!form.name || !form.business_name || !form.country || !form.sector || !form.stage || !form.gender || !form.email) {
       setError('Please fill in all required fields (marked with *).');
+      setActiveTab(0); // Go back to first tab if required fields missing
+      return;
+    }
+    // Validate email format
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      setError('Please enter a valid email address.');
+      setActiveTab(1);
       return;
     }
     setError('');
     setSubmitting(true);
 
-    const { error: dbError } = await supabase.from('entrepreneurs').insert({
-      name: form.name,
-      business_name: form.business_name,
-      country: form.country,
-      sector: form.sector,
-      stage: form.stage,
-      gender: form.gender,
-      email: form.email || null,
-      phone: form.phone || null,
-      preferred_communication: form.preferred_communication || null,
-      pitch_summary: form.pitch_summary || null,
-      business_description: form.business_description || null,
-      video_url: form.video_url || null,
-      photo_url: form.photo_url || null,
-      next_of_kin: form.next_of_kin || null,
-      education_background: form.education_background || null,
-      about_entrepreneur: form.about_entrepreneur || null,
-      funding_needs: form.funding_needs || null,
-      coaching_needs: form.coaching_needs || null,
-      revenue: form.revenue || null,
-      year_founded: form.year_founded ? parseInt(form.year_founded) : null,
-      team_size: form.team_size ? parseInt(form.team_size) : null,
-      website: form.website || null,
-      linkedin: form.linkedin || null,
-      status: 'Pending',
-      pitch_deck_url: form.pitch_deck_url || null,
-      
+    try {
+      const { error: dbError } = await supabase.from('entrepreneurs').insert({
+        name: form.name.trim(),
+        business_name: form.business_name.trim(),
+        country: form.country,
+        sector: form.sector,
+        stage: form.stage,
+        gender: form.gender,
+        email: form.email.trim().toLowerCase(),
+        phone: form.phone.trim() || null,
+        preferred_communication: form.preferred_communication || null,
+        pitch_summary: form.pitch_summary.trim() || null,
+        business_description: form.business_description.trim() || null,
+        video_url: form.video_url.trim() || null,
+        photo_url: form.photo_url || null,
+        next_of_kin: form.next_of_kin.trim() || null,
+        education_background: form.education_background.trim() || null,
+        about_entrepreneur: form.about_entrepreneur.trim() || null,
+        funding_needs: form.funding_needs.trim() || null,
+        coaching_needs: form.coaching_needs.trim() || null,
+        revenue: form.revenue.trim() || null,
+        year_founded: form.year_founded ? parseInt(form.year_founded) : null,
+        team_size: form.team_size ? parseInt(form.team_size) : null,
+        website: form.website.trim() || null,
+        linkedin: form.linkedin.trim() || null,
+        status: 'Pending',
+        pitch_deck_url: form.pitch_deck_url || null,
+      });
 
-    });
-
-    setSubmitting(false);
-    if (dbError) {
-      setError('Failed to submit application. Please try again.');
-    } else {
-      setSubmitted(true);
+      if (dbError) {
+        if (dbError.message?.includes('duplicate') || dbError.message?.includes('unique')) {
+          setError('An application with this email already exists.');
+        } else {
+          setError('Failed to submit application. Please try again.');
+        }
+        toast.error('Submission failed');
+      } else {
+        setSubmitted(true);
+        toast.success('Application submitted successfully!');
+      }
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again.');
+      toast.error('Submission failed');
+    } finally {
+      setSubmitting(false);
     }
   };
 

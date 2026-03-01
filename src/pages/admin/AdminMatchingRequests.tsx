@@ -190,10 +190,11 @@ export default function AdminMatchingRequests() {
 
               {/* Only admin can change status */}
               {isAdmin && (
-                <div className="flex gap-2 pt-2 border-t border-border">
-                  <Button size="sm" onClick={() => updateStatus(selected.id, 'reviewed')} className="bg-primary text-primary-foreground">Mark Reviewed</Button>
-                  <Button size="sm" onClick={() => updateStatus(selected.id, 'matched')} className="bg-accent text-accent-foreground">Mark Matched</Button>
-                  <Button size="sm" variant="outline" onClick={() => updateStatus(selected.id, 'rejected')}>Reject</Button>
+                <div className="flex flex-wrap gap-2 pt-2 border-t border-border">
+                  {selected.status !== 'reviewed' && <Button size="sm" onClick={() => updateStatus(selected.id, 'reviewed')} className="bg-primary text-primary-foreground">Mark Reviewed</Button>}
+                  {selected.status !== 'matched' && <Button size="sm" onClick={() => updateStatus(selected.id, 'matched')} className="bg-accent text-accent-foreground">Mark Matched</Button>}
+                  {selected.status !== 'rejected' && <Button size="sm" variant="outline" onClick={() => updateStatus(selected.id, 'rejected')}>Reject</Button>}
+                  {selected.status !== 'pending' && <Button size="sm" variant="outline" onClick={() => updateStatus(selected.id, 'pending')}>Reset to Pending</Button>}
                 </div>
               )}
             </div>
