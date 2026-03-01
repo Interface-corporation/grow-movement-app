@@ -128,7 +128,7 @@ export default function AdminEntrepreneurs() {
   };
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
-  const tabs = ['Basic Info', 'Contact & Background', 'Business Details', 'Market & Challenges'];
+  const tabs = ['General Info', 'Contact & Background', 'Business Overview', 'Financials','Market & Competition'];
   const getProgramName = (id: string | null) => programs.find(p => p.id === id)?.name || '—';
 
   const f = (key: string, placeholder: string, type = 'text') => (
@@ -246,38 +246,48 @@ export default function AdminEntrepreneurs() {
                   {communicationOptions.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
                 {f('education_background', 'Education Background')}
-                <div className="sm:col-span-2">{ta('about_entrepreneur', 'Briefly about the entrepreneur', 3)}</div>
+                <div className="sm:col-span-2">{ta('about_entrepreneur', 'Brief info about the entrepreneur', 3)}</div>
               </div>
             )}
 
             {activeTab === 2 && (
               <div className="space-y-3">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {f('revenue', 'Revenue (e.g. $50,000/year)')}
+                  {/* {f('revenue', 'Revenue (e.g. $50,000/year)')} */}
                   {f('year_founded', 'Year Founded', 'number')}
-                  {f('employees_fulltime', 'Full-time Employees', 'number')}
-                  {f('employees_parttime', 'Part-time Employees', 'number')}
+                  {/* {f('employees_fulltime', 'Full-time Employees', 'number')} */}
+                  {/* {f('employees_parttime', 'Part-time Employees', 'number')} */}
                   {f('team_size', 'Total Team Size', 'number')}
-                  {f('financial_recording_method', 'How they record financials')}
+                  {/* {f('financial_recording_method', 'How they record financials')} */}
                 </div>
-                {ta('pitch_summary', 'Pitch Summary', 2)}
+                {/* {ta('pitch_summary', 'Pitch Summary', 2)} */}
                 {ta('business_description', 'Business Model / Activities Summary', 3)}
                 {ta('products_services', 'Products & Services (breakdown, prices, target customers)', 3)}
-                {ta('financials', 'Financials (turnover, investments, estimations)', 2)}
+                {/* {ta('financials', 'Financials (turnover, investments, estimations)', 2)} */}
                 {ta('impact', 'Social or Environmental Impact', 2)}
                 {ta('funding_needs', 'Funding Needs', 2)}
                 {ta('coaching_needs', 'Coaching / Support Needs', 2)}
               </div>
             )}
-
             {activeTab === 3 && (
+              <div className="space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {f('revenue', 'Estimated Revenue (e.g. $50,000/year)')}
+                  {f('financial_recording_method', 'How they record financials')}
+                </div>
+                {ta('financials', 'estimated investment and estimated expenses (e.g. $40,000 investment, $25,000 estimated expenses)', 2)}
+               
+              </div>
+            )}
+
+            {activeTab === 4 && (
               <div className="space-y-3">
                 {ta('market_size', 'Market Size (local/export, marketing strategies, distribution, payment methods, target customers)', 3)}
                 {ta('competition', 'Competition & Competitive Advantages / How unique is the solution', 3)}
-                {ta('top_challenges', 'Top 3 Biggest Challenges', 3)}
-                {ta('main_challenge', 'If you had to pick 1 challenge or opportunity to support on, what would it be?', 2)}
+                {ta('top_challenges', ' Challenges and Needs', 3)}
+                {/* {ta('main_challenge', 'If you had to pick 1 challenge or opportunity to support on, what would it be?', 2)} */}
                 {ta('opportunities', 'Opportunities for the business & 3-year vision', 3)}
-                {ta('industry_analysis', 'Industry Analysis & Relevant Info/Links', 3)}
+                {ta('industry_analysis', 'Project Manager comment', 4)}
               </div>
             )}
 
