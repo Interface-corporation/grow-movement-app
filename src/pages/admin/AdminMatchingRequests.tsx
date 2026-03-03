@@ -1,16 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Eye, X, ShieldCheck, ShieldX, Search, User, Briefcase, Hash } from 'lucide-react';
+import { Loader2, Eye, X, ShieldCheck, ShieldX, Search, User, Briefcase, Hash, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { logActivity } from '@/lib/activityLog';
 import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 type ReqStatusFilter = 'all' | 'pending' | 'reviewed' | 'matched' | 'rejected' | 'cancelled';
 const PAGE_SIZE = 10;
 
 export default function AdminMatchingRequests() {
   const { userRole } = useAuth();
-  const isAdmin = userRole === 'admin';
+  const isAdmin = userRole === 'admin' || userRole === 'staff';
   const [requests, setRequests] = useState<any[]>([]);
   const [coaches, setCoaches] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -18,28 +19,72 @@ export default function AdminMatchingRequests() {
   const [statusFilter, setStatusFilter] = useState<ReqStatusFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(0);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetch = async () => {
-      const [reqRes, coachRes] = await Promise.all([
-        supabase.from('matching_requests').select('*').order('created_at', { ascending: false }),
-        supabase.from('coaches').select('email, status').in('status', ['Accepted', 'Unmatched']),
-      ]);
-      setRequests(reqRes.data || []);
-      setCoaches(coachRes.data || []);
-      setLoading(false);
-    };
-    fetch();
+  const fetchData = useCallback(async () => {
+    const [reqRes, coachRes] = await Promise.all([
+      supabase.from('matching_requests').select('*').order('created_at', { ascending: false }),
+      supabase.from('coaches').select('email, status').in('status', ['Accepted', 'Unmatched']),
+    ]);
+    setRequests(reqRes.data || []);
+    setCoaches(coachRes.data || []);
+    setLoading(false);
   }, []);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  // Realtime subscription — single source of truth
+  useEffect(() => {
+    const channel = supabase
+      .channel('admin-matching-requests')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'matching_requests' }, (payload) => {
+        setRequests(prev => [payload.new as any, ...prev]);
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'matching_requests' }, (payload) => {
+        setRequests(prev => prev.map(r => r.id === payload.new.id ? { ...r, ...payload.new } : r));
+        if (selected?.id === payload.new.id) {
+          setSelected((prev: any) => prev ? { ...prev, ...payload.new } : prev);
+        }
+      })
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'matching_requests' }, (payload) => {
+        setRequests(prev => prev.filter(r => r.id !== payload.old.id));
+        if (selected?.id === payload.old.id) setSelected(null);
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [selected?.id]);
 
   const isVerifiedCoach = (email: string) => coaches.some(c => c.email?.toLowerCase() === email?.toLowerCase());
 
   const updateStatus = async (id: string, status: string) => {
     if (!isAdmin) return;
-    await supabase.from('matching_requests').update({ status }).eq('id', id);
-    await logActivity(`Matching request ${status}`, 'matching_request', id, { status });
-    setRequests(prev => prev.map(r => r.id === id ? { ...r, status } : r));
-    if (selected?.id === id) setSelected({ ...selected, status });
+    setUpdatingId(id);
+    const { error } = await supabase.from('matching_requests').update({ status }).eq('id', id);
+    if (error) {
+      toast.error('Failed to update status: ' + error.message);
+      setUpdatingId(null);
+      return;
+    }
+    // Don't manually mutate state — realtime subscription will handle it
+    await logActivity(`Matching request ${status}`, 'matching_request', id, { status }).catch(() => {});
+    toast.success(`Request marked as "${status}"`);
+    setUpdatingId(null);
+  };
+
+  const deleteRequest = async (id: string) => {
+    if (!confirm('Are you sure you want to permanently delete this matching request?')) return;
+    setDeletingId(id);
+    const { error } = await supabase.from('matching_requests').delete().eq('id', id);
+    if (error) {
+      toast.error('Failed to delete: ' + error.message);
+    } else {
+      toast.success('Request deleted');
+      if (selected?.id === id) setSelected(null);
+      // Realtime will remove it from the list
+    }
+    setDeletingId(null);
   };
 
   const filtered = requests.filter(r => {
@@ -152,7 +197,6 @@ export default function AdminMatchingRequests() {
                 </div>
               )}
 
-              {/* Polished Entrepreneur Selections */}
               <div>
                 <p className="text-xs font-semibold text-muted-foreground mb-2">Selected Entrepreneurs</p>
                 <div className="space-y-2">
@@ -188,13 +232,34 @@ export default function AdminMatchingRequests() {
                 Submitted {new Date(selected.created_at).toLocaleDateString()} at {new Date(selected.created_at).toLocaleTimeString()}
               </p>
 
-              {/* Only admin can change status */}
+              {/* Admin status controls */}
               {isAdmin && (
                 <div className="flex flex-wrap gap-2 pt-2 border-t border-border">
-                  {selected.status !== 'reviewed' && <Button size="sm" onClick={() => updateStatus(selected.id, 'reviewed')} className="bg-primary text-primary-foreground">Mark Reviewed</Button>}
-                  {selected.status !== 'matched' && <Button size="sm" onClick={() => updateStatus(selected.id, 'matched')} className="bg-accent text-accent-foreground">Mark Matched</Button>}
-                  {selected.status !== 'rejected' && <Button size="sm" variant="outline" onClick={() => updateStatus(selected.id, 'rejected')}>Reject</Button>}
-                  {selected.status !== 'pending' && <Button size="sm" variant="outline" onClick={() => updateStatus(selected.id, 'pending')}>Reset to Pending</Button>}
+                  {selected.status !== 'reviewed' && (
+                    <Button size="sm" onClick={() => updateStatus(selected.id, 'reviewed')} disabled={updatingId === selected.id} className="bg-primary text-primary-foreground">
+                      {updatingId === selected.id ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : null} Mark Reviewed
+                    </Button>
+                  )}
+                  {selected.status !== 'matched' && (
+                    <Button size="sm" onClick={() => updateStatus(selected.id, 'matched')} disabled={updatingId === selected.id} className="bg-accent text-accent-foreground">
+                      Mark Matched
+                    </Button>
+                  )}
+                  {selected.status !== 'rejected' && (
+                    <Button size="sm" variant="outline" onClick={() => updateStatus(selected.id, 'rejected')} disabled={updatingId === selected.id}>
+                      Reject
+                    </Button>
+                  )}
+                  {selected.status !== 'pending' && (
+                    <Button size="sm" variant="outline" onClick={() => updateStatus(selected.id, 'pending')} disabled={updatingId === selected.id}>
+                      Reset to Pending
+                    </Button>
+                  )}
+                  <Button size="sm" variant="outline" onClick={() => deleteRequest(selected.id)} disabled={deletingId === selected.id}
+                    className="text-destructive border-destructive/30 hover:bg-destructive/10 ml-auto">
+                    {deletingId === selected.id ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Trash2 className="h-3 w-3 mr-1" />}
+                    Delete
+                  </Button>
                 </div>
               )}
             </div>
