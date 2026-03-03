@@ -160,40 +160,85 @@ export default function AdminCoaches() {
               <button onClick={() => setShowForm(false)}><X className="h-5 w-5" /></button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <input value={form.name} onChange={e => setForm({...form, name: e.target.value})} placeholder="Full Name *" className="px-3 py-2 rounded-xl border border-border bg-background text-sm" />
-              <input value={form.email} onChange={e => setForm({...form, email: e.target.value})} placeholder="Email" type="email" className="px-3 py-2 rounded-xl border border-border bg-background text-sm" />
-              <input value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} placeholder="Phone" className="px-3 py-2 rounded-xl border border-border bg-background text-sm" />
-              <input value={form.linkedin} onChange={e => setForm({...form, linkedin: e.target.value})} placeholder="LinkedIn Profile URL" className="px-3 py-2 rounded-xl border border-border bg-background text-sm" />
-              <input value={form.organization} onChange={e => setForm({...form, organization: e.target.value})} placeholder="Organization" className="px-3 py-2 rounded-xl border border-border bg-background text-sm" />
-              <input value={form.specialization} onChange={e => setForm({...form, specialization: e.target.value})} placeholder="Specialization / Areas of Interest" className="px-3 py-2 rounded-xl border border-border bg-background text-sm" />
-              <input value={form.photo_url} onChange={e => setForm({...form, photo_url: e.target.value})} placeholder="Photo URL" className="px-3 py-2 rounded-xl border border-border bg-background text-sm" />
-              <select value={form.country} onChange={e => setForm({...form, country: e.target.value})} className="px-3 py-2 rounded-xl border border-border bg-background text-sm">
-                <option value="">Location / Country</option>
-                {countries.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
-              <select value={form.preferred_communication} onChange={e => setForm({...form, preferred_communication: e.target.value})} className="px-3 py-2 rounded-xl border border-border bg-background text-sm">
-                <option value="">Preferred Communication</option>
-                {communicationOptions.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
-              <select value={form.status} onChange={e => setForm({...form, status: e.target.value})} className="px-3 py-2 rounded-xl border border-border bg-background text-sm">
-                <option value="Pending">Pending</option>
-                <option value="Accepted">Accepted</option>
-                <option value="Matched">Matched</option>
-                <option value="Unmatched">Unmatched</option>
-                <option value="Rejected">Rejected</option>
-              </select>
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Full Name *</label>
+                <input value={form.name} onChange={e => setForm({...form, name: e.target.value})} placeholder="Full Name" className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Email</label>
+                <input value={form.email} onChange={e => setForm({...form, email: e.target.value})} placeholder="Email" type="email" className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Phone</label>
+                <input value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} placeholder="Phone" className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">LinkedIn Profile URL</label>
+                <input value={form.linkedin} onChange={e => setForm({...form, linkedin: e.target.value})} placeholder="LinkedIn Profile URL" className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Organization</label>
+                <input value={form.organization} onChange={e => setForm({...form, organization: e.target.value})} placeholder="Organization" className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Specialization / Areas of Interest</label>
+                <input value={form.specialization} onChange={e => setForm({...form, specialization: e.target.value})} placeholder="Specialization" className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Photo URL</label>
+                <input value={form.photo_url} onChange={e => setForm({...form, photo_url: e.target.value})} placeholder="Photo URL" className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Location / Country</label>
+                <select value={form.country} onChange={e => setForm({...form, country: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm">
+                  <option value="">Select Country</option>
+                  {countries.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Preferred Communication</label>
+                <select value={form.preferred_communication} onChange={e => setForm({...form, preferred_communication: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm">
+                  <option value="">Select Communication Method</option>
+                  {communicationOptions.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Status</label>
+                <select value={form.status} onChange={e => setForm({...form, status: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm">
+                  <option value="Pending">Pending</option>
+                  <option value="Accepted">Accepted</option>
+                  <option value="Matched">Matched</option>
+                  <option value="Unmatched">Unmatched</option>
+                  <option value="Rejected">Rejected</option>
+                </select>
+              </div>
               {/* Program Assignment Dropdown */}
               {userRole === 'admin' && (
-                <select value={form.program_id} onChange={e => setForm({...form, program_id: e.target.value})} className="px-3 py-2 rounded-xl border border-border bg-background text-sm">
-                  <option value="">No Program</option>
-                  {programs.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                </select>
+                <div>
+                  <label className="block text-xs font-medium text-foreground mb-1">Program</label>
+                  <select value={form.program_id} onChange={e => setForm({...form, program_id: e.target.value})} className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm">
+                    <option value="">No Program</option>
+                    {programs.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                  </select>
+                </div>
               )}
-              <input value={form.preferred_client_type} onChange={e => setForm({...form, preferred_client_type: e.target.value})} placeholder="Preferred Client Type" className="px-3 py-2 rounded-xl border border-border bg-background text-sm" />
-              <input value={form.availability} onChange={e => setForm({...form, availability: e.target.value})} placeholder="Availability & Preferred Times" className="px-3 py-2 rounded-xl border border-border bg-background text-sm" />
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Preferred Client Type</label>
+                <input value={form.preferred_client_type} onChange={e => setForm({...form, preferred_client_type: e.target.value})} placeholder="Preferred Client Type" className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Availability & Preferred Times</label>
+                <input value={form.availability} onChange={e => setForm({...form, availability: e.target.value})} placeholder="Availability" className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm" />
+              </div>
             </div>
-            <textarea value={form.experience} onChange={e => setForm({...form, experience: e.target.value})} placeholder="Relevant Experience" className="w-full mt-3 px-3 py-2 rounded-xl border border-border bg-background text-sm resize-none" rows={3} />
-            <textarea value={form.bio} onChange={e => setForm({...form, bio: e.target.value})} placeholder="Bio" className="w-full mt-3 px-3 py-2 rounded-xl border border-border bg-background text-sm resize-none" rows={3} />
+            <div className="mt-3">
+              <label className="block text-xs font-medium text-foreground mb-1">Relevant Experience</label>
+              <textarea value={form.experience} onChange={e => setForm({...form, experience: e.target.value})} placeholder="Describe relevant experience" className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm resize-none" rows={3} />
+            </div>
+            <div className="mt-3">
+              <label className="block text-xs font-medium text-foreground mb-1">Bio</label>
+              <textarea value={form.bio} onChange={e => setForm({...form, bio: e.target.value})} placeholder="Brief bio" className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm resize-none" rows={3} />
+            </div>
             <Button onClick={handleSave} disabled={saving || !form.name} className="w-full mt-4 bg-primary text-primary-foreground">
               {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               {editing ? 'Update' : 'Create'} Coach

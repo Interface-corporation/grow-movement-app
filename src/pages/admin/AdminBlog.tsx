@@ -122,9 +122,14 @@ export default function AdminBlog() {
               <button onClick={() => setShowForm(false)}><X className="h-5 w-5" /></button>
             </div>
             <div className="space-y-3">
-              <input value={form.title} onChange={e => { setForm({...form, title: e.target.value, slug: generateSlug(e.target.value)}); }} placeholder="Title *" className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm" />
-              <input value={form.slug} onChange={e => setForm({...form, slug: e.target.value})} placeholder="Slug" className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm text-muted-foreground" />
-              {/* <input value={form.cover_image_url} onChange={e => setForm({...form, cover_image_url: e.target.value})} placeholder="Cover Image URL" className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm" /> */}
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Title *</label>
+                <input value={form.title} onChange={e => { setForm({...form, title: e.target.value, slug: generateSlug(e.target.value)}); }} placeholder="Blog post title" className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Slug</label>
+                <input value={form.slug} onChange={e => setForm({...form, slug: e.target.value})} placeholder="auto-generated-slug" className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm text-muted-foreground" />
+              </div>
               <FileUpload
                 bucket="blog-covers"
                 accept="image/*"
@@ -133,9 +138,14 @@ export default function AdminBlog() {
                 onUpload={(url) => setForm({ ...form, cover_image_url: url })}
                 onRemove={() => setForm({ ...form, cover_image_url: '' })}
               />
-
-              <textarea value={form.excerpt} onChange={e => setForm({...form, excerpt: e.target.value})} placeholder="Excerpt (short description)" className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm resize-none" rows={2} />
-              <textarea value={form.content} onChange={e => setForm({...form, content: e.target.value})} placeholder="Content *" className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm resize-none" rows={10} />
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Excerpt</label>
+                <textarea value={form.excerpt} onChange={e => setForm({...form, excerpt: e.target.value})} placeholder="Short description" className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm resize-none" rows={2} />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Content *</label>
+                <textarea value={form.content} onChange={e => setForm({...form, content: e.target.value})} placeholder="Write your blog content here..." className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm resize-none" rows={10} />
+              </div>
               <label className="flex items-center gap-2 text-sm">
                 <input type="checkbox" checked={form.published} onChange={e => setForm({...form, published: e.target.checked})} className="rounded" />
                 Publish immediately

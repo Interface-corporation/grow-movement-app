@@ -90,10 +90,13 @@ export default function ApplyCoach() {
     );
   }
 
-  const f = (key: string, placeholder: string, type = 'text') => (
-    <input value={(form as any)[key]} onChange={e => setForm({ ...form, [key]: e.target.value })}
-      placeholder={placeholder} type={type}
-      className="w-full px-3 py-2.5 rounded-xl border border-border bg-card text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+  const f = (key: string, label: string, required = false, type = 'text') => (
+    <div>
+      <label className="block text-sm font-medium text-foreground mb-1.5">{label}{required && ' *'}</label>
+      <input value={(form as any)[key]} onChange={e => setForm({ ...form, [key]: e.target.value })}
+        placeholder={label} type={type}
+        className="w-full px-3 py-2.5 rounded-xl border border-border bg-card text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+    </div>
   );
 
   return (
@@ -112,31 +115,43 @@ export default function ApplyCoach() {
 
         <div className="bg-card rounded-2xl border border-border p-6 sm:p-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {f('name', 'Full Name *')}
-            {f('email', 'Email Address *', 'email')}
+            {f('name', 'Full Name', true)}
+            {f('email', 'Email Address', true, 'email')}
             {f('phone', 'Phone Number')}
             {f('linkedin', 'LinkedIn Profile URL')}
             {f('organization', 'Organization')}
             {f('specialization', 'Specialization / Areas of Expertise')}
-            <select value={form.country} onChange={e => setForm({ ...form, country: e.target.value })}
-              className="px-3 py-2.5 rounded-xl border border-border bg-card text-foreground text-sm">
-              <option value="">Country</option>
-              {countries.map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
-            <select value={form.preferred_communication} onChange={e => setForm({ ...form, preferred_communication: e.target.value })}
-              className="px-3 py-2.5 rounded-xl border border-border bg-card text-foreground text-sm">
-              <option value="">Preferred Communication</option>
-              {communicationOptions.map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1.5">Country</label>
+              <select value={form.country} onChange={e => setForm({ ...form, country: e.target.value })}
+                className="w-full px-3 py-2.5 rounded-xl border border-border bg-card text-foreground text-sm">
+                <option value="">Select Country</option>
+                {countries.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1.5">Preferred Communication</label>
+              <select value={form.preferred_communication} onChange={e => setForm({ ...form, preferred_communication: e.target.value })}
+                className="w-full px-3 py-2.5 rounded-xl border border-border bg-card text-foreground text-sm">
+                <option value="">Select Preferred Communication</option>
+                {communicationOptions.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
             {f('preferred_client_type', 'Preferred Client Type')}
             {f('availability', 'Availability & Preferred Times')}
           </div>
-          <textarea value={form.experience} onChange={e => setForm({ ...form, experience: e.target.value })}
-            placeholder="Relevant Experience" rows={3}
-            className="w-full mt-4 px-3 py-2.5 rounded-xl border border-border bg-card text-foreground text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/30" />
-          <textarea value={form.bio} onChange={e => setForm({ ...form, bio: e.target.value })}
-            placeholder="Bio — Tell us about yourself" rows={3}
-            className="w-full mt-4 px-3 py-2.5 rounded-xl border border-border bg-card text-foreground text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/30" />
+          <div className="mt-4">
+            <label className="block text-sm font-medium text-foreground mb-1.5">Relevant Experience</label>
+            <textarea value={form.experience} onChange={e => setForm({ ...form, experience: e.target.value })}
+              placeholder="Describe your relevant experience" rows={3}
+              className="w-full px-3 py-2.5 rounded-xl border border-border bg-card text-foreground text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/30" />
+          </div>
+          <div className="mt-4">
+            <label className="block text-sm font-medium text-foreground mb-1.5">Bio</label>
+            <textarea value={form.bio} onChange={e => setForm({ ...form, bio: e.target.value })}
+              placeholder="Tell us about yourself" rows={3}
+              className="w-full px-3 py-2.5 rounded-xl border border-border bg-card text-foreground text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/30" />
+          </div>
 
           {error && (
             <div className="mt-4 text-sm bg-destructive/10 text-destructive p-3 rounded-lg">{error}</div>

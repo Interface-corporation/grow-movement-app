@@ -148,23 +148,38 @@ export default function AdminResources() {
               <button onClick={() => setShowForm(false)}><X className="h-5 w-5" /></button>
             </div>
             <div className="space-y-3">
-              <input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder="Title *"
-                className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm" />
-              <textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="Description"
-                className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm resize-none" rows={2} />
-              <input value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} placeholder="Category (e.g. Templates, Guides)"
-                className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm" />
-              <select value={form.visibility} onChange={e => setForm({ ...form, visibility: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm">
-                <option value="public">Public — visible to all</option>
-                <option value="private">Private — program only</option>
-              </select>
-              {form.visibility === 'private' && userRole === 'admin' && (
-                <select value={form.program_id} onChange={e => setForm({ ...form, program_id: e.target.value })}
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Title *</label>
+                <input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder="Title"
+                  className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Description</label>
+                <textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="Description"
+                  className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm resize-none" rows={2} />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Category</label>
+                <input value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} placeholder="e.g. Templates, Guides"
+                  className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Visibility</label>
+                <select value={form.visibility} onChange={e => setForm({ ...form, visibility: e.target.value })}
                   className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm">
-                  <option value="">Select Program</option>
-                  {programs.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                  <option value="public">Public — visible to all</option>
+                  <option value="private">Private — program only</option>
                 </select>
+              </div>
+              {form.visibility === 'private' && userRole === 'admin' && (
+                <div>
+                  <label className="block text-xs font-medium text-foreground mb-1">Program</label>
+                  <select value={form.program_id} onChange={e => setForm({ ...form, program_id: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm">
+                    <option value="">Select Program</option>
+                    {programs.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                  </select>
+                </div>
               )}
               <div className="border-2 border-dashed border-border rounded-xl p-4 text-center">
                 <input type="file" onChange={e => setFile(e.target.files?.[0] || null)} className="hidden" id="res-file" />

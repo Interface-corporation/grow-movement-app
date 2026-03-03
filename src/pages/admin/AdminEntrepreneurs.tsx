@@ -131,15 +131,21 @@ export default function AdminEntrepreneurs() {
   const tabs = ['General Info', 'Contact & Background', 'Business Overview', 'Financials','Market & Competition'];
   const getProgramName = (id: string | null) => programs.find(p => p.id === id)?.name || '—';
 
-  const f = (key: string, placeholder: string, type = 'text') => (
-    <input value={(form as any)[key]} onChange={e => setForm({ ...form, [key]: e.target.value })}
-      placeholder={placeholder} type={type}
-      className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm" />
+  const f = (key: string, label: string, type = 'text') => (
+    <div>
+      <label className="block text-xs font-medium text-foreground mb-1">{label}</label>
+      <input value={(form as any)[key]} onChange={e => setForm({ ...form, [key]: e.target.value })}
+        placeholder={label} type={type}
+        className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm" />
+    </div>
   );
-  const ta = (key: string, placeholder: string, rows = 2) => (
-    <textarea value={(form as any)[key]} onChange={e => setForm({ ...form, [key]: e.target.value })}
-      placeholder={placeholder} rows={rows}
-      className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm resize-none" />
+  const ta = (key: string, label: string, rows = 2) => (
+    <div>
+      <label className="block text-xs font-medium text-foreground mb-1">{label}</label>
+      <textarea value={(form as any)[key]} onChange={e => setForm({ ...form, [key]: e.target.value })}
+        placeholder={label} rows={rows}
+        className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm resize-none" />
+    </div>
   );
 
   return (
@@ -191,43 +197,61 @@ export default function AdminEntrepreneurs() {
                   <FileUpload bucket="profile-photos" accept="image/*" label="Profile Photo" currentUrl={form.photo_url}
                     onUpload={(url) => setForm({ ...form, photo_url: url })} onRemove={() => setForm({ ...form, photo_url: '' })} />
                 </div>
-                <select value={form.country} onChange={e => setForm({ ...form, country: e.target.value })}
-                  className="px-3 py-2 rounded-xl border border-border bg-background text-sm">
-                  <option value="">Country *</option>
-                  {countries.map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
-                <select value={form.sector} onChange={e => setForm({ ...form, sector: e.target.value })}
-                  className="px-3 py-2 rounded-xl border border-border bg-background text-sm">
-                  <option value="">Sector *</option>
-                  {sectors.map(s => <option key={s} value={s}>{s}</option>)}
-                </select>
-                <select value={form.stage} onChange={e => setForm({ ...form, stage: e.target.value })}
-                  className="px-3 py-2 rounded-xl border border-border bg-background text-sm">
-                  <option value="">Stage *</option>
-                  {stages.map(s => <option key={s} value={s}>{s}</option>)}
-                </select>
-                <select value={form.gender} onChange={e => setForm({ ...form, gender: e.target.value })}
-                  className="px-3 py-2 rounded-xl border border-border bg-background text-sm">
-                  <option value="">Gender *</option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Non-binary">Non-binary</option>
-                </select>
-                <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}
-                  className="px-3 py-2 rounded-xl border border-border bg-background text-sm">
-                  <option value="Pending">Pending</option>
-                  <option value="Admitted">Admitted</option>
-                  <option value="Matched">Matched</option>
-                  <option value="Alumni">Alumni</option>
-                  <option value="Rejected">Rejected</option>
-                </select>
+                <div>
+                  <label className="block text-xs font-medium text-foreground mb-1">Country *</label>
+                  <select value={form.country} onChange={e => setForm({ ...form, country: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm">
+                    <option value="">Select Country</option>
+                    {countries.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-foreground mb-1">Sector *</label>
+                  <select value={form.sector} onChange={e => setForm({ ...form, sector: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm">
+                    <option value="">Select Sector</option>
+                    {sectors.map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-foreground mb-1">Stage *</label>
+                  <select value={form.stage} onChange={e => setForm({ ...form, stage: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm">
+                    <option value="">Select Stage</option>
+                    {stages.map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-foreground mb-1">Gender *</label>
+                  <select value={form.gender} onChange={e => setForm({ ...form, gender: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm">
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Non-binary">Non-binary</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-foreground mb-1">Status</label>
+                  <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm">
+                    <option value="Pending">Pending</option>
+                    <option value="Admitted">Admitted</option>
+                    <option value="Matched">Matched</option>
+                    <option value="Alumni">Alumni</option>
+                    <option value="Rejected">Rejected</option>
+                  </select>
+                </div>
                 {/* Program Assignment Dropdown */}
                 {userRole === 'admin' && (
-                  <select value={form.program_id} onChange={e => setForm({ ...form, program_id: e.target.value })}
-                    className="px-3 py-2 rounded-xl border border-border bg-background text-sm">
-                    <option value="">No Program</option>
-                    {programs.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                  </select>
+                  <div>
+                    <label className="block text-xs font-medium text-foreground mb-1">Program</label>
+                    <select value={form.program_id} onChange={e => setForm({ ...form, program_id: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm">
+                      <option value="">No Program</option>
+                      {programs.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                    </select>
+                  </div>
                 )}
                 {f('video_url', 'Video URL (YouTube or other)')}
                 {f('website', 'Website / Online Presence')}
@@ -240,11 +264,14 @@ export default function AdminEntrepreneurs() {
                 {f('phone', 'Phone Number')}
                 {f('linkedin', 'LinkedIn Profile URL')}
                 {f('next_of_kin', 'Next of Kin (Name & Contact)')}
-                <select value={form.preferred_communication} onChange={e => setForm({ ...form, preferred_communication: e.target.value })}
-                  className="px-3 py-2 rounded-xl border border-border bg-background text-sm">
-                  <option value="">Preferred Communication</option>
-                  {communicationOptions.map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
+                <div>
+                  <label className="block text-xs font-medium text-foreground mb-1">Preferred Communication</label>
+                  <select value={form.preferred_communication} onChange={e => setForm({ ...form, preferred_communication: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm">
+                    <option value="">Select Communication Method</option>
+                    {communicationOptions.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
                 {f('education_background', 'Education Background')}
                 <div className="sm:col-span-2">{ta('about_entrepreneur', 'Brief info about the entrepreneur', 3)}</div>
               </div>
