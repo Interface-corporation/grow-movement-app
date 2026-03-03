@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { Loader2, Eye, X, User, Briefcase, Hash, XCircle, Clock, CheckCircle, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Loader2, Eye, X, User, Briefcase, Hash, XCircle, Clock, CheckCircle, AlertTriangle, RefreshCw, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
@@ -11,6 +11,7 @@ export default function CoachMatchingRequests() {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<any | null>(null);
   const [cancelling, setCancelling] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   const fetchRequests = useCallback(async () => {
     if (!session?.user?.email) return;
@@ -26,22 +27,42 @@ export default function CoachMatchingRequests() {
 
   useEffect(() => { fetchRequests(); }, [fetchRequests]);
 
-  // Subscribe to real-time updates for this coach's requests
+  // Realtime subscription — auto-sync status changes from admin
   useEffect(() => {
     if (!session?.user?.email) return;
     const channel = supabase
-      .channel('coach-requests')
+      .channel('coach-requests-realtime')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'matching_requests',
+      }, (payload) => {
+        const newReq = payload.new as any;
+        if (newReq.requester_email?.toLowerCase() === session.user.email?.toLowerCase()) {
+          setRequests(prev => [newReq, ...prev]);
+        }
+      })
       .on('postgres_changes', {
         event: 'UPDATE',
         schema: 'public',
         table: 'matching_requests',
-        filter: `requester_email=eq.${session.user.email.toLowerCase()}`,
       }, (payload) => {
-        setRequests(prev => prev.map(r => r.id === payload.new.id ? { ...r, ...payload.new } : r));
-        if (selected?.id === payload.new.id) {
-          setSelected((prev: any) => prev ? { ...prev, ...payload.new } : prev);
+        const updated = payload.new as any;
+        if (updated.requester_email?.toLowerCase() === session.user.email?.toLowerCase()) {
+          setRequests(prev => prev.map(r => r.id === updated.id ? { ...r, ...updated } : r));
+          if (selected?.id === updated.id) {
+            setSelected((prev: any) => prev ? { ...prev, ...updated } : prev);
+          }
+          toast.info(`Request status updated to "${updated.status}"`);
         }
-        toast.info(`Request status updated to "${payload.new.status}"`);
+      })
+      .on('postgres_changes', {
+        event: 'DELETE',
+        schema: 'public',
+        table: 'matching_requests',
+      }, (payload) => {
+        setRequests(prev => prev.filter(r => r.id !== payload.old.id));
+        if (selected?.id === payload.old.id) setSelected(null);
       })
       .subscribe();
 
@@ -54,11 +75,26 @@ export default function CoachMatchingRequests() {
     if (error) {
       toast.error('Failed to cancel request');
     } else {
-      setRequests(prev => prev.map(r => r.id === id ? { ...r, status: 'cancelled' } : r));
-      if (selected?.id === id) setSelected((prev: any) => prev ? { ...prev, status: 'cancelled' } : prev);
       toast.success('Request cancelled');
     }
     setCancelling(null);
+  };
+
+  const deleteRequest = async (id: string, status: string) => {
+    if (status !== 'pending' && status !== 'cancelled') {
+      toast.error('Only pending or cancelled requests can be deleted');
+      return;
+    }
+    if (!confirm('Are you sure you want to permanently delete this request?')) return;
+    setDeleting(id);
+    const { error } = await supabase.from('matching_requests').delete().eq('id', id);
+    if (error) {
+      toast.error('Failed to delete: ' + error.message);
+    } else {
+      toast.success('Request deleted');
+      if (selected?.id === id) setSelected(null);
+    }
+    setDeleting(null);
   };
 
   const statusIcon = (status: string) => {
@@ -134,7 +170,6 @@ export default function CoachMatchingRequests() {
                 </div>
               </div>
 
-              {/* Status description */}
               <p className="mt-2 text-xs text-muted-foreground italic">{statusDescription(req.status)}</p>
 
               {Array.isArray(req.entrepreneur_selections) && req.entrepreneur_selections.length > 0 && (
@@ -151,12 +186,19 @@ export default function CoachMatchingRequests() {
                 </div>
               )}
 
-              {req.status === 'pending' && (
-                <div className="mt-3 pt-3 border-t border-border">
-                  <Button variant="outline" size="sm" onClick={() => cancelRequest(req.id)} disabled={cancelling === req.id}
+              {(req.status === 'pending' || req.status === 'cancelled') && (
+                <div className="mt-3 pt-3 border-t border-border flex gap-2">
+                  {req.status === 'pending' && (
+                    <Button variant="outline" size="sm" onClick={() => cancelRequest(req.id)} disabled={cancelling === req.id}
+                      className="text-destructive border-destructive/30 hover:bg-destructive/10">
+                      {cancelling === req.id ? <Loader2 className="mr-1.5 h-3 w-3 animate-spin" /> : <XCircle className="mr-1.5 h-3 w-3" />}
+                      Cancel Request
+                    </Button>
+                  )}
+                  <Button variant="outline" size="sm" onClick={() => deleteRequest(req.id, req.status)} disabled={deleting === req.id}
                     className="text-destructive border-destructive/30 hover:bg-destructive/10">
-                    {cancelling === req.id ? <Loader2 className="mr-1.5 h-3 w-3 animate-spin" /> : <XCircle className="mr-1.5 h-3 w-3" />}
-                    Cancel Request
+                    {deleting === req.id ? <Loader2 className="mr-1.5 h-3 w-3 animate-spin" /> : <Trash2 className="mr-1.5 h-3 w-3" />}
+                    Delete
                   </Button>
                 </div>
               )}
@@ -231,12 +273,19 @@ export default function CoachMatchingRequests() {
                 Submitted {new Date(selected.created_at).toLocaleDateString()}
               </p>
 
-              {selected.status === 'pending' && (
-                <div className="pt-2 border-t border-border">
-                  <Button variant="outline" size="sm" onClick={() => cancelRequest(selected.id)} disabled={cancelling === selected.id}
+              {(selected.status === 'pending' || selected.status === 'cancelled') && (
+                <div className="pt-2 border-t border-border flex gap-2">
+                  {selected.status === 'pending' && (
+                    <Button variant="outline" size="sm" onClick={() => cancelRequest(selected.id)} disabled={cancelling === selected.id}
+                      className="text-destructive border-destructive/30 hover:bg-destructive/10">
+                      {cancelling === selected.id ? <Loader2 className="mr-1.5 h-3 w-3 animate-spin" /> : <XCircle className="mr-1.5 h-3 w-3" />}
+                      Cancel Request
+                    </Button>
+                  )}
+                  <Button variant="outline" size="sm" onClick={() => deleteRequest(selected.id, selected.status)} disabled={deleting === selected.id}
                     className="text-destructive border-destructive/30 hover:bg-destructive/10">
-                    {cancelling === selected.id ? <Loader2 className="mr-1.5 h-3 w-3 animate-spin" /> : <XCircle className="mr-1.5 h-3 w-3" />}
-                    Cancel Request
+                    {deleting === selected.id ? <Loader2 className="mr-1.5 h-3 w-3 animate-spin" /> : <Trash2 className="mr-1.5 h-3 w-3" />}
+                    Delete
                   </Button>
                 </div>
               )}

@@ -90,26 +90,28 @@ export default function AdminMatching() {
 
   const handleEndCoaching = async (match: any) => {
     if (!confirm('End coaching? The entrepreneur will become Alumni and the coach will be Unmatched.')) return;
+    const { error } = await supabase.from('matches').update({ status: 'completed' }).eq('id', match.id);
+    if (error) { toast.error('Failed to end coaching: ' + error.message); return; }
     await Promise.all([
-      supabase.from('matches').update({ status: 'completed' }).eq('id', match.id),
       supabase.from('entrepreneurs').update({ status: 'Alumni' }).eq('id', match.entrepreneur_id),
       supabase.from('coaches').update({ status: 'Unmatched' }).eq('id', match.coach_id),
     ]);
     await syncRequestStatus(match, 'completed');
-    await logActivity('Completed match', 'match', match.id);
+    await logActivity('Completed match', 'match', match.id).catch(() => {});
     toast.success('Coaching session ended. Entrepreneur is now Alumni.');
     setSelectedMatch(null); fetchData();
   };
 
   const handleUnmatch = async (match: any) => {
     if (!confirm('Unmatch? The entrepreneur will return to Admitted and the coach to Unmatched.')) return;
+    const { error } = await supabase.from('matches').update({ status: 'cancelled' }).eq('id', match.id);
+    if (error) { toast.error('Failed to unmatch: ' + error.message); return; }
     await Promise.all([
-      supabase.from('matches').update({ status: 'cancelled' }).eq('id', match.id),
       supabase.from('entrepreneurs').update({ status: 'Admitted' }).eq('id', match.entrepreneur_id),
       supabase.from('coaches').update({ status: 'Unmatched' }).eq('id', match.coach_id),
     ]);
     await syncRequestStatus(match, 'cancelled');
-    await logActivity('Unmatched', 'match', match.id);
+    await logActivity('Unmatched', 'match', match.id).catch(() => {});
     toast.success('Match cancelled. Both parties are now available.');
     setSelectedMatch(null); fetchData();
   };
