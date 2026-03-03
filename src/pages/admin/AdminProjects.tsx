@@ -253,33 +253,51 @@ export default function AdminProjects() {
               <button onClick={() => setShowForm(false)}><X className="h-5 w-5" /></button>
             </div>
             <div className="space-y-3">
-              <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Project Name *"
-                className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm" />
-              <textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="Description"
-                className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm resize-none" rows={3} />
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Project Name *</label>
+                <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Project Name"
+                  className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Description</label>
+                <textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="Description"
+                  className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm resize-none" rows={3} />
+              </div>
               {userRole === 'admin' && (
-                <select value={form.program_id} onChange={e => setForm({ ...form, program_id: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm">
-                  <option value="">Private (No Program)</option>
-                  {programs.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                </select>
+                <div>
+                  <label className="block text-xs font-medium text-foreground mb-1">Program</label>
+                  <select value={form.program_id} onChange={e => setForm({ ...form, program_id: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm">
+                    <option value="">Private (No Program)</option>
+                    {programs.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                  </select>
+                </div>
               )}
-              <select value={form.entrepreneur_id} onChange={e => setForm({ ...form, entrepreneur_id: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm">
-                <option value="">Assign Entrepreneur</option>
-                {entrepreneurs.map(e => <option key={e.id} value={e.id}>{e.name} — {e.business_name}</option>)}
-              </select>
-              <select value={form.coach_id} onChange={e => setForm({ ...form, coach_id: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm">
-                <option value="">Assign Coach</option>
-                {coaches.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
-              <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm">
-                <option value="Active">Active</option>
-                <option value="Completed">Completed</option>
-                <option value="On Hold">On Hold</option>
-              </select>
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Entrepreneur</label>
+                <select value={form.entrepreneur_id} onChange={e => setForm({ ...form, entrepreneur_id: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm">
+                  <option value="">Select Entrepreneur</option>
+                  {entrepreneurs.map(e => <option key={e.id} value={e.id}>{e.name} — {e.business_name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Coach</label>
+                <select value={form.coach_id} onChange={e => setForm({ ...form, coach_id: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm">
+                  <option value="">Select Coach</option>
+                  {coaches.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Status</label>
+                <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm">
+                  <option value="Active">Active</option>
+                  <option value="Completed">Completed</option>
+                  <option value="On Hold">On Hold</option>
+                </select>
+              </div>
               <Button onClick={handleSave} disabled={saving || !form.name} className="w-full bg-primary text-primary-foreground">
                 {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                 {editing ? 'Update' : 'Create'} Project
@@ -307,9 +325,12 @@ export default function AdminProjects() {
 
             <h4 className="font-bold flex items-center gap-2 mb-3"><MessageSquare className="h-4 w-4" /> Track Notes ({trackNotes.length})</h4>
             <div className="flex gap-2 mb-3">
-              <input value={newNote} onChange={e => setNewNote(e.target.value)} placeholder="Add a note..."
-                className="flex-1 px-3 py-2 rounded-xl border border-border bg-background text-sm"
-                onKeyDown={e => e.key === 'Enter' && handleAddNote()} />
+              <div className="flex-1">
+                <label className="block text-xs font-medium text-foreground mb-1">New Note</label>
+                <input value={newNote} onChange={e => setNewNote(e.target.value)} placeholder="Add a note..."
+                  className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm"
+                  onKeyDown={e => e.key === 'Enter' && handleAddNote()} />
+              </div>
               <Button size="sm" onClick={handleAddNote} disabled={addingNote || !newNote.trim()}>
                 {addingNote ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Add'}
               </Button>

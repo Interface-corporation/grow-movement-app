@@ -96,16 +96,25 @@ export default function AdminPrograms() {
               <button onClick={() => setShowForm(false)}><X className="h-5 w-5" /></button>
             </div>
             <div className="space-y-3">
-              <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Program Name *"
-                className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm" />
-              <textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="Description"
-                className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm resize-none" rows={3} />
-              <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm">
-                <option value="Active">Active</option>
-                <option value="Completed">Completed</option>
-                <option value="Archived">Archived</option>
-              </select>
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Program Name *</label>
+                <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Program Name"
+                  className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Description</label>
+                <textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="Description"
+                  className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm resize-none" rows={3} />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Status</label>
+                <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm">
+                  <option value="Active">Active</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Archived">Archived</option>
+                </select>
+              </div>
               <Button onClick={handleSave} disabled={saving || !form.name} className="w-full bg-primary text-primary-foreground">
                 {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                 {editing ? 'Update' : 'Create'}

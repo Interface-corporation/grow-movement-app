@@ -45,11 +45,14 @@ function ForgotPasswordForm({ onBack }: { onBack: () => void }) {
     <form onSubmit={handleReset} className="space-y-4">
       <h2 className="text-xl font-bold text-center">Reset Password</h2>
       <p className="text-sm text-muted-foreground text-center">Enter your email to receive a reset link.</p>
-      <div className="relative">
-        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <input type="email" value={email} onChange={e => setEmail(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
-          placeholder="your@email.com" required />
+      <div>
+        <label className="block text-sm font-medium text-foreground mb-1.5">Email Address</label>
+        <div className="relative">
+          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+            placeholder="your@email.com" required />
+        </div>
       </div>
       <Button type="submit" disabled={submitting || !email} className="w-full bg-primary text-primary-foreground">
         {submitting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
@@ -92,17 +95,23 @@ function ResetPasswordForm() {
   return (
     <form onSubmit={handleUpdate} className="space-y-4">
       <h2 className="text-xl font-bold text-center">Set New Password</h2>
-      <div className="relative">
-        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <input type="password" value={password} onChange={e => setPassword(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
-          placeholder="New password" required minLength={6} />
+      <div>
+        <label className="block text-sm font-medium text-foreground mb-1.5">New Password</label>
+        <div className="relative">
+          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <input type="password" value={password} onChange={e => setPassword(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+            placeholder="New password" required minLength={6} />
+        </div>
       </div>
-      <div className="relative">
-        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <input type="password" value={confirm} onChange={e => setConfirm(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
-          placeholder="Confirm new password" required minLength={6} />
+      <div>
+        <label className="block text-sm font-medium text-foreground mb-1.5">Confirm New Password</label>
+        <div className="relative">
+          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <input type="password" value={confirm} onChange={e => setConfirm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+            placeholder="Confirm new password" required minLength={6} />
+        </div>
       </div>
       <Button type="submit" disabled={submitting} className="w-full bg-primary text-primary-foreground">
         {submitting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
