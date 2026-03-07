@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { MapPin, Briefcase, Plus, Check } from 'lucide-react';
+import { MapPin, Plus, Check } from 'lucide-react';
 import { Entrepreneur } from '@/data/mockEntrepreneurs';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
@@ -11,19 +11,22 @@ interface EntrepreneurCardProps {
 export function EntrepreneurCard({ entrepreneur }: EntrepreneurCardProps) {
   const { addToCart, isInCart, removeFromCart, isFull } = useCart();
   const inCart = isInCart(entrepreneur.id);
-
   const isAlumni = entrepreneur.status === 'Alumni';
 
   const handleCartToggle = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (isAlumni) return;
-    if (inCart) {
-      removeFromCart(entrepreneur.id);
-    } else {
-      addToCart(entrepreneur);
-    }
+    if (inCart) removeFromCart(entrepreneur.id);
+    else addToCart(entrepreneur);
   };
+
+  // Get a short one-sentence description of what the business does
+  const shortDescription = entrepreneur.businessDescription
+    ? entrepreneur.businessDescription.split(/[.!?]/)[0] + '.'
+    : entrepreneur.pitchSummary
+      ? entrepreneur.pitchSummary.split(/[.!?]/)[0] + '.'
+      : '';
 
   return (
     <Link
@@ -38,7 +41,6 @@ export function EntrepreneurCard({ entrepreneur }: EntrepreneurCardProps) {
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
         />
-        {/* Status Badge */}
         <div className="absolute top-3 left-3">
           <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
             entrepreneur.status === 'Alumni'
@@ -48,16 +50,13 @@ export function EntrepreneurCard({ entrepreneur }: EntrepreneurCardProps) {
             {isAlumni ? 'Alumni' : 'Admitted'}
           </span>
         </div>
-        {/* Cart Button - hidden for Alumni */}
         {!isAlumni && (
           <div className="absolute top-3 right-3">
             <Button
               variant={inCart ? "default" : "secondary"}
               size="icon"
               className={`h-8 w-8 rounded-full shadow-md ${
-                inCart
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-card/90 backdrop-blur-sm hover:bg-card'
+                inCart ? 'bg-primary text-primary-foreground' : 'bg-card/90 backdrop-blur-sm hover:bg-card'
               }`}
               onClick={handleCartToggle}
               disabled={!inCart && isFull}
@@ -87,18 +86,16 @@ export function EntrepreneurCard({ entrepreneur }: EntrepreneurCardProps) {
           {entrepreneur.businessName}
         </p>
 
-        <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
-          {entrepreneur.pitchSummary}
-        </p>
+        {shortDescription && (
+          <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+            {shortDescription}
+          </p>
+        )}
 
         <div className="flex items-center gap-4 text-xs text-muted-foreground">
           <span className="flex items-center gap-1">
             <MapPin className="h-3 w-3" />
             {entrepreneur.country}
-          </span>
-          <span className="flex items-center gap-1">
-            <Briefcase className="h-3 w-3" />
-            {entrepreneur.revenue}
           </span>
         </div>
       </div>
