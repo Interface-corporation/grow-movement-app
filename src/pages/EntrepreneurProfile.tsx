@@ -76,7 +76,7 @@ export default function EntrepreneurProfile() {
           <div className="lg:col-span-1">
             <div className="sticky top-24 space-y-6">
               <div className="bg-card rounded-2xl border border-border overflow-hidden">
-                <img src={ent.photo_url || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop&crop=face'}
+                <img src={getProfilePhoto(ent.photo_url, ent.gender)}
                   alt={ent.name} className="w-full aspect-square object-cover" />
                 <div className="p-5">
                   <h1 className="text-2xl font-bold text-foreground mb-1">{ent.name}</h1>

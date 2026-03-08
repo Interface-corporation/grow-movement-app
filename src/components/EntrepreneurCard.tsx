@@ -37,7 +37,7 @@ export function EntrepreneurCard({ entrepreneur }: EntrepreneurCardProps) {
       {/* Image */}
       <div className="relative aspect-[4/3] overflow-hidden bg-muted">
         <img
-          src={entrepreneur.photo}
+          src={getProfilePhoto(entrepreneur.photo, entrepreneur.gender)}
           alt={entrepreneur.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
