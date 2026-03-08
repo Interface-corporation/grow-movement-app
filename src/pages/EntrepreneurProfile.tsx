@@ -62,7 +62,7 @@ export default function EntrepreneurProfile() {
     );
   };
 
-  const embedUrl = ent.video_url ? getVideoEmbed(ent.video_url) : null;
+  const embedUrl = getVideoEmbedUrl(ent.video_url);
 
   return (
     <div className="pt-24 pb-16">
