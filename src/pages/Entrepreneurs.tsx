@@ -5,6 +5,7 @@ import { EntrepreneurCard } from '@/components/EntrepreneurCard';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
+import { getProfilePhoto } from '@/lib/avatars';
 
 export default function Entrepreneurs() {
   const [search, setSearch] = useState('');
