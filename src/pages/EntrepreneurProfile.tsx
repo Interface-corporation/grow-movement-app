@@ -4,6 +4,7 @@ import { ArrowLeft, MapPin, Calendar, Users, Plus, Check, Briefcase, Loader2, Gl
 import { supabase } from '@/integrations/supabase/client';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
+import { getProfilePhoto, getVideoEmbedUrl } from '@/lib/avatars';
 
 export default function EntrepreneurProfile() {
   const { id } = useParams();
