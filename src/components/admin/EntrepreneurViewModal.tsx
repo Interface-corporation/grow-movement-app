@@ -1,5 +1,6 @@
 import { X, MapPin, Briefcase, Calendar, Users, Globe, Mail, Phone, Linkedin, FileText, Play, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { getProfilePhoto, getVideoEmbedUrl } from '@/lib/avatars';
 
 interface Props {
   entrepreneur: any;
