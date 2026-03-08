@@ -4,6 +4,7 @@ import { ArrowLeft, MapPin, Calendar, Users, Plus, Check, Briefcase, Loader2, Gl
 import { supabase } from '@/integrations/supabase/client';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
+import { getProfilePhoto, getVideoEmbedUrl } from '@/lib/avatars';
 
 export default function EntrepreneurProfile() {
   const { id } = useParams();
@@ -45,10 +46,7 @@ export default function EntrepreneurProfile() {
     });
   };
 
-  const getVideoEmbed = (url: string) => {
-    const match = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([\w-]+)/);
-    return match ? `https://www.youtube.com/embed/${match[1]}` : null;
-  };
+  // Video embed now handled by shared utility
 
   const socialLinks = (() => {
     try { return JSON.parse(ent.social_media_links || '[]'); } catch { return []; }
@@ -64,7 +62,7 @@ export default function EntrepreneurProfile() {
     );
   };
 
-  const embedUrl = ent.video_url ? getVideoEmbed(ent.video_url) : null;
+  const embedUrl = getVideoEmbedUrl(ent.video_url);
 
   return (
     <div className="pt-24 pb-16">
@@ -78,7 +76,7 @@ export default function EntrepreneurProfile() {
           <div className="lg:col-span-1">
             <div className="sticky top-24 space-y-6">
               <div className="bg-card rounded-2xl border border-border overflow-hidden">
-                <img src={ent.photo_url || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop&crop=face'}
+                <img src={getProfilePhoto(ent.photo_url, ent.gender)}
                   alt={ent.name} className="w-full aspect-square object-cover" />
                 <div className="p-5">
                   <h1 className="text-2xl font-bold text-foreground mb-1">{ent.name}</h1>

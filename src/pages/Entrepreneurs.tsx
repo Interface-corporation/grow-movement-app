@@ -5,6 +5,7 @@ import { EntrepreneurCard } from '@/components/EntrepreneurCard';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
+import { getProfilePhoto } from '@/lib/avatars';
 
 export default function Entrepreneurs() {
   const [search, setSearch] = useState('');
@@ -35,7 +36,7 @@ export default function Entrepreneurs() {
   const mappedEntrepreneurs = useMemo(() => {
     return entrepreneurs.map(e => ({
       id: e.id, name: e.name,
-      photo: e.photo_url || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop&crop=face',
+      photo: getProfilePhoto(e.photo_url, e.gender),
       businessName: e.business_name, country: e.country, sector: e.sector, stage: e.stage,
       gender: e.gender,
       pitchSummary: e.problem_solving || e.pitch_summary || '',

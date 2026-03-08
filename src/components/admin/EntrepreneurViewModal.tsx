@@ -1,5 +1,6 @@
 import { X, MapPin, Briefcase, Calendar, Users, Globe, Mail, Phone, Linkedin, FileText, Play, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { getProfilePhoto, getVideoEmbedUrl } from '@/lib/avatars';
 
 interface Props {
   entrepreneur: any;
@@ -8,10 +9,7 @@ interface Props {
 }
 
 export default function EntrepreneurViewModal({ entrepreneur: ent, programName, onClose }: Props) {
-  const getVideoEmbed = (url: string) => {
-    const match = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([\w-]+)/);
-    return match ? `https://www.youtube.com/embed/${match[1]}` : null;
-  };
+  const embedUrl = getVideoEmbedUrl(ent.video_url);
 
   const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
     <div className="space-y-3">
@@ -34,7 +32,7 @@ export default function EntrepreneurViewModal({ entrepreneur: ent, programName, 
     try { return JSON.parse(ent.social_media_links || '[]'); } catch { return []; }
   })();
 
-  const embedUrl = ent.video_url ? getVideoEmbed(ent.video_url) : null;
+  // embedUrl already computed above
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={onClose}>
@@ -42,7 +40,7 @@ export default function EntrepreneurViewModal({ entrepreneur: ent, programName, 
         {/* Header */}
         <div className="sticky top-0 bg-card z-10 border-b border-border p-6 flex items-start gap-4">
           <div className="h-20 w-20 rounded-xl overflow-hidden bg-muted flex-shrink-0">
-            <img src={ent.photo_url || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop&crop=face'}
+            <img src={getProfilePhoto(ent.photo_url, ent.gender)}
               alt={ent.name} className="h-full w-full object-cover" />
           </div>
           <div className="flex-1 min-w-0">
