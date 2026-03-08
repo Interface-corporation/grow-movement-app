@@ -46,10 +46,7 @@ export default function EntrepreneurProfile() {
     });
   };
 
-  const getVideoEmbed = (url: string) => {
-    const match = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([\w-]+)/);
-    return match ? `https://www.youtube.com/embed/${match[1]}` : null;
-  };
+  // Video embed now handled by shared utility
 
   const socialLinks = (() => {
     try { return JSON.parse(ent.social_media_links || '[]'); } catch { return []; }
