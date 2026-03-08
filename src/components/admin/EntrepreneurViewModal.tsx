@@ -43,7 +43,7 @@ export default function EntrepreneurViewModal({ entrepreneur: ent, programName, 
         {/* Header */}
         <div className="sticky top-0 bg-card z-10 border-b border-border p-6 flex items-start gap-4">
           <div className="h-20 w-20 rounded-xl overflow-hidden bg-muted flex-shrink-0">
-            <img src={ent.photo_url || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop&crop=face'}
+            <img src={getProfilePhoto(ent.photo_url, ent.gender)}
               alt={ent.name} className="h-full w-full object-cover" />
           </div>
           <div className="flex-1 min-w-0">
