@@ -9,10 +9,7 @@ interface Props {
 }
 
 export default function EntrepreneurViewModal({ entrepreneur: ent, programName, onClose }: Props) {
-  const getVideoEmbed = (url: string) => {
-    const match = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([\w-]+)/);
-    return match ? `https://www.youtube.com/embed/${match[1]}` : null;
-  };
+  const embedUrl = getVideoEmbedUrl(ent.video_url);
 
   const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
     <div className="space-y-3">
