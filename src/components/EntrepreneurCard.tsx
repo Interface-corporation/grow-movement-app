@@ -3,6 +3,7 @@ import { MapPin, Plus, Check } from 'lucide-react';
 import { Entrepreneur } from '@/data/mockEntrepreneurs';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
+import { getProfilePhoto } from '@/lib/avatars';
 
 interface EntrepreneurCardProps {
   entrepreneur: Entrepreneur;
