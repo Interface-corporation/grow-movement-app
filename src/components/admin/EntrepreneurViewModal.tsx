@@ -32,7 +32,7 @@ export default function EntrepreneurViewModal({ entrepreneur: ent, programName, 
     try { return JSON.parse(ent.social_media_links || '[]'); } catch { return []; }
   })();
 
-  const embedUrl = ent.video_url ? getVideoEmbed(ent.video_url) : null;
+  // embedUrl already computed above
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={onClose}>
