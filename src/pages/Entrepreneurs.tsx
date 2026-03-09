@@ -128,9 +128,29 @@ export default function Entrepreneurs() {
                   <option value="">All Sectors</option>
                   {sectors.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
-                <select value={selectedCountry} onChange={(e) => setSelectedCountry(e.target.value)} className="px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm">
+                <select value={selectedCountry} onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === '__show_all__') { setShowAllCountries(true); return; }
+                  setSelectedCountry(val);
+                }} className="px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm">
                   <option value="">All Countries</option>
-                  {countries.map(c => <option key={c} value={c}>{c}</option>)}
+                  <optgroup label="Priority Countries">
+                    {countryOptions.priority.map(c => <option key={c} value={c}>{c}</option>)}
+                  </optgroup>
+                  {countryOptions.extra.length > 0 && (
+                    <optgroup label="Other Active Countries">
+                      {countryOptions.extra.map(c => <option key={c} value={c}>{c}</option>)}
+                    </optgroup>
+                  )}
+                  {showAllCountries ? (
+                    countryOptions.remaining.length > 0 && (
+                      <optgroup label="All Countries">
+                        {countryOptions.remaining.map(c => <option key={c} value={c}>{c}</option>)}
+                      </optgroup>
+                    )
+                  ) : (
+                    <option value="__show_all__">▾ Show all countries…</option>
+                  )}
                 </select>
                 <select value={selectedStage} onChange={(e) => setSelectedStage(e.target.value)} className="px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm">
                   <option value="">All Stages</option>
