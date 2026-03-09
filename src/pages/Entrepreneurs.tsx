@@ -160,7 +160,6 @@ export default function Entrepreneurs() {
                   <option value="">All Genders</option>
                   <option value="Male">Male</option>
                   <option value="Female">Female</option>
-                  <option value="Non-binary">Non-binary</option>
                 </select>
                 {programs.length > 0 && (
                   <select value={selectedProgram} onChange={(e) => setSelectedProgram(e.target.value)} className="px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm">
