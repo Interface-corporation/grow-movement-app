@@ -60,6 +60,27 @@ export default function Entrepreneurs() {
     });
   }, [mappedEntrepreneurs, search, selectedSector, selectedCountry, selectedStage, selectedGender, selectedProgram]);
 
+  const [showAllCountries, setShowAllCountries] = useState(false);
+
+  const priorityCountries = ['Rwanda', 'Uganda', 'Kenya', 'Malawi', 'Tanzania', 'Nigeria', 'Ghana', 'Ethiopia', 'Ivory Coast', 'India'];
+
+  const entrepreneurCountries = useMemo(() => {
+    const unique = new Set(mappedEntrepreneurs.map(e => e.country).filter(Boolean));
+    return Array.from(unique).sort();
+  }, [mappedEntrepreneurs]);
+
+  const countryOptions = useMemo(() => {
+    const prioritySet = new Set(priorityCountries);
+    const extraFromEntrepreneurs = entrepreneurCountries.filter(c => !prioritySet.has(c));
+    const shortList = [...priorityCountries, ...extraFromEntrepreneurs];
+    if (showAllCountries) {
+      const shortSet = new Set(shortList);
+      const remaining = countries.filter(c => !shortSet.has(c));
+      return { priority: priorityCountries, extra: extraFromEntrepreneurs, remaining };
+    }
+    return { priority: priorityCountries, extra: extraFromEntrepreneurs, remaining: [] as string[] };
+  }, [entrepreneurCountries, showAllCountries]);
+
   const hasActiveFilters = selectedSector || selectedCountry || selectedStage || selectedGender || selectedProgram;
 
   const clearFilters = () => {
