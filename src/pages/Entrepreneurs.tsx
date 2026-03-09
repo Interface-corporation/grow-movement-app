@@ -60,6 +60,27 @@ export default function Entrepreneurs() {
     });
   }, [mappedEntrepreneurs, search, selectedSector, selectedCountry, selectedStage, selectedGender, selectedProgram]);
 
+  const [showAllCountries, setShowAllCountries] = useState(false);
+
+  const priorityCountries = ['Rwanda', 'Uganda', 'Kenya', 'Malawi', 'Tanzania', 'Nigeria', 'Ghana', 'Ethiopia', 'Ivory Coast', 'India'];
+
+  const entrepreneurCountries = useMemo(() => {
+    const unique = new Set(mappedEntrepreneurs.map(e => e.country).filter(Boolean));
+    return Array.from(unique).sort();
+  }, [mappedEntrepreneurs]);
+
+  const countryOptions = useMemo(() => {
+    const prioritySet = new Set(priorityCountries);
+    const extraFromEntrepreneurs = entrepreneurCountries.filter(c => !prioritySet.has(c));
+    const shortList = [...priorityCountries, ...extraFromEntrepreneurs];
+    if (showAllCountries) {
+      const shortSet = new Set(shortList);
+      const remaining = countries.filter(c => !shortSet.has(c));
+      return { priority: priorityCountries, extra: extraFromEntrepreneurs, remaining };
+    }
+    return { priority: priorityCountries, extra: extraFromEntrepreneurs, remaining: [] as string[] };
+  }, [entrepreneurCountries, showAllCountries]);
+
   const hasActiveFilters = selectedSector || selectedCountry || selectedStage || selectedGender || selectedProgram;
 
   const clearFilters = () => {
@@ -107,9 +128,29 @@ export default function Entrepreneurs() {
                   <option value="">All Sectors</option>
                   {sectors.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
-                <select value={selectedCountry} onChange={(e) => setSelectedCountry(e.target.value)} className="px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm">
+                <select value={selectedCountry} onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === '__show_all__') { setShowAllCountries(true); return; }
+                  setSelectedCountry(val);
+                }} className="px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm">
                   <option value="">All Countries</option>
-                  {countries.map(c => <option key={c} value={c}>{c}</option>)}
+                  <optgroup label="Priority Countries">
+                    {countryOptions.priority.map(c => <option key={c} value={c}>{c}</option>)}
+                  </optgroup>
+                  {countryOptions.extra.length > 0 && (
+                    <optgroup label="Other Active Countries">
+                      {countryOptions.extra.map(c => <option key={c} value={c}>{c}</option>)}
+                    </optgroup>
+                  )}
+                  {showAllCountries ? (
+                    countryOptions.remaining.length > 0 && (
+                      <optgroup label="All Countries">
+                        {countryOptions.remaining.map(c => <option key={c} value={c}>{c}</option>)}
+                      </optgroup>
+                    )
+                  ) : (
+                    <option value="__show_all__">▾ Show all countries…</option>
+                  )}
                 </select>
                 <select value={selectedStage} onChange={(e) => setSelectedStage(e.target.value)} className="px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm">
                   <option value="">All Stages</option>
@@ -119,7 +160,6 @@ export default function Entrepreneurs() {
                   <option value="">All Genders</option>
                   <option value="Male">Male</option>
                   <option value="Female">Female</option>
-                  <option value="Non-binary">Non-binary</option>
                 </select>
                 {programs.length > 0 && (
                   <select value={selectedProgram} onChange={(e) => setSelectedProgram(e.target.value)} className="px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm">
