@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, Loader2, X, Handshake, Search, Eye } from 'lucide-react';
+import { Plus, Trash2, Loader2, X, Handshake, Search, Eye, FolderKanban } from 'lucide-react';
 import { logActivity } from '@/lib/activityLog';
 import { toast } from 'sonner';
+import { useAutoSave } from '@/hooks/useAutoSave';
 
 type MatchStatusFilter = 'all' | 'active' | 'completed' | 'cancelled';
 const PAGE_SIZE = 9;
@@ -17,14 +18,18 @@ export default function AdminMatching() {
   const [allEntrepreneurs, setAllEntrepreneurs] = useState<any[]>([]);
   const [allCoaches, setAllCoaches] = useState<any[]>([]);
   const [matchingRequests, setMatchingRequests] = useState<any[]>([]);
+  const [programs, setPrograms] = useState<any[]>([]);
+  const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ entrepreneur_id: '', coach_id: '', notes: '', request_id: '' });
+  const [form, setForm] = useState({ entrepreneur_id: '', coach_id: '', notes: '', request_id: '', program_id: '' });
   const [saving, setSaving] = useState(false);
   const [statusFilter, setStatusFilter] = useState<MatchStatusFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMatch, setSelectedMatch] = useState<any | null>(null);
   const [page, setPage] = useState(0);
+
+  const { clearAutoSave } = useAutoSave('match_form', form, setForm, showForm);
 
   const isReadOnly = userRole === 'coach';
   const canCreate = userRole === 'admin' || userRole === 'program_admin';
@@ -39,13 +44,15 @@ export default function AdminMatching() {
       matchQuery = matchQuery.eq('program_id', programId);
     }
 
-    const [matchRes, entRes, coachRes, allEntRes, allCoachRes, reqRes] = await Promise.all([
+    const [matchRes, entRes, coachRes, allEntRes, allCoachRes, reqRes, progRes, projRes] = await Promise.all([
       matchQuery,
       supabase.from('entrepreneurs').select('id, name, business_name, status').eq('status', 'Admitted'),
       supabase.from('coaches').select('id, name, organization, status').in('status', ['Accepted', 'Unmatched']),
       supabase.from('entrepreneurs').select('*'),
       supabase.from('coaches').select('*'),
       supabase.from('matching_requests').select('id, requester_name, requester_email, status').in('status', ['pending', 'reviewed']),
+      supabase.from('programs').select('id, name'),
+      supabase.from('projects').select('id, name, match_id'),
     ]);
     setMatches(matchRes.data || []);
     setEntrepreneurs(entRes.data || []);
@@ -53,12 +60,13 @@ export default function AdminMatching() {
     setAllEntrepreneurs(allEntRes.data || []);
     setAllCoaches(allCoachRes.data || []);
     setMatchingRequests(reqRes.data || []);
+    setPrograms(progRes.data || []);
+    setProjects(projRes.data || []);
     setLoading(false);
   };
 
   useEffect(() => { fetchData(); }, []);
 
-  // Sync matching request status when match status changes
   const syncRequestStatus = async (match: any, newStatus: string) => {
     if (match.request_id) {
       const requestStatus = newStatus === 'completed' ? 'matched' : newStatus === 'cancelled' ? 'cancelled' : newStatus;
@@ -68,24 +76,43 @@ export default function AdminMatching() {
 
   const handleCreate = async () => {
     setSaving(true);
+    const entData = entrepreneurs.find(e => e.id === form.entrepreneur_id);
+    const coachData = coaches.find(c => c.id === form.coach_id);
+
+    // Create match
     const { data: inserted, error } = await supabase.from('matches').insert({
       entrepreneur_id: form.entrepreneur_id, coach_id: form.coach_id,
       notes: form.notes || null, created_by: user?.id,
       request_id: form.request_id || null,
+      program_id: form.program_id || null,
     }).select('id').single();
     if (error) { toast.error('Failed to create match: ' + error.message); setSaving(false); return; }
     
+    // Update statuses and link request
     await Promise.all([
       supabase.from('entrepreneurs').update({ status: 'Matched' }).eq('id', form.entrepreneur_id),
       supabase.from('coaches').update({ status: 'Matched' }).eq('id', form.coach_id),
-      // If linked to a matching request, update its status to "matched"
       form.request_id ? supabase.from('matching_requests').update({ status: 'matched' }).eq('id', form.request_id) : Promise.resolve(),
     ]);
-    const entName = entrepreneurs.find(e => e.id === form.entrepreneur_id)?.name;
-    const coachName = coaches.find(c => c.id === form.coach_id)?.name;
-    await logActivity('Created match', 'match', inserted?.id, { entrepreneur: entName, coach: coachName });
-    toast.success('Match created successfully!');
-    setSaving(false); setShowForm(false); setForm({ entrepreneur_id: '', coach_id: '', notes: '', request_id: '' }); fetchData();
+
+    // Auto-create project
+    if (inserted?.id) {
+      const projectName = `${entData?.name || 'Entrepreneur'} × ${coachData?.name || 'Coach'}`;
+      await supabase.from('projects').insert({
+        name: projectName,
+        entrepreneur_id: form.entrepreneur_id,
+        coach_id: form.coach_id,
+        program_id: form.program_id || null,
+        match_id: inserted.id,
+        status: 'Active',
+        created_by: user?.id,
+      });
+    }
+
+    await logActivity('Created match', 'match', inserted?.id, { entrepreneur: entData?.name, coach: coachData?.name });
+    toast.success('Match and project created successfully!');
+    clearAutoSave();
+    setSaving(false); setShowForm(false); setForm({ entrepreneur_id: '', coach_id: '', notes: '', request_id: '', program_id: '' }); fetchData();
   };
 
   const handleEndCoaching = async (match: any) => {
@@ -129,6 +156,8 @@ export default function AdminMatching() {
   const getEntName = (id: string) => getEnt(id)?.name || 'Unknown';
   const getCoachName = (id: string) => getCoach(id)?.name || 'Unknown';
   const getRequestName = (id: string | null) => matchingRequests.find(r => r.id === id)?.requester_name || null;
+  const getProgramName = (id: string | null) => programs.find(p => p.id === id)?.name || null;
+  const getProjectForMatch = (matchId: string) => projects.find(p => p.match_id === matchId);
 
   const filteredMatches = matches.filter(m => {
     const matchesStatus = statusFilter === 'all' || m.status === statusFilter;
@@ -192,6 +221,15 @@ export default function AdminMatching() {
               <button onClick={() => setShowForm(false)}><X className="h-5 w-5" /></button>
             </div>
             <div className="space-y-3">
+              {/* Program selection */}
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Program</label>
+                <select value={form.program_id} onChange={e => setForm({...form, program_id: e.target.value})}
+                  className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm">
+                  <option value="">No Program</option>
+                  {programs.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                </select>
+              </div>
               {/* Link to matching request (optional) */}
               {matchingRequests.length > 0 && (
                 <div>
@@ -249,6 +287,14 @@ export default function AdminMatching() {
               <button onClick={() => setSelectedMatch(null)}><X className="h-5 w-5" /></button>
             </div>
 
+            {/* Program indicator */}
+            {selectedMatch.program_id && (
+              <div className="mb-4 text-xs bg-primary/5 rounded-xl p-3 flex items-center gap-2">
+                <span className="text-muted-foreground">Program:</span>
+                <span className="font-medium text-primary">{getProgramName(selectedMatch.program_id)}</span>
+              </div>
+            )}
+
             {/* Linked request indicator */}
             {selectedMatch.request_id && (
               <div className="mb-4 text-xs bg-secondary/50 rounded-xl p-3 flex items-center gap-2">
@@ -256,6 +302,25 @@ export default function AdminMatching() {
                 <span className="font-medium">{getRequestName(selectedMatch.request_id) || selectedMatch.request_id}</span>
               </div>
             )}
+
+            {/* Link to related project */}
+            {(() => {
+              const project = getProjectForMatch(selectedMatch.id);
+              if (project) return (
+                <div className="mb-4 text-xs bg-accent/5 rounded-xl p-3 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <FolderKanban className="h-4 w-4 text-accent" />
+                    <span className="text-muted-foreground">Related Project:</span>
+                    <span className="font-medium">{project.name}</span>
+                  </div>
+                  <Button variant="ghost" size="sm" className="text-xs h-7"
+                    onClick={() => { setSelectedMatch(null); window.location.hash = ''; /* Navigate via sidebar to projects */ }}>
+                    View Project →
+                  </Button>
+                </div>
+              );
+              return null;
+            })()}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="bg-secondary/30 rounded-xl p-4">
@@ -349,11 +414,25 @@ export default function AdminMatching() {
             <div className="space-y-2 text-sm">
               <div><span className="text-muted-foreground">Entrepreneur:</span><p className="font-medium">{getEntName(match.entrepreneur_id)}</p></div>
               <div><span className="text-muted-foreground">Coach:</span><p className="font-medium">{getCoachName(match.coach_id)}</p></div>
+              {match.program_id && (
+                <div className="text-xs text-primary bg-primary/5 rounded-lg px-2 py-1">
+                  📋 {getProgramName(match.program_id)}
+                </div>
+              )}
               {match.request_id && (
                 <div className="text-xs text-muted-foreground bg-secondary/50 rounded-lg px-2 py-1">
                   📋 Linked to request
                 </div>
               )}
+              {(() => {
+                const project = getProjectForMatch(match.id);
+                if (project) return (
+                  <div className="text-xs text-accent bg-accent/5 rounded-lg px-2 py-1 flex items-center gap-1">
+                    <FolderKanban className="h-3 w-3" /> {project.name}
+                  </div>
+                );
+                return null;
+              })()}
               {match.notes && <p className="text-xs text-muted-foreground line-clamp-2">{match.notes}</p>}
               <div className="text-xs text-muted-foreground pt-1">{new Date(match.created_at).toLocaleDateString()}</div>
               {!isReadOnly && match.status === 'active' && (
