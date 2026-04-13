@@ -127,6 +127,7 @@ export default function Apply() {
         }
         toast.error('Submission failed');
       } else {
+        clearAutoSave();
         setSubmitted(true);
         toast.success('Application submitted successfully!');
       }

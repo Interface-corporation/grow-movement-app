@@ -86,6 +86,7 @@ export default function MatchingRequest() {
     setSubmitting(false);
     
     if (!error) {
+      clearAutoSave();
       setSubmitted(true);
       clearCart();
     }

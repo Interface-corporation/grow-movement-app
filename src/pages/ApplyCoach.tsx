@@ -59,6 +59,7 @@ export default function ApplyCoach() {
         }
         toast.error('Submission failed');
       } else {
+        clearAutoSave();
         setSubmitted(true);
         toast.success('Application submitted successfully!');
       }
