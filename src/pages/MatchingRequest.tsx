@@ -21,6 +21,7 @@ export default function MatchingRequest() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [coachVerifyError, setCoachVerifyError] = useState('');
+  const { clearAutoSave } = useAutoSave('matching_request', formData, setFormData, !submitted);
 
   const sortedItems = [...items].sort((a, b) => a.priority - b.priority);
 
