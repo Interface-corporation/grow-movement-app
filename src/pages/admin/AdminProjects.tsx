@@ -117,7 +117,7 @@ export default function AdminProjects() {
     if (!sessionForm.session_name.trim() || !selectedProject) return;
     setSavingSession(true);
     if (editingSession) {
-      const { error } = await supabase.from('project_sessions').update({
+      const { error } = await (supabase as any).from('project_sessions').update({
         session_name: sessionForm.session_name.trim(),
         session_description: sessionForm.session_description.trim() || null,
         outcome: sessionForm.outcome.trim() || null,
@@ -126,7 +126,7 @@ export default function AdminProjects() {
       if (error) toast.error('Failed to update session');
       else toast.success('Session updated');
     } else {
-      const { error } = await supabase.from('project_sessions').insert({
+      const { error } = await (supabase as any).from('project_sessions').insert({
         project_id: selectedProject.id,
         session_name: sessionForm.session_name.trim(),
         session_description: sessionForm.session_description.trim() || null,
@@ -145,7 +145,7 @@ export default function AdminProjects() {
 
   const handleDeleteSession = async (sessionId: string) => {
     if (!confirm('Delete this session and all its comments?')) return;
-    await supabase.from('project_sessions').delete().eq('id', sessionId);
+    await (supabase as any).from('project_sessions').delete().eq('id', sessionId);
     toast.success('Session deleted');
     if (selectedProject) await fetchSessions(selectedProject.id);
   };
@@ -153,7 +153,7 @@ export default function AdminProjects() {
   const handleAddComment = async (sessionId: string) => {
     if (!newComment.trim()) return;
     setAddingComment(true);
-    const { error } = await supabase.from('session_comments').insert({
+    const { error } = await (supabase as any).from('session_comments').insert({
       session_id: sessionId,
       author_id: user?.id,
       comment: newComment.trim(),
