@@ -35,6 +35,7 @@ export default function Apply() {
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState(0);
   const [countrySearch, setCountrySearch] = useState('');
+  const { clearAutoSave } = useAutoSave('apply_entrepreneur', form, setForm, !submitted);
 
   const tabs = ['General Info', 'Business Overview', 'Basic Financials', 'Market & Competition', 'Coaching & Mentoring'];
 

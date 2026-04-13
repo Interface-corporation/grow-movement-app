@@ -20,6 +20,7 @@ export default function ApplyCoach() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+  const { clearAutoSave } = useAutoSave('apply_coach', form, setForm, !submitted);
 
   const handleSubmit = async () => {
     if (!form.name || !form.email) {
