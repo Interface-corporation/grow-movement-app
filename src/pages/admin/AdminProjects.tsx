@@ -74,7 +74,7 @@ export default function AdminProjects() {
   useEffect(() => { fetchData(); }, [page, search, statusFilter, programFilter]);
 
   const fetchSessions = async (projectId: string) => {
-    const { data } = await supabase
+    const { data } = await (supabase as any)
       .from('project_sessions')
       .select('*')
       .eq('project_id', projectId)
