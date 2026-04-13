@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useAutoSave } from '@/hooks/useAutoSave';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Send, CheckCircle, Loader2, AlertCircle } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
@@ -20,6 +21,7 @@ export default function MatchingRequest() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [coachVerifyError, setCoachVerifyError] = useState('');
+  const { clearAutoSave } = useAutoSave('matching_request', formData, setFormData, !submitted);
 
   const sortedItems = [...items].sort((a, b) => a.priority - b.priority);
 
@@ -84,6 +86,7 @@ export default function MatchingRequest() {
     setSubmitting(false);
     
     if (!error) {
+      clearAutoSave();
       setSubmitted(true);
       clearCart();
     }

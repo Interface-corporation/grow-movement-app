@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
+import { useAutoSave } from '@/hooks/useAutoSave';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -34,6 +35,7 @@ export default function Apply() {
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState(0);
   const [countrySearch, setCountrySearch] = useState('');
+  const { clearAutoSave } = useAutoSave('apply_entrepreneur', form, setForm, !submitted);
 
   const tabs = ['General Info', 'Business Overview', 'Basic Financials', 'Market & Competition', 'Coaching & Mentoring'];
 
@@ -125,6 +127,7 @@ export default function Apply() {
         }
         toast.error('Submission failed');
       } else {
+        clearAutoSave();
         setSubmitted(true);
         toast.success('Application submitted successfully!');
       }
