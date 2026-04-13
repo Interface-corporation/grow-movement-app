@@ -83,7 +83,7 @@ export default function AdminProjects() {
     const sessionsData = data || [];
     
     // Fetch author names
-    const authorIds = [...new Set(sessionsData.map(s => s.created_by).filter(Boolean))];
+    const authorIds = [...new Set(sessionsData.map((s: any) => s.created_by).filter(Boolean))] as string[];
     if (authorIds.length > 0) {
       const { data: profs } = await supabase.from('profiles').select('user_id, full_name').in('user_id', authorIds);
       const map: Record<string, string> = {};
@@ -95,14 +95,14 @@ export default function AdminProjects() {
   };
 
   const fetchComments = async (sessionId: string) => {
-    const { data } = await supabase
+    const { data } = await (supabase as any)
       .from('session_comments')
       .select('*')
       .eq('session_id', sessionId)
       .order('created_at', { ascending: true });
 
     const comments = data || [];
-    const authorIds = [...new Set(comments.map(c => c.author_id).filter(Boolean))];
+    const authorIds = [...new Set(comments.map((c: any) => c.author_id).filter(Boolean))] as string[];
     if (authorIds.length > 0) {
       const { data: profs } = await supabase.from('profiles').select('user_id, full_name').in('user_id', authorIds);
       const map: Record<string, string> = {};
