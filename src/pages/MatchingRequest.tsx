@@ -5,6 +5,7 @@ import { ArrowLeft, Send, CheckCircle, Loader2, AlertCircle, RotateCcw } from 'l
 import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 export default function MatchingRequest() {
   const { items, clearCart } = useCart();
