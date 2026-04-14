@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAutoSave } from '@/hooks/useAutoSave';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Send, CheckCircle, Loader2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Send, CheckCircle, Loader2, AlertCircle, RotateCcw } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -210,10 +210,15 @@ export default function MatchingRequest() {
             {errors.support && <p className="text-xs text-destructive mt-1">{errors.support}</p>}
           </div>
 
-          <Button type="submit" disabled={submitting} className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-3 text-base font-semibold" size="lg">
-            {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
-            Submit Matching Request
-          </Button>
+          <div className="flex gap-2">
+            <Button type="submit" disabled={submitting} className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 py-3 text-base font-semibold" size="lg">
+              {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+              Submit Matching Request
+            </Button>
+            <Button variant="outline" size="lg" type="button" onClick={() => { setFormData({ name: '', email: '', organization: '', role: 'coach', reason: '', support: '' }); clearAutoSave(); toast.info('Form cleared'); }} title="Clear form">
+              <RotateCcw className="h-4 w-4" />
+            </Button>
+          </div>
         </form>
       </div>
     </div>

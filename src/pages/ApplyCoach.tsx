@@ -3,7 +3,7 @@ import { useAutoSave } from '@/hooks/useAutoSave';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Loader2, CheckCircle, ArrowLeft, AlertCircle } from 'lucide-react';
+import { Loader2, CheckCircle, ArrowLeft, AlertCircle, RotateCcw } from 'lucide-react';
 import { countries } from '@/data/mockEntrepreneurs';
 import { toast } from 'sonner';
 
@@ -160,12 +160,17 @@ export default function ApplyCoach() {
             <div className="mt-4 text-sm bg-destructive/10 text-destructive p-3 rounded-lg">{error}</div>
           )}
 
-          <Button onClick={handleSubmit}
-            disabled={submitting || !form.name || !form.email}
-            className="w-full mt-6 bg-primary text-primary-foreground hover:bg-primary/90">
-            {submitting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-            Submit Coach Application
-          </Button>
+          <div className="flex gap-2 mt-6">
+            <Button onClick={handleSubmit}
+              disabled={submitting || !form.name || !form.email}
+              className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90">
+              {submitting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+              Submit Coach Application
+            </Button>
+            <Button variant="outline" onClick={() => { setForm(emptyForm); clearAutoSave(); toast.info('Form cleared'); }} type="button" title="Clear form">
+              <RotateCcw className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
     </div>
