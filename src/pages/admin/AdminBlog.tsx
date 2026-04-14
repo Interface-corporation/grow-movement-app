@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Plus, Pencil, Trash2, Loader2, X, Eye, EyeOff, Search } from 'lucide-react';
+import { Plus, Pencil, Trash2, Loader2, X, Eye, EyeOff, Search, RotateCcw } from 'lucide-react';
 import { logActivity } from '@/lib/activityLog';
 import FileUpload from '@/components/FileUpload';
+import { useAutoSave } from '@/hooks/useAutoSave';
+import { toast } from 'sonner';
 
 const emptyForm = { title: '', slug: '', excerpt: '', content: '', cover_image_url: '', published: false };
 type PubFilter = 'all' | 'published' | 'draft';
@@ -21,6 +23,8 @@ export default function AdminBlog() {
   const [pubFilter, setPubFilter] = useState<PubFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(0);
+
+  const { clearAutoSave } = useAutoSave('blog_form', form, setForm as any, showForm);
 
   const fetchData = async () => {
     setLoading(true);
@@ -60,6 +64,7 @@ export default function AdminBlog() {
       const { data: inserted } = await supabase.from('blog_posts').insert(payload).select('id').single();
       await logActivity('Created blog post', 'blog_post', inserted?.id, { title: form.title });
     }
+    clearAutoSave();
     setSaving(false); setShowForm(false); setEditing(null); setForm(emptyForm); fetchData();
   };
 
@@ -83,6 +88,12 @@ export default function AdminBlog() {
     fetchData();
   };
 
+  const handleClearForm = () => {
+    setForm(emptyForm);
+    clearAutoSave();
+    toast.info('Form cleared');
+  };
+
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
 
   return (
@@ -94,7 +105,6 @@ export default function AdminBlog() {
         </Button>
       </div>
 
-      {/* Filters */}
       <div className="bg-card rounded-2xl border border-border p-4 space-y-3">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -151,10 +161,15 @@ export default function AdminBlog() {
                 Publish immediately
               </label>
             </div>
-            <Button onClick={handleSave} disabled={saving || !form.title || !form.content} className="w-full mt-4 bg-primary text-primary-foreground">
-              {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-              {editing ? 'Update' : 'Create'} Post
-            </Button>
+            <div className="flex gap-2 mt-4">
+              <Button onClick={handleSave} disabled={saving || !form.title || !form.content} className="flex-1 bg-primary text-primary-foreground">
+                {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                {editing ? 'Update' : 'Create'} Post
+              </Button>
+              <Button variant="outline" onClick={handleClearForm} type="button" title="Clear form">
+                <RotateCcw className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
       )}

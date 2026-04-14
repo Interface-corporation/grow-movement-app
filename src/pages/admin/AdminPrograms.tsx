@@ -2,10 +2,13 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Plus, Pencil, Trash2, Search, Loader2, X, Users, UserPlus, FolderKanban, Handshake } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, Loader2, X, Users, UserPlus, FolderKanban, Handshake, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
 import { logActivity } from '@/lib/activityLog';
 import { Link } from 'react-router-dom';
+import { useAutoSave } from '@/hooks/useAutoSave';
+
+const emptyForm = { name: '', description: '', status: 'Active' };
 
 export default function AdminPrograms() {
   const { user } = useAuth();
@@ -14,16 +17,17 @@ export default function AdminPrograms() {
   const [search, setSearch] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
-  const [form, setForm] = useState({ name: '', description: '', status: 'Active' });
+  const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [stats, setStats] = useState<Record<string, { entrepreneurs: number; coaches: number; matches: number; projects: number }>>({});
+
+  const { clearAutoSave } = useAutoSave('program_form', form, setForm, showForm);
 
   const fetchData = async () => {
     setLoading(true);
     const { data } = await supabase.from('programs').select('*').order('created_at', { ascending: false });
     setPrograms(data || []);
 
-    // Fetch stats per program
     if (data && data.length > 0) {
       const statsMap: any = {};
       for (const p of data) {
@@ -58,7 +62,8 @@ export default function AdminPrograms() {
       await logActivity('Created program', 'program', data?.id, { name: form.name });
       toast.success('Program created');
     }
-    setSaving(false); setShowForm(false); setEditing(null); setForm({ name: '', description: '', status: 'Active' }); fetchData();
+    clearAutoSave();
+    setSaving(false); setShowForm(false); setEditing(null); setForm(emptyForm); fetchData();
   };
 
   const handleDelete = async (id: string) => {
@@ -70,13 +75,19 @@ export default function AdminPrograms() {
     fetchData();
   };
 
+  const handleClearForm = () => {
+    setForm(emptyForm);
+    clearAutoSave();
+    toast.info('Form cleared');
+  };
+
   const filtered = programs.filter(p => !search || p.name.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
         <h2 className="text-xl font-bold">Programs ({programs.length})</h2>
-        <Button onClick={() => { setForm({ name: '', description: '', status: 'Active' }); setEditing(null); setShowForm(true); }} className="bg-primary text-primary-foreground">
+        <Button onClick={() => { setForm(emptyForm); setEditing(null); setShowForm(true); }} className="bg-primary text-primary-foreground">
           <Plus className="h-4 w-4 mr-2" /> New Program
         </Button>
       </div>
@@ -87,7 +98,6 @@ export default function AdminPrograms() {
           className="w-full pl-10 pr-4 py-2 rounded-xl border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
       </div>
 
-      {/* Form Modal */}
       {showForm && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={() => setShowForm(false)}>
           <div className="bg-card rounded-2xl border border-border p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
@@ -115,10 +125,15 @@ export default function AdminPrograms() {
                   <option value="Archived">Archived</option>
                 </select>
               </div>
-              <Button onClick={handleSave} disabled={saving || !form.name} className="w-full bg-primary text-primary-foreground">
-                {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                {editing ? 'Update' : 'Create'}
-              </Button>
+              <div className="flex gap-2">
+                <Button onClick={handleSave} disabled={saving || !form.name} className="flex-1 bg-primary text-primary-foreground">
+                  {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                  {editing ? 'Update' : 'Create'}
+                </Button>
+                <Button variant="outline" onClick={handleClearForm} type="button" title="Clear form">
+                  <RotateCcw className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
         </div>

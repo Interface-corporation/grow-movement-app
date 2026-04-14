@@ -3,7 +3,7 @@ import { useAutoSave } from '@/hooks/useAutoSave';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Loader2, CheckCircle, ArrowLeft, Plus, X } from 'lucide-react';
+import { Loader2, CheckCircle, ArrowLeft, Plus, X, RotateCcw } from 'lucide-react';
 import { sectors, countries, stages, qualifications, socialMediaPlatforms, workTypes } from '@/data/mockEntrepreneurs';
 import FileUpload from '@/components/FileUpload';
 import { toast } from 'sonner';
@@ -375,6 +375,9 @@ export default function Apply() {
                 Submit Application
               </Button>
             )}
+            <Button variant="outline" onClick={() => { setForm(emptyForm); clearAutoSave(); setActiveTab(0); toast.info('Form cleared'); }} type="button" title="Clear form & start over">
+              <RotateCcw className="h-4 w-4" />
+            </Button>
           </div>
         </div>
       </div>

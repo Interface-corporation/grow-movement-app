@@ -3,9 +3,12 @@ import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Users, UserPlus, FolderKanban, Handshake, Loader2, Plus, Search, X, Pencil, Trash2, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Users, UserPlus, FolderKanban, Handshake, Loader2, Plus, Search, X, Pencil, Trash2, MessageSquare, ChevronDown, ChevronUp, Send, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
 import { logActivity } from '@/lib/activityLog';
+import { useAutoSave } from '@/hooks/useAutoSave';
+
+const emptyProjectForm = { name: '', description: '', status: 'Active', entrepreneur_id: '', coach_id: '' };
 
 export default function AdminProgramDetail() {
   const { id } = useParams<{ id: string }>();
@@ -22,13 +25,26 @@ export default function AdminProgramDetail() {
 
   const [showProjectForm, setShowProjectForm] = useState(false);
   const [editingProject, setEditingProject] = useState<string | null>(null);
-  const [projectForm, setProjectForm] = useState({ name: '', description: '', status: 'Active', entrepreneur_id: '', coach_id: '' });
+  const [projectForm, setProjectForm] = useState(emptyProjectForm);
   const [saving, setSaving] = useState(false);
 
+  const { clearAutoSave } = useAutoSave('program_project_form', projectForm, setProjectForm, showProjectForm);
+
   const [selectedProject, setSelectedProject] = useState<any>(null);
-  const [trackNotes, setTrackNotes] = useState<any[]>([]);
-  const [newNote, setNewNote] = useState('');
-  const [addingNote, setAddingNote] = useState(false);
+
+  // Sessions state (same as AdminProjects)
+  const [sessions, setSessions] = useState<any[]>([]);
+  const [showSessionForm, setShowSessionForm] = useState(false);
+  const [editingSession, setEditingSession] = useState<string | null>(null);
+  const [sessionForm, setSessionForm] = useState({ session_name: '', session_description: '', outcome: '' });
+  const [savingSession, setSavingSession] = useState(false);
+  const [expandedSession, setExpandedSession] = useState<string | null>(null);
+  const [sessionComments, setSessionComments] = useState<Record<string, any[]>>({});
+  const [newComment, setNewComment] = useState('');
+  const [addingComment, setAddingComment] = useState(false);
+  const [profiles, setProfiles] = useState<Record<string, string>>({});
+
+  const canCreate = userRole === 'admin' || userRole === 'program_admin';
 
   const fetchData = async () => {
     setLoading(true);
@@ -49,47 +65,99 @@ export default function AdminProgramDetail() {
 
   useEffect(() => { if (id) fetchData(); }, [id]);
 
-  const fetchNotes = async (projectId: string) => {
-    const { data: notes } = await supabase
-      .from('project_track_notes')
+  // Sessions functions
+  const fetchSessions = async (projectId: string) => {
+    const { data } = await (supabase as any)
+      .from('project_sessions')
       .select('*')
       .eq('project_id', projectId)
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: true });
 
-    if (notes && notes.length > 0) {
-      const authorIds = [...new Set(notes.map(n => n.author_id).filter(Boolean))];
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('user_id, full_name')
-        .in('user_id', authorIds);
-      const profileMap: Record<string, string> = {};
-      (profiles || []).forEach(p => { profileMap[p.user_id] = p.full_name || 'Unknown'; });
-      
-      setTrackNotes(notes.map(n => ({
-        ...n,
-        author_name: n.author_id ? (profileMap[n.author_id] || 'Unknown') : 'System',
-      })));
-    } else {
-      setTrackNotes([]);
+    const sessionsData = data || [];
+    const authorIds = [...new Set(sessionsData.map((s: any) => s.created_by).filter(Boolean))] as string[];
+    if (authorIds.length > 0) {
+      const { data: profs } = await supabase.from('profiles').select('user_id, full_name').in('user_id', authorIds);
+      const map: Record<string, string> = {};
+      (profs || []).forEach(p => { map[p.user_id] = p.full_name || 'Unknown'; });
+      setProfiles(prev => ({ ...prev, ...map }));
     }
+    setSessions(sessionsData);
+  };
+
+  const fetchComments = async (sessionId: string) => {
+    const { data } = await (supabase as any)
+      .from('session_comments')
+      .select('*')
+      .eq('session_id', sessionId)
+      .order('created_at', { ascending: true });
+
+    const comments = data || [];
+    const authorIds = [...new Set(comments.map((c: any) => c.author_id).filter(Boolean))] as string[];
+    if (authorIds.length > 0) {
+      const { data: profs } = await supabase.from('profiles').select('user_id, full_name').in('user_id', authorIds);
+      const map: Record<string, string> = {};
+      (profs || []).forEach(p => { map[p.user_id] = p.full_name || 'Unknown'; });
+      setProfiles(prev => ({ ...prev, ...map }));
+    }
+    setSessionComments(prev => ({ ...prev, [sessionId]: comments }));
+  };
+
+  const handleSaveSession = async () => {
+    if (!sessionForm.session_name.trim() || !selectedProject) return;
+    setSavingSession(true);
+    if (editingSession) {
+      const { error } = await (supabase as any).from('project_sessions').update({
+        session_name: sessionForm.session_name.trim(),
+        session_description: sessionForm.session_description.trim() || null,
+        outcome: sessionForm.outcome.trim() || null,
+        updated_at: new Date().toISOString(),
+      }).eq('id', editingSession);
+      if (error) toast.error('Failed to update session');
+      else toast.success('Session updated');
+    } else {
+      const { error } = await (supabase as any).from('project_sessions').insert({
+        project_id: selectedProject.id,
+        session_name: sessionForm.session_name.trim(),
+        session_description: sessionForm.session_description.trim() || null,
+        outcome: sessionForm.outcome.trim() || null,
+        created_by: user?.id,
+      });
+      if (error) toast.error('Failed to create session: ' + error.message);
+      else toast.success('Session created');
+    }
+    setSessionForm({ session_name: '', session_description: '', outcome: '' });
+    setShowSessionForm(false);
+    setEditingSession(null);
+    setSavingSession(false);
+    await fetchSessions(selectedProject.id);
+  };
+
+  const handleDeleteSession = async (sessionId: string) => {
+    if (!confirm('Delete this session and all its comments?')) return;
+    await (supabase as any).from('project_sessions').delete().eq('id', sessionId);
+    toast.success('Session deleted');
+    if (selectedProject) await fetchSessions(selectedProject.id);
+  };
+
+  const handleAddComment = async (sessionId: string) => {
+    if (!newComment.trim()) return;
+    setAddingComment(true);
+    const { error } = await (supabase as any).from('session_comments').insert({
+      session_id: sessionId,
+      author_id: user?.id,
+      comment: newComment.trim(),
+    });
+    if (error) toast.error('Failed to add comment');
+    else toast.success('Comment added');
+    setNewComment('');
+    setAddingComment(false);
+    await fetchComments(sessionId);
   };
 
   const handleOpenProject = async (project: any) => {
     setSelectedProject(project);
-    await fetchNotes(project.id);
-  };
-
-  const handleAddNote = async () => {
-    if (!newNote.trim() || !selectedProject) return;
-    setAddingNote(true);
-    const { error } = await supabase.from('project_track_notes').insert({
-      project_id: selectedProject.id, author_id: user?.id, note: newNote.trim(),
-    });
-    if (error) { toast.error('Failed to add note: ' + error.message); }
-    else { toast.success('Note added'); }
-    setNewNote('');
-    await fetchNotes(selectedProject.id);
-    setAddingNote(false);
+    setExpandedSession(null);
+    await fetchSessions(project.id);
   };
 
   // Match status controls
@@ -146,8 +214,9 @@ export default function AdminProgramDetail() {
       await logActivity('Created project', 'project', data?.id, { name: projectForm.name });
       toast.success('Project created');
     }
+    clearAutoSave();
     setSaving(false); setShowProjectForm(false); setEditingProject(null);
-    setProjectForm({ name: '', description: '', status: 'Active', entrepreneur_id: '', coach_id: '' });
+    setProjectForm(emptyProjectForm);
     fetchData();
   };
 
@@ -156,6 +225,12 @@ export default function AdminProgramDetail() {
     await supabase.from('projects').delete().eq('id', projId);
     toast.success('Project deleted');
     fetchData();
+  };
+
+  const handleClearProjectForm = () => {
+    setProjectForm(emptyProjectForm);
+    clearAutoSave();
+    toast.info('Form cleared');
   };
 
   const getEntName = (entId: string | null) => entrepreneurs.find(e => e.id === entId)?.name || '—';
@@ -212,8 +287,8 @@ export default function AdminProgramDetail() {
         <>
           <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
             <h3 className="text-lg font-bold">Projects</h3>
-            {(userRole === 'admin' || userRole === 'program_admin') && (
-              <Button size="sm" onClick={() => { setProjectForm({ name: '', description: '', status: 'Active', entrepreneur_id: '', coach_id: '' }); setEditingProject(null); setShowProjectForm(true); }}>
+            {canCreate && (
+              <Button size="sm" onClick={() => { setProjectForm(emptyProjectForm); setEditingProject(null); setShowProjectForm(true); }}>
                 <Plus className="h-4 w-4 mr-1" /> New Project
               </Button>
             )}
@@ -257,7 +332,7 @@ export default function AdminProgramDetail() {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right" onClick={e => e.stopPropagation()}>
-                      {(userRole === 'admin' || userRole === 'program_admin') && (
+                      {canCreate && (
                         <div className="flex gap-1 justify-end">
                           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => {
                             setProjectForm({ name: p.name, description: p.description || '', status: p.status, entrepreneur_id: p.entrepreneur_id || '', coach_id: p.coach_id || '' });
@@ -309,7 +384,7 @@ export default function AdminProgramDetail() {
                     </td>
                     <td className="px-4 py-3 text-muted-foreground hidden md:table-cell text-xs">{new Date(m.created_at).toLocaleDateString()}</td>
                     <td className="px-4 py-3 text-right">
-                      {(m.status === 'active' || m.status === 'Active') && (userRole === 'admin' || userRole === 'program_admin') && (
+                      {(m.status === 'active' || m.status === 'Active') && canCreate && (
                         <div className="flex gap-1 justify-end">
                           <Button size="sm" variant="outline" className="text-xs" onClick={() => handleEndCoaching(m)}>End Coaching</Button>
                           <Button size="sm" variant="outline" className="text-xs" onClick={() => handleUnmatch(m)}>Unmatch</Button>
@@ -336,42 +411,62 @@ export default function AdminProgramDetail() {
               <button onClick={() => setShowProjectForm(false)}><X className="h-5 w-5" /></button>
             </div>
             <div className="space-y-3">
-              <input value={projectForm.name} onChange={e => setProjectForm({ ...projectForm, name: e.target.value })} placeholder="Project Name *"
-                className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm" />
-              <textarea value={projectForm.description} onChange={e => setProjectForm({ ...projectForm, description: e.target.value })} placeholder="Description"
-                className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm resize-none" rows={3} />
-              <select value={projectForm.entrepreneur_id} onChange={e => setProjectForm({ ...projectForm, entrepreneur_id: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm">
-                <option value="">Assign Entrepreneur</option>
-                {entrepreneurs.filter(e => e.status === 'Admitted').map(e => <option key={e.id} value={e.id}>{e.name} — {e.business_name}</option>)}
-              </select>
-              <select value={projectForm.coach_id} onChange={e => setProjectForm({ ...projectForm, coach_id: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm">
-                <option value="">Assign Coach</option>
-                {coaches.filter(c => ['Accepted', 'Unmatched'].includes(c.status)).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
-              <select value={projectForm.status} onChange={e => setProjectForm({ ...projectForm, status: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm">
-                <option value="Active">Active</option>
-                <option value="Completed">Completed</option>
-                <option value="On Hold">On Hold</option>
-              </select>
-              <Button onClick={handleSaveProject} disabled={saving || !projectForm.name} className="w-full bg-primary text-primary-foreground">
-                {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                {editingProject ? 'Update' : 'Create'} Project
-              </Button>
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Project Name *</label>
+                <input value={projectForm.name} onChange={e => setProjectForm({ ...projectForm, name: e.target.value })} placeholder="Project Name"
+                  className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Description</label>
+                <textarea value={projectForm.description} onChange={e => setProjectForm({ ...projectForm, description: e.target.value })} placeholder="Description"
+                  className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm resize-none" rows={3} />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Entrepreneur</label>
+                <select value={projectForm.entrepreneur_id} onChange={e => setProjectForm({ ...projectForm, entrepreneur_id: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm">
+                  <option value="">Assign Entrepreneur</option>
+                  {entrepreneurs.filter(e => e.status === 'Admitted').map(e => <option key={e.id} value={e.id}>{e.name} — {e.business_name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Coach</label>
+                <select value={projectForm.coach_id} onChange={e => setProjectForm({ ...projectForm, coach_id: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm">
+                  <option value="">Assign Coach</option>
+                  {coaches.filter(c => ['Accepted', 'Unmatched'].includes(c.status)).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1">Status</label>
+                <select value={projectForm.status} onChange={e => setProjectForm({ ...projectForm, status: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm">
+                  <option value="Active">Active</option>
+                  <option value="Completed">Completed</option>
+                  <option value="On Hold">On Hold</option>
+                </select>
+              </div>
+              <div className="flex gap-2">
+                <Button onClick={handleSaveProject} disabled={saving || !projectForm.name} className="flex-1 bg-primary text-primary-foreground">
+                  {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                  {editingProject ? 'Update' : 'Create'} Project
+                </Button>
+                <Button variant="outline" onClick={handleClearProjectForm} type="button" title="Clear form">
+                  <RotateCcw className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Project Detail Modal with Track Notes */}
+      {/* Project Detail Modal with Sessions */}
       {selectedProject && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={() => setSelectedProject(null)}>
-          <div className="bg-card rounded-2xl border border-border p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={() => { setSelectedProject(null); setExpandedSession(null); }}>
+          <div className="bg-card rounded-2xl border border-border p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold">{selectedProject.name}</h3>
-              <button onClick={() => setSelectedProject(null)}><X className="h-5 w-5" /></button>
+              <button onClick={() => { setSelectedProject(null); setExpandedSession(null); }}><X className="h-5 w-5" /></button>
             </div>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-3 text-sm">
@@ -399,30 +494,143 @@ export default function AdminProgramDetail() {
                 </div>
               )}
 
-              {/* Track Notes */}
-              <div>
-                <h4 className="font-bold flex items-center gap-2 mb-3">
-                  <MessageSquare className="h-4 w-4" /> Track Notes ({trackNotes.length})
-                </h4>
-                <div className="flex gap-2 mb-3">
-                  <input value={newNote} onChange={e => setNewNote(e.target.value)} placeholder="Add a track note..."
-                    className="flex-1 px-3 py-2 rounded-xl border border-border bg-background text-sm"
-                    onKeyDown={e => e.key === 'Enter' && handleAddNote()} />
-                  <Button size="sm" onClick={handleAddNote} disabled={addingNote || !newNote.trim()}>
-                    {addingNote ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Add'}
-                  </Button>
+              {/* Sessions */}
+              <div className="border-t border-border pt-4">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="font-bold flex items-center gap-2">
+                    <MessageSquare className="h-4 w-4" /> Sessions ({sessions.length})
+                  </h4>
+                  {canCreate && (
+                    <Button size="sm" variant="outline" onClick={() => { setSessionForm({ session_name: '', session_description: '', outcome: '' }); setEditingSession(null); setShowSessionForm(true); }}>
+                      <Plus className="h-3.5 w-3.5 mr-1" /> New Session
+                    </Button>
+                  )}
                 </div>
-                <div className="space-y-2 max-h-60 overflow-y-auto">
-                  {trackNotes.map(note => (
-                    <div key={note.id} className="bg-secondary/30 rounded-xl p-3 text-sm">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-medium text-foreground">{note.author_name}</span>
-                        <span className="text-xs text-muted-foreground">{new Date(note.created_at).toLocaleString()}</span>
+
+                {/* Session Form */}
+                {showSessionForm && (
+                  <div className="bg-secondary/30 rounded-xl p-4 mb-4 space-y-3">
+                    <h5 className="text-sm font-semibold">{editingSession ? 'Edit' : 'New'} Session</h5>
+                    <div>
+                      <label className="block text-xs font-medium mb-1">Session Name *</label>
+                      <input value={sessionForm.session_name} onChange={e => setSessionForm({ ...sessionForm, session_name: e.target.value })}
+                        placeholder="e.g. Week 1 - Business Model Review"
+                        className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium mb-1">Description</label>
+                      <textarea value={sessionForm.session_description} onChange={e => setSessionForm({ ...sessionForm, session_description: e.target.value })}
+                        placeholder="What was discussed or planned..."
+                        className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm resize-none" rows={3} />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium mb-1">Outcome</label>
+                      <textarea value={sessionForm.outcome} onChange={e => setSessionForm({ ...sessionForm, outcome: e.target.value })}
+                        placeholder="Key outcomes or decisions..."
+                        className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm resize-none" rows={2} />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={handleSaveSession} disabled={savingSession || !sessionForm.session_name.trim()}>
+                        {savingSession ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : null}
+                        {editingSession ? 'Update' : 'Create'} Session
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => { setShowSessionForm(false); setEditingSession(null); }}>Cancel</Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Sessions List */}
+                <div className="space-y-3">
+                  {sessions.map((session, idx) => (
+                    <div key={session.id} className="border border-border rounded-xl overflow-hidden">
+                      <div
+                        className="flex items-center justify-between p-3 bg-secondary/20 cursor-pointer hover:bg-secondary/40 transition-colors"
+                        onClick={() => {
+                          const newExpanded = expandedSession === session.id ? null : session.id;
+                          setExpandedSession(newExpanded);
+                          if (newExpanded) fetchComments(session.id);
+                        }}>
+                        <div className="flex items-center gap-3">
+                          <span className="w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-bold">{idx + 1}</span>
+                          <div>
+                            <p className="text-sm font-semibold">{session.session_name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(session.created_at).toLocaleDateString()} at {new Date(session.created_at).toLocaleTimeString()}
+                              {session.created_by && profiles[session.created_by] ? ` • by ${profiles[session.created_by]}` : ''}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          {canCreate && (
+                            <>
+                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => {
+                                e.stopPropagation();
+                                setSessionForm({ session_name: session.session_name, session_description: session.session_description || '', outcome: session.outcome || '' });
+                                setEditingSession(session.id);
+                                setShowSessionForm(true);
+                              }}><Pencil className="h-3 w-3" /></Button>
+                              <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={(e) => { e.stopPropagation(); handleDeleteSession(session.id); }}>
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </>
+                          )}
+                          {expandedSession === session.id ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                        </div>
                       </div>
-                      <p className="text-muted-foreground">{note.note}</p>
+
+                      {expandedSession === session.id && (
+                        <div className="p-4 space-y-3">
+                          {session.session_description && (
+                            <div>
+                              <span className="text-xs font-medium text-muted-foreground">Description</span>
+                              <p className="text-sm mt-1 whitespace-pre-line">{session.session_description}</p>
+                            </div>
+                          )}
+                          {session.outcome && (
+                            <div>
+                              <span className="text-xs font-medium text-muted-foreground">Outcome</span>
+                              <p className="text-sm mt-1 whitespace-pre-line">{session.outcome}</p>
+                            </div>
+                          )}
+                          {session.updated_at !== session.created_at && (
+                            <p className="text-xs text-muted-foreground">Last updated: {new Date(session.updated_at).toLocaleString()}</p>
+                          )}
+
+                          {/* Comments */}
+                          <div className="border-t border-border pt-3">
+                            <h6 className="text-xs font-semibold text-muted-foreground mb-2">
+                              Comments ({(sessionComments[session.id] || []).length})
+                            </h6>
+                            <div className="space-y-2 max-h-48 overflow-y-auto mb-3">
+                              {(sessionComments[session.id] || []).map(comment => (
+                                <div key={comment.id} className="bg-secondary/30 rounded-lg p-2.5 text-sm">
+                                  <div className="flex justify-between mb-1">
+                                    <span className="font-medium text-xs">{comment.author_id ? (profiles[comment.author_id] || 'Unknown') : 'System'}</span>
+                                    <span className="text-xs text-muted-foreground">{new Date(comment.created_at).toLocaleString()}</span>
+                                  </div>
+                                  <p className="text-muted-foreground text-xs">{comment.comment}</p>
+                                </div>
+                              ))}
+                              {(sessionComments[session.id] || []).length === 0 && (
+                                <p className="text-xs text-muted-foreground text-center py-2">No comments yet.</p>
+                              )}
+                            </div>
+                            <div className="flex gap-2">
+                              <input value={expandedSession === session.id ? newComment : ''} onChange={e => setNewComment(e.target.value)}
+                                placeholder="Add a comment..."
+                                className="flex-1 px-3 py-1.5 rounded-lg border border-border bg-background text-xs"
+                                onKeyDown={e => { if (e.key === 'Enter') handleAddComment(session.id); }} />
+                              <Button size="sm" variant="outline" className="h-7 text-xs" disabled={addingComment || !newComment.trim()}
+                                onClick={() => handleAddComment(session.id)}>
+                                {addingComment ? <Loader2 className="h-3 w-3 animate-spin" /> : <Send className="h-3 w-3" />}
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))}
-                  {trackNotes.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No track notes yet.</p>}
+                  {sessions.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No sessions yet. Create one to start tracking progress.</p>}
                 </div>
               </div>
             </div>
