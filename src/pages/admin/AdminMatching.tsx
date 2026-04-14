@@ -2,16 +2,19 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, Loader2, X, Handshake, Search, Eye, FolderKanban } from 'lucide-react';
+import { Plus, Trash2, Loader2, X, Handshake, Search, Eye, FolderKanban, RotateCcw } from 'lucide-react';
 import { logActivity } from '@/lib/activityLog';
 import { toast } from 'sonner';
 import { useAutoSave } from '@/hooks/useAutoSave';
+import { useNavigate } from 'react-router-dom';
 
 type MatchStatusFilter = 'all' | 'active' | 'completed' | 'cancelled';
 const PAGE_SIZE = 9;
+const emptyForm = { entrepreneur_id: '', coach_id: '', notes: '', request_id: '', program_id: '' };
 
 export default function AdminMatching() {
   const { user, userRole, coachId, programId } = useAuth();
+  const navigate = useNavigate();
   const [matches, setMatches] = useState<any[]>([]);
   const [entrepreneurs, setEntrepreneurs] = useState<any[]>([]);
   const [coaches, setCoaches] = useState<any[]>([]);
@@ -22,7 +25,7 @@ export default function AdminMatching() {
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ entrepreneur_id: '', coach_id: '', notes: '', request_id: '', program_id: '' });
+  const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [statusFilter, setStatusFilter] = useState<MatchStatusFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -79,7 +82,6 @@ export default function AdminMatching() {
     const entData = entrepreneurs.find(e => e.id === form.entrepreneur_id);
     const coachData = coaches.find(c => c.id === form.coach_id);
 
-    // Create match
     const { data: inserted, error } = await supabase.from('matches').insert({
       entrepreneur_id: form.entrepreneur_id, coach_id: form.coach_id,
       notes: form.notes || null, created_by: user?.id,
@@ -88,14 +90,12 @@ export default function AdminMatching() {
     }).select('id').single();
     if (error) { toast.error('Failed to create match: ' + error.message); setSaving(false); return; }
     
-    // Update statuses and link request
     await Promise.all([
       supabase.from('entrepreneurs').update({ status: 'Matched' }).eq('id', form.entrepreneur_id),
       supabase.from('coaches').update({ status: 'Matched' }).eq('id', form.coach_id),
       form.request_id ? supabase.from('matching_requests').update({ status: 'matched' }).eq('id', form.request_id) : Promise.resolve(),
     ]);
 
-    // Auto-create project
     if (inserted?.id) {
       const projectName = `${entData?.name || 'Entrepreneur'} × ${coachData?.name || 'Coach'}`;
       await supabase.from('projects').insert({
@@ -112,7 +112,7 @@ export default function AdminMatching() {
     await logActivity('Created match', 'match', inserted?.id, { entrepreneur: entData?.name, coach: coachData?.name });
     toast.success('Match and project created successfully!');
     clearAutoSave();
-    setSaving(false); setShowForm(false); setForm({ entrepreneur_id: '', coach_id: '', notes: '', request_id: '', program_id: '' }); fetchData();
+    setSaving(false); setShowForm(false); setForm(emptyForm); fetchData();
   };
 
   const handleEndCoaching = async (match: any) => {
@@ -151,6 +151,12 @@ export default function AdminMatching() {
     setSelectedMatch(null); fetchData();
   };
 
+  const handleClearForm = () => {
+    setForm(emptyForm);
+    clearAutoSave();
+    toast.info('Form cleared');
+  };
+
   const getEnt = (id: string) => allEntrepreneurs.find(e => e.id === id);
   const getCoach = (id: string) => allCoaches.find(c => c.id === id);
   const getEntName = (id: string) => getEnt(id)?.name || 'Unknown';
@@ -186,7 +192,7 @@ export default function AdminMatching() {
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">Matches ({matches.length})</h2>
         {canCreate && (
-          <Button onClick={() => setShowForm(true)} className="bg-primary text-primary-foreground">
+          <Button onClick={() => { setForm(emptyForm); setShowForm(true); }} className="bg-primary text-primary-foreground">
             <Plus className="h-4 w-4 mr-2" /> Create Match
           </Button>
         )}
@@ -221,7 +227,6 @@ export default function AdminMatching() {
               <button onClick={() => setShowForm(false)}><X className="h-5 w-5" /></button>
             </div>
             <div className="space-y-3">
-              {/* Program selection */}
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1 block">Program</label>
                 <select value={form.program_id} onChange={e => setForm({...form, program_id: e.target.value})}
@@ -230,7 +235,6 @@ export default function AdminMatching() {
                   {programs.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
               </div>
-              {/* Link to matching request (optional) */}
               {matchingRequests.length > 0 && (
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1 block">Link to Matching Request (optional)</label>
@@ -262,10 +266,15 @@ export default function AdminMatching() {
               <textarea value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} placeholder="Notes (optional)"
                 className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm resize-none" rows={3} />
             </div>
-            <Button onClick={handleCreate} disabled={saving || !form.entrepreneur_id || !form.coach_id} className="w-full mt-4 bg-primary text-primary-foreground">
-              {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Handshake className="h-4 w-4 mr-2" />}
-              Create Match
-            </Button>
+            <div className="flex gap-2 mt-4">
+              <Button onClick={handleCreate} disabled={saving || !form.entrepreneur_id || !form.coach_id} className="flex-1 bg-primary text-primary-foreground">
+                {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Handshake className="h-4 w-4 mr-2" />}
+                Create Match
+              </Button>
+              <Button variant="outline" onClick={handleClearForm} type="button" title="Clear form">
+                <RotateCcw className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
       )}
@@ -287,7 +296,6 @@ export default function AdminMatching() {
               <button onClick={() => setSelectedMatch(null)}><X className="h-5 w-5" /></button>
             </div>
 
-            {/* Program indicator */}
             {selectedMatch.program_id && (
               <div className="mb-4 text-xs bg-primary/5 rounded-xl p-3 flex items-center gap-2">
                 <span className="text-muted-foreground">Program:</span>
@@ -295,7 +303,6 @@ export default function AdminMatching() {
               </div>
             )}
 
-            {/* Linked request indicator */}
             {selectedMatch.request_id && (
               <div className="mb-4 text-xs bg-secondary/50 rounded-xl p-3 flex items-center gap-2">
                 <span className="text-muted-foreground">Linked Request:</span>
@@ -303,7 +310,7 @@ export default function AdminMatching() {
               </div>
             )}
 
-            {/* Link to related project */}
+            {/* Link to related project - NOW NAVIGATES PROPERLY */}
             {(() => {
               const project = getProjectForMatch(selectedMatch.id);
               if (project) return (
@@ -314,7 +321,10 @@ export default function AdminMatching() {
                     <span className="font-medium">{project.name}</span>
                   </div>
                   <Button variant="ghost" size="sm" className="text-xs h-7"
-                    onClick={() => { setSelectedMatch(null); window.location.hash = ''; /* Navigate via sidebar to projects */ }}>
+                    onClick={() => {
+                      setSelectedMatch(null);
+                      navigate('/admin/projects', { state: { openProjectId: project.id } });
+                    }}>
                     View Project →
                   </Button>
                 </div>

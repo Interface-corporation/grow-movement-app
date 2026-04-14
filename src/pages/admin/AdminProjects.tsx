@@ -1,14 +1,18 @@
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Search, Loader2, Plus, X, Pencil, Trash2, MessageSquare, FolderKanban, ChevronDown, ChevronUp, Send } from 'lucide-react';
+import { Search, Loader2, Plus, X, Pencil, Trash2, MessageSquare, FolderKanban, ChevronDown, ChevronUp, Send, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
 import { logActivity } from '@/lib/activityLog';
 import { useAutoSave } from '@/hooks/useAutoSave';
 
+const emptyForm = { name: '', description: '', status: 'Active', program_id: '', entrepreneur_id: '', coach_id: '' };
+
 export default function AdminProjects() {
   const { user, userRole, programId, coachId } = useAuth();
+  const location = useLocation();
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -23,7 +27,7 @@ export default function AdminProjects() {
 
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
-  const [form, setForm] = useState({ name: '', description: '', status: 'Active', program_id: '', entrepreneur_id: '', coach_id: '' });
+  const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
 
   const { clearAutoSave } = useAutoSave('project_form', form, setForm, showForm);
@@ -68,6 +72,19 @@ export default function AdminProjects() {
     setPrograms(progsRes.data || []);
     setEntrepreneurs(entsRes.data || []);
     setCoaches(coachesRes.data || []);
+
+    // Check if we need to auto-open a project from navigation state
+    const openProjectId = (location.state as any)?.openProjectId;
+    if (openProjectId && data) {
+      const proj = data.find(p => p.id === openProjectId);
+      if (proj) {
+        setSelectedProject(proj);
+        fetchSessions(proj.id);
+      }
+      // Clear state so it doesn't reopen on next render
+      window.history.replaceState({}, document.title);
+    }
+
     setLoading(false);
   };
 
@@ -82,7 +99,6 @@ export default function AdminProjects() {
 
     const sessionsData = data || [];
     
-    // Fetch author names
     const authorIds = [...new Set(sessionsData.map((s: any) => s.created_by).filter(Boolean))] as string[];
     if (authorIds.length > 0) {
       const { data: profs } = await supabase.from('profiles').select('user_id, full_name').in('user_id', authorIds);
@@ -178,7 +194,6 @@ export default function AdminProjects() {
       await logActivity('Updated project', 'project', editing, { name: form.name });
       toast.success('Project updated');
     } else {
-      // Auto-create match when both entrepreneur and coach are selected
       if (form.entrepreneur_id && form.coach_id) {
         const { data: match } = await supabase.from('matches').insert({
           entrepreneur_id: form.entrepreneur_id, coach_id: form.coach_id,
@@ -194,7 +209,7 @@ export default function AdminProjects() {
     }
     clearAutoSave();
     setSaving(false); setShowForm(false); setEditing(null);
-    setForm({ name: '', description: '', status: 'Active', program_id: '', entrepreneur_id: '', coach_id: '' });
+    setForm(emptyForm);
     fetchData();
   };
 
@@ -203,6 +218,12 @@ export default function AdminProjects() {
     await supabase.from('projects').delete().eq('id', id);
     toast.success('Project deleted');
     fetchData();
+  };
+
+  const handleClearForm = () => {
+    setForm(emptyForm);
+    clearAutoSave();
+    toast.info('Form cleared');
   };
 
   const getEntName = (id: string | null) => entrepreneurs.find(e => e.id === id)?.name || '—';
@@ -216,7 +237,7 @@ export default function AdminProjects() {
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
         <h2 className="text-xl font-bold flex items-center gap-2"><FolderKanban className="h-5 w-5 text-primary" /> Projects ({total})</h2>
         {canCreate && (
-          <Button onClick={() => { setForm({ name: '', description: '', status: 'Active', program_id: '', entrepreneur_id: '', coach_id: '' }); setEditing(null); setShowForm(true); }}>
+          <Button onClick={() => { setForm(emptyForm); setEditing(null); setShowForm(true); }}>
             <Plus className="h-4 w-4 mr-2" /> New Project
           </Button>
         )}
@@ -364,10 +385,15 @@ export default function AdminProjects() {
                   <option value="On Hold">On Hold</option>
                 </select>
               </div>
-              <Button onClick={handleSave} disabled={saving || !form.name} className="w-full bg-primary text-primary-foreground">
-                {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                {editing ? 'Update' : 'Create'} Project
-              </Button>
+              <div className="flex gap-2">
+                <Button onClick={handleSave} disabled={saving || !form.name} className="flex-1 bg-primary text-primary-foreground">
+                  {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                  {editing ? 'Update' : 'Create'} Project
+                </Button>
+                <Button variant="outline" onClick={handleClearForm} type="button" title="Clear form">
+                  <RotateCcw className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -400,7 +426,6 @@ export default function AdminProjects() {
                 )}
               </div>
 
-              {/* Session Form */}
               {showSessionForm && (
                 <div className="bg-secondary/30 rounded-xl p-4 mb-4 space-y-3">
                   <h5 className="text-sm font-semibold">{editingSession ? 'Edit' : 'New'} Session</h5>
@@ -432,7 +457,6 @@ export default function AdminProjects() {
                 </div>
               )}
 
-              {/* Sessions List */}
               <div className="space-y-3">
                 {sessions.map((session, idx) => (
                   <div key={session.id} className="border border-border rounded-xl overflow-hidden">
@@ -489,7 +513,6 @@ export default function AdminProjects() {
                           <p className="text-xs text-muted-foreground">Last updated: {new Date(session.updated_at).toLocaleString()}</p>
                         )}
 
-                        {/* Comments */}
                         <div className="border-t border-border pt-3">
                           <h6 className="text-xs font-semibold text-muted-foreground mb-2">
                             Comments ({(sessionComments[session.id] || []).length})
