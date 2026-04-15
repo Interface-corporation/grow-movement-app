@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Plus, Pencil, Trash2, Search, Loader2, X } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, Loader2, X, RotateCcw } from 'lucide-react';
 import { countries } from '@/data/mockEntrepreneurs';
 import { logActivity } from '@/lib/activityLog';
+import { useAutoSave } from '@/hooks/useAutoSave';
+import { toast } from 'sonner';
 
 const communicationOptions = ['Email', 'WhatsApp', 'Phone Call', 'SMS', 'Zoom/Video Call'];
 
@@ -30,6 +32,13 @@ export default function AdminCoaches() {
   const [coachProgramMap, setCoachProgramMap] = useState<Record<string, string>>({});
   const PAGE_SIZE = 10;
 
+  const { clearAutoSave } = useAutoSave('coach_form', form, setForm, showForm);
+
+  const handleClearForm = () => {
+    setForm(emptyForm);
+    clearAutoSave();
+    toast.info('Form cleared');
+  };
   const fetchData = async () => {
     setLoading(true);
 
@@ -105,6 +114,7 @@ export default function AdminCoaches() {
       }
     }
 
+    clearAutoSave();
     setSaving(false); setShowForm(false); setEditing(null); setForm(emptyForm); fetchData();
   };
 
@@ -239,10 +249,15 @@ export default function AdminCoaches() {
               <label className="block text-xs font-medium text-foreground mb-1">Bio</label>
               <textarea value={form.bio} onChange={e => setForm({...form, bio: e.target.value})} placeholder="Brief bio" className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm resize-none" rows={3} />
             </div>
-            <Button onClick={handleSave} disabled={saving || !form.name} className="w-full mt-4 bg-primary text-primary-foreground">
-              {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-              {editing ? 'Update' : 'Create'} Coach
-            </Button>
+            <div className="flex gap-2 mt-4">
+              <Button onClick={handleSave} disabled={saving || !form.name} className="flex-1 bg-primary text-primary-foreground">
+                {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                {editing ? 'Update' : 'Create'} Coach
+              </Button>
+              <Button variant="outline" onClick={handleClearForm} type="button" title="Clear form">
+                <RotateCcw className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
       )}

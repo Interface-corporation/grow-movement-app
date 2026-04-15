@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Plus, Pencil, Trash2, Search, Loader2, X, Eye } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, Loader2, X, Eye, RotateCcw } from 'lucide-react';
 import { sectors, countries, stages, qualifications, socialMediaPlatforms, workTypes } from '@/data/mockEntrepreneurs';
 import { logActivity } from '@/lib/activityLog';
 import FileUpload from '@/components/FileUpload';
 import EntrepreneurViewModal from '@/components/admin/EntrepreneurViewModal';
 import { toast } from 'sonner';
+import { useAutoSave } from '@/hooks/useAutoSave';
 
 const emptyForm = {
   name: '', gender: '', program_id: '', photo_url: '', country: '', town_city: '',
@@ -57,6 +58,14 @@ export default function AdminEntrepreneurs() {
   const [countrySearch, setCountrySearch] = useState('');
   const PAGE_SIZE = 10;
 
+  const { clearAutoSave } = useAutoSave('entrepreneur_form', form, setForm, showForm);
+
+  const handleClearForm = () => {
+    setForm(emptyForm);
+    clearAutoSave();
+    setActiveTab(0);
+    toast.info('Form cleared');
+  };
   const fetchData = async () => {
     setLoading(true);
     let query = supabase.from('entrepreneurs').select('*', { count: 'exact' });
@@ -167,6 +176,7 @@ export default function AdminEntrepreneurs() {
         await logActivity('Created entrepreneur', 'entrepreneur', inserted?.id, { name: form.name });
         toast.success('Entrepreneur created');
       }
+      clearAutoSave();
       setShowForm(false); setEditing(null); setForm(emptyForm); setActiveTab(0); fetchData();
     } catch (err: any) {
       toast.error(err.message || 'Failed to save');
@@ -484,10 +494,15 @@ export default function AdminEntrepreneurs() {
               {activeTab < tabs.length - 1 ? (
                 <Button onClick={() => setActiveTab(activeTab + 1)} className="flex-1 bg-primary text-primary-foreground">Next</Button>
               ) : (
-                <Button onClick={handleSave} disabled={saving} className="flex-1 bg-primary text-primary-foreground">
-                  {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-                  {editing ? 'Update' : 'Create'} Entrepreneur
-                </Button>
+                <>
+                  <Button onClick={handleSave} disabled={saving} className="flex-1 bg-primary text-primary-foreground">
+                    {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                    {editing ? 'Update' : 'Create'} Entrepreneur
+                  </Button>
+                  <Button variant="outline" onClick={handleClearForm} type="button" title="Clear form">
+                    <RotateCcw className="h-4 w-4" />
+                  </Button>
+                </>
               )}
             </div>
           </div>
