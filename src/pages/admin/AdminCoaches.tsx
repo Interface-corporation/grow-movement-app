@@ -114,6 +114,7 @@ export default function AdminCoaches() {
       }
     }
 
+    clearAutoSave();
     setSaving(false); setShowForm(false); setEditing(null); setForm(emptyForm); fetchData();
   };
 

@@ -176,6 +176,7 @@ export default function AdminEntrepreneurs() {
         await logActivity('Created entrepreneur', 'entrepreneur', inserted?.id, { name: form.name });
         toast.success('Entrepreneur created');
       }
+      clearAutoSave();
       setShowForm(false); setEditing(null); setForm(emptyForm); setActiveTab(0); fetchData();
     } catch (err: any) {
       toast.error(err.message || 'Failed to save');
