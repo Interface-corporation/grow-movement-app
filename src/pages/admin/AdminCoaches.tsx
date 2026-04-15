@@ -32,6 +32,13 @@ export default function AdminCoaches() {
   const [coachProgramMap, setCoachProgramMap] = useState<Record<string, string>>({});
   const PAGE_SIZE = 10;
 
+  const { clearAutoSave } = useAutoSave('coach_form', form, setForm, showForm);
+
+  const handleClearForm = () => {
+    setForm(emptyForm);
+    clearAutoSave();
+    toast.info('Form cleared');
+  };
   const fetchData = async () => {
     setLoading(true);
 

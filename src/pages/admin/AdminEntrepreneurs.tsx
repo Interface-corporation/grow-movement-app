@@ -58,6 +58,14 @@ export default function AdminEntrepreneurs() {
   const [countrySearch, setCountrySearch] = useState('');
   const PAGE_SIZE = 10;
 
+  const { clearAutoSave } = useAutoSave('entrepreneur_form', form, setForm, showForm);
+
+  const handleClearForm = () => {
+    setForm(emptyForm);
+    clearAutoSave();
+    setActiveTab(0);
+    toast.info('Form cleared');
+  };
   const fetchData = async () => {
     setLoading(true);
     let query = supabase.from('entrepreneurs').select('*', { count: 'exact' });
