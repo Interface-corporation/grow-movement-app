@@ -249,10 +249,15 @@ export default function AdminCoaches() {
               <label className="block text-xs font-medium text-foreground mb-1">Bio</label>
               <textarea value={form.bio} onChange={e => setForm({...form, bio: e.target.value})} placeholder="Brief bio" className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm resize-none" rows={3} />
             </div>
-            <Button onClick={handleSave} disabled={saving || !form.name} className="w-full mt-4 bg-primary text-primary-foreground">
-              {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-              {editing ? 'Update' : 'Create'} Coach
-            </Button>
+            <div className="flex gap-2 mt-4">
+              <Button onClick={handleSave} disabled={saving || !form.name} className="flex-1 bg-primary text-primary-foreground">
+                {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                {editing ? 'Update' : 'Create'} Coach
+              </Button>
+              <Button variant="outline" onClick={handleClearForm} type="button" title="Clear form">
+                <RotateCcw className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
       )}
