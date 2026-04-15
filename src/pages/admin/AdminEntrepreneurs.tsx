@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Plus, Pencil, Trash2, Search, Loader2, X, Eye } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, Loader2, X, Eye, RotateCcw } from 'lucide-react';
 import { sectors, countries, stages, qualifications, socialMediaPlatforms, workTypes } from '@/data/mockEntrepreneurs';
 import { logActivity } from '@/lib/activityLog';
 import FileUpload from '@/components/FileUpload';
 import EntrepreneurViewModal from '@/components/admin/EntrepreneurViewModal';
 import { toast } from 'sonner';
+import { useAutoSave } from '@/hooks/useAutoSave';
 
 const emptyForm = {
   name: '', gender: '', program_id: '', photo_url: '', country: '', town_city: '',

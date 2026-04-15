@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Plus, Pencil, Trash2, Search, Loader2, X } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, Loader2, X, RotateCcw } from 'lucide-react';
 import { countries } from '@/data/mockEntrepreneurs';
 import { logActivity } from '@/lib/activityLog';
+import { useAutoSave } from '@/hooks/useAutoSave';
+import { toast } from 'sonner';
 
 const communicationOptions = ['Email', 'WhatsApp', 'Phone Call', 'SMS', 'Zoom/Video Call'];
 
