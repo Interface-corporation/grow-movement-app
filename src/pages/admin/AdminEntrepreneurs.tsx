@@ -494,13 +494,15 @@ export default function AdminEntrepreneurs() {
               {activeTab < tabs.length - 1 ? (
                 <Button onClick={() => setActiveTab(activeTab + 1)} className="flex-1 bg-primary text-primary-foreground">Next</Button>
               ) : (
-                <Button onClick={handleSave} disabled={saving} className="flex-1 bg-primary text-primary-foreground">
-                  {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-                  {editing ? 'Update' : 'Create'} Entrepreneur
-                </Button>
-                <Button variant="outline" onClick={handleClearForm} type="button" title="Clear form">
-                  <RotateCcw className="h-4 w-4" />
-                </Button>
+                <>
+                  <Button onClick={handleSave} disabled={saving} className="flex-1 bg-primary text-primary-foreground">
+                    {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                    {editing ? 'Update' : 'Create'} Entrepreneur
+                  </Button>
+                  <Button variant="outline" onClick={handleClearForm} type="button" title="Clear form">
+                    <RotateCcw className="h-4 w-4" />
+                  </Button>
+                </>
               )}
             </div>
           </div>
