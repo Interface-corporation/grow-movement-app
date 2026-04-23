@@ -6,7 +6,7 @@ const ctas = [
   { icon: Rocket, label: 'Apply as Entrepreneur', href: '/apply', color: 'bg-primary' },
   { icon: GraduationCap, label: 'Apply to Volunteer', href: '/apply/coach', color: 'bg-accent' },
   { icon: Building2, label: 'Apply as Partner', href: '#contact', color: 'bg-grow-gold' },
-  { icon: Heart, label: 'Donate to the Movement', href: '#contact', color: 'bg-grow-sage' },
+  { icon: Heart, label: 'Donate to the Movement', href: '/donate', color: 'bg-grow-sage' },
 ];
 
 export function StrongCTA() {

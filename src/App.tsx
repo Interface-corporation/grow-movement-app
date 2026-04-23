@@ -11,6 +11,7 @@ import MatchingRequest from '@/pages/MatchingRequest';
 import Auth from '@/pages/Auth';
 import Apply from '@/pages/Apply';
 import ApplyCoach from '@/pages/ApplyCoach';
+import Donate from '@/pages/Donate';
 import AdminLayout from '@/components/admin/AdminLayout';
 import DashboardHome from '@/pages/admin/DashboardHome';
 import AdminApplications from '@/pages/admin/AdminApplications';
@@ -61,6 +62,7 @@ export default function App() {
             <Route path="/matching-request" element={<PublicLayout><MatchingRequest /></PublicLayout>} />
             <Route path="/apply" element={<PublicLayout><Apply /></PublicLayout>} />
             <Route path="/apply/coach" element={<PublicLayout><ApplyCoach /></PublicLayout>} />
+            <Route path="/donate" element={<PublicLayout><Donate /></PublicLayout>} />
             <Route path="/blog/:slug" element={<PublicLayout><BlogPost /></PublicLayout>} />
             <Route path="/blog" element={<PublicLayout><Blog /></PublicLayout>} />
             {/* Auth */}
