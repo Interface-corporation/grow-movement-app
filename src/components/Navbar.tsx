@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState } from 'react';
-import { Menu, X, ShoppingCart, LayoutDashboard } from 'lucide-react';
+import { Menu, X, ShoppingCart, LayoutDashboard, Heart } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,7 @@ export function Navbar() {
     { to: '/apply', label: 'Apply' },
     { to: '/apply/coach', label: 'Apply as Coach' },
     { to: '/blog', label: 'Blog' },
+    { to: '/donate', label: 'Donate' },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -70,9 +71,10 @@ export function Navbar() {
                 </Button>
               </Link>
             ) : (
-              <Link to="/entrepreneurs" className="hidden md:block">
-                <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
-                  Find Entrepreneurs
+              <Link to="/donate" className="hidden md:block">
+                <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2">
+                  <Heart className="h-4 w-4 fill-current" />
+                  Donate
                 </Button>
               </Link>
             )}
@@ -106,9 +108,9 @@ export function Navbar() {
                   {link.label}
                 </Link>
               ))}
-              <Link to="/entrepreneurs" onClick={() => setMobileOpen(false)}>
-                <Button size="sm" className="w-full bg-primary text-primary-foreground">
-                  Find Entrepreneurs
+              <Link to="/donate" onClick={() => setMobileOpen(false)}>
+                <Button size="sm" className="w-full bg-primary text-primary-foreground gap-2">
+                  <Heart className="h-4 w-4 fill-current" /> Donate
                 </Button>
               </Link>
             </nav>

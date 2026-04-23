@@ -11,6 +11,7 @@ export function GrowFooter() {
         { label: 'Apply as Entrepreneur', to: '/apply' },
         { label: 'Apply as Coach', to: '/apply/coach' },
         { label: 'Browse Entrepreneurs', to: '/entrepreneurs' },
+        { label: 'Donate', to: '/donate' },
         { label: 'Selection Cart', to: '/cart' },
       ],
     },
