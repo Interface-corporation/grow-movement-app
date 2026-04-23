@@ -15,7 +15,7 @@ export function ContactSection() {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  useAutoSave('contact-form-draft', form, setForm);
+  const { clearAutoSave } = useAutoSave('contact-form', form, setForm);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,7 +24,7 @@ export function ContactSection() {
     await new Promise((r) => setTimeout(r, 800));
     toast({ title: 'Message sent!', description: "We'll be in touch within 1-2 business days." });
     setForm(initial);
-    localStorage.removeItem('contact-form-draft');
+    clearAutoSave();
     setLoading(false);
   };
 
