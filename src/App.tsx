@@ -12,6 +12,8 @@ import Auth from '@/pages/Auth';
 import Apply from '@/pages/Apply';
 import ApplyCoach from '@/pages/ApplyCoach';
 import Donate from '@/pages/Donate';
+import SeedFund from '@/pages/SeedFund';
+import AdminSeedFundVotes from '@/pages/admin/AdminSeedFundVotes';
 import AdminLayout from '@/components/admin/AdminLayout';
 import DashboardHome from '@/pages/admin/DashboardHome';
 import AdminApplications from '@/pages/admin/AdminApplications';
