@@ -56,7 +56,7 @@ export default function SeedFund() {
   useEffect(() => { (async () => {
     setLoading(true);
     // active OR most recent ended competition
-    const { data: comps } = await supabase
+    const { data: comps } = await (supabase as any)
       .from('seed_fund_competitions')
       .select('*')
       .in('status', ['active', 'ended'])
@@ -67,20 +67,20 @@ export default function SeedFund() {
     setComp(c as any);
 
     if (c) {
-      const { data: cands } = await supabase
+      const { data: cands } = await (supabase as any)
         .from('seed_fund_candidates')
         .select('id, competition_id, entrepreneur_id, raising_for, display_order, entrepreneur:entrepreneurs(*)')
         .eq('competition_id', c.id)
         .order('display_order', { ascending: true });
       setCandidates((cands || []) as any);
 
-      const { data: tally } = await supabase.rpc('get_seed_fund_vote_counts', { _competition_id: c.id });
+      const { data: tally } = await (supabase as any).rpc('get_seed_fund_vote_counts', { _competition_id: c.id });
       const map: Record<string, number> = {};
       (tally || []).forEach((r: any) => { map[r.candidate_id] = Number(r.votes || 0); });
       setCounts(map);
     }
 
-    const { data: alums } = await supabase
+    const { data: alums } = await (supabase as any)
       .from('entrepreneurs')
       .select('*')
       .eq('status', 'Seed Fund Alumni')
@@ -103,7 +103,7 @@ export default function SeedFund() {
       return;
     }
     setSending(true);
-    const { data, error } = await supabase.functions.invoke('request-vote-otp', {
+    const { data, error } = await (supabase as any).functions.invoke('request-vote-otp', {
       body: { competition_id: comp.id, candidate_id: selected.id, email: voterEmail.trim(), voter_name: voterName.trim() || null },
     });
     setSending(false);
@@ -123,7 +123,7 @@ export default function SeedFund() {
     if (!comp) return;
     if (!/^\d{6}$/.test(otp)) { toast({ title: 'Enter the 6-digit code', variant: 'destructive' }); return; }
     setSending(true);
-    const { data, error } = await supabase.functions.invoke('verify-vote-otp', {
+    const { data, error } = await (supabase as any).functions.invoke('verify-vote-otp', {
       body: { competition_id: comp.id, email: voterEmail.trim(), code: otp.trim() },
     });
     setSending(false);
@@ -133,7 +133,7 @@ export default function SeedFund() {
     }
     setStep('done');
     // refresh tally
-    const { data: tally } = await supabase.rpc('get_seed_fund_vote_counts', { _competition_id: comp.id });
+    const { data: tally } = await (supabase as any).rpc('get_seed_fund_vote_counts', { _competition_id: comp.id });
     const map: Record<string, number> = {};
     (tally || []).forEach((r: any) => { map[r.candidate_id] = Number(r.votes || 0); });
     setCounts(map);
