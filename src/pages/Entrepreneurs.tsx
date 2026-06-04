@@ -23,7 +23,7 @@ export default function Entrepreneurs() {
   useEffect(() => {
     const fetchData = async () => {
       const [{ data: entData }, { data: progData }] = await Promise.all([
-        supabase.from('entrepreneurs').select('*').in('status', ['Admitted', 'Alumni']).order('created_at', { ascending: false }),
+        supabase.from('entrepreneurs').select('*').in('status', ['Admitted', 'Alumni', 'Seed Fund Candidate', 'Seed Fund Alumni']).order('created_at', { ascending: false }),
         supabase.from('programs').select('id, name'),
       ]);
       setEntrepreneurs(entData || []);
