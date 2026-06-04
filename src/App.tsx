@@ -80,6 +80,7 @@ export default function App() {
               <Route path="matching-requests" element={<AdminMatchingRequests />} />
               <Route path="my-requests" element={<CoachMatchingRequests />} />
               <Route path="matching" element={<AdminMatching />} />
+              <Route path="vote" element={<AdminSeedFundVotes />} />
               <Route path="programs" element={<AdminPrograms />} />
               <Route path="programs/:id" element={<AdminProgramDetail />} />
               <Route path="projects" element={<AdminProjects />} />
