@@ -3,7 +3,7 @@ import { useAuth, UserRole } from '@/contexts/AuthContext';
 import {
   LayoutDashboard, Users, UserPlus, GitMerge, Handshake, FileText,
   Clock, LogOut, Menu, X, Loader2, User, Settings, ChevronDown,
-  FolderKanban, BookOpen, Shield, ChevronRight
+  FolderKanban, BookOpen, Shield, ChevronRight, Vote
 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
