@@ -17,6 +17,7 @@ export function Navbar() {
     { to: '/apply', label: 'Apply' },
     { to: '/apply/coach', label: 'Apply as Coach' },
     { to: '/blog', label: 'Blog' },
+    { to: '/seed-fund', label: 'Seed Fund' },
     { to: '/donate', label: 'Donate' },
   ];
 

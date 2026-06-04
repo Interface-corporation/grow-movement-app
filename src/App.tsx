@@ -12,6 +12,8 @@ import Auth from '@/pages/Auth';
 import Apply from '@/pages/Apply';
 import ApplyCoach from '@/pages/ApplyCoach';
 import Donate from '@/pages/Donate';
+import SeedFund from '@/pages/SeedFund';
+import AdminSeedFundVotes from '@/pages/admin/AdminSeedFundVotes';
 import AdminLayout from '@/components/admin/AdminLayout';
 import DashboardHome from '@/pages/admin/DashboardHome';
 import AdminApplications from '@/pages/admin/AdminApplications';
@@ -63,6 +65,7 @@ export default function App() {
             <Route path="/apply" element={<PublicLayout><Apply /></PublicLayout>} />
             <Route path="/apply/coach" element={<PublicLayout><ApplyCoach /></PublicLayout>} />
             <Route path="/donate" element={<PublicLayout><Donate /></PublicLayout>} />
+            <Route path="/seed-fund" element={<PublicLayout><SeedFund /></PublicLayout>} />
             <Route path="/blog/:slug" element={<PublicLayout><BlogPost /></PublicLayout>} />
             <Route path="/blog" element={<PublicLayout><Blog /></PublicLayout>} />
             {/* Auth */}
@@ -77,6 +80,7 @@ export default function App() {
               <Route path="matching-requests" element={<AdminMatchingRequests />} />
               <Route path="my-requests" element={<CoachMatchingRequests />} />
               <Route path="matching" element={<AdminMatching />} />
+              <Route path="vote" element={<AdminSeedFundVotes />} />
               <Route path="programs" element={<AdminPrograms />} />
               <Route path="programs/:id" element={<AdminProgramDetail />} />
               <Route path="projects" element={<AdminProjects />} />

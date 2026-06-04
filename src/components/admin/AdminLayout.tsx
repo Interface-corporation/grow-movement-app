@@ -3,7 +3,7 @@ import { useAuth, UserRole } from '@/contexts/AuthContext';
 import {
   LayoutDashboard, Users, UserPlus, GitMerge, Handshake, FileText,
   Clock, LogOut, Menu, X, Loader2, User, Settings, ChevronDown,
-  FolderKanban, BookOpen, Shield, ChevronRight
+  FolderKanban, BookOpen, Shield, ChevronRight, Vote
 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
@@ -25,6 +25,7 @@ const sidebarLinks: SidebarLink[] = [
   { to: '/admin/matching-requests', icon: GitMerge, label: 'Matching Requests', roles: ['admin'] },
   { to: '/admin/my-requests', icon: GitMerge, label: 'My Requests', roles: ['coach'] },
   { to: '/admin/matching', icon: Handshake, label: 'Matching', roles: ['admin', 'program_admin', 'coach'] },
+  { to: '/admin/vote', icon: Vote, label: 'Seed Fund Vote', roles: ['admin'] },
   { to: '/admin/programs', icon: FolderKanban, label: 'Programs', roles: ['admin'] },
   { to: '/admin/projects', icon: FolderKanban, label: 'Projects', roles: ['admin', 'program_admin', 'coach'] },
   { to: '/admin/resources', icon: BookOpen, label: 'Resource Library', roles: ['admin', 'program_admin', 'coach'] },
