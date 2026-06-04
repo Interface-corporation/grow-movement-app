@@ -472,7 +472,7 @@ export default function AdminEntrepreneurs() {
                 <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-xl p-3 text-sm text-amber-800 dark:text-amber-200">
                   ⚠️ These fields are only visible to administrators and will not appear on the public application form.
                 </div>
-                {sel('status', 'Application Status', ['Pending', 'Admitted', 'Matched', 'Alumni', 'Rejected'])}
+                {sel('status', 'Application Status', ['Pending', 'Admitted', 'Matched', 'Seed Fund Candidate', 'Seed Fund Alumni', 'Alumni', 'Rejected'])}
                 <div>
                   <label className="block text-xs font-medium text-foreground mb-1">Programme</label>
                   <select value={form.program_id} onChange={e => setForm({ ...form, program_id: e.target.value })}
