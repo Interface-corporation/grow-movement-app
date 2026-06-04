@@ -65,6 +65,7 @@ export default function App() {
             <Route path="/apply" element={<PublicLayout><Apply /></PublicLayout>} />
             <Route path="/apply/coach" element={<PublicLayout><ApplyCoach /></PublicLayout>} />
             <Route path="/donate" element={<PublicLayout><Donate /></PublicLayout>} />
+            <Route path="/seed-fund" element={<PublicLayout><SeedFund /></PublicLayout>} />
             <Route path="/blog/:slug" element={<PublicLayout><BlogPost /></PublicLayout>} />
             <Route path="/blog" element={<PublicLayout><Blog /></PublicLayout>} />
             {/* Auth */}
