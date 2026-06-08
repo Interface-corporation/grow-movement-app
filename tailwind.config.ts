@@ -18,8 +18,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ['Playfair Display', 'serif'],
-        sans: ['DM Sans', 'system-ui', 'sans-serif'],
+        display: ['Glacial Indifference', 'Playfair Display', 'serif'],
+        serif: ['Playfair Display', 'serif'],
+        sans: ['Roboto', 'system-ui', 'sans-serif'],
       },
       colors: {
         border: "var(--border)",
