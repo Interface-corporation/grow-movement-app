@@ -3,9 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import slide1 from '@/assets/hero-slide-1.jpg';
-import slide2 from '@/assets/hero-slide-2.jpg';
-import slide3 from '@/assets/hero-slide-3.jpg';
+import slide1 from '@/assets/growImage/homeHero1.jpg';
+import slide2 from '@/assets/growImage/homeHero2.png';
+import slide3 from '@/assets/growImage/homeHero3.png';
 
 const slides = [
   {

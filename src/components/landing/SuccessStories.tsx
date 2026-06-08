@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, ChevronLeft, ChevronRight, Quote } from 'lucide-react';
-import story1 from '@/assets/story-1.jpg';
-import story2 from '@/assets/story-2.jpg';
-import story3 from '@/assets/story-3.jpg';
+import story1 from '@/assets/growImage/testimonial1.png';
+import story2 from '@/assets/growImage/testimonial2.png';
+import story3 from '@/assets/growImage/testimonial3.png';
 
 const stories = [
   {

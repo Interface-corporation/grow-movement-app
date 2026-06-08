@@ -61,7 +61,7 @@ export function WhoWeAre() {
             <div className="relative aspect-[4/5] rounded-3xl overflow-hidden bg-grow-navy shadow-2xl">
               {playing ? (
                 <iframe
-                  src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
+                  src="https://www.youtube.com/embed/K-CEqtGly0s?autoplay=1" 
                   title="Grow Movement intro"
                   className="absolute inset-0 w-full h-full"
                   allow="autoplay; encrypted-media"

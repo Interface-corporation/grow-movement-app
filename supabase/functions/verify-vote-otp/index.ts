@@ -15,6 +15,8 @@ const json = (body: unknown, status = 200) =>
   });
 
 Deno.serve(async (req) => {
+  console.log("RESEND_API_KEY exists:", !!Deno.env.get("RESEND_API_KEY"));
+  console.log("VOTE_EMAIL_FROM:", Deno.env.get("VOTE_EMAIL_FROM"));
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   try {
     const { competition_id, email, code } = await req.json();
