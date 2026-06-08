@@ -10,7 +10,9 @@ import Cart from '@/pages/Cart';
 import MatchingRequest from '@/pages/MatchingRequest';
 import Auth from '@/pages/Auth';
 import Apply from '@/pages/Apply';
+import ApplyChoose from '@/pages/ApplyChoose';
 import ApplyCoach from '@/pages/ApplyCoach';
+import Contact from '@/pages/Contact';
 import Donate from '@/pages/Donate';
 import SeedFund from '@/pages/SeedFund';
 import AdminSeedFundVotes from '@/pages/admin/AdminSeedFundVotes';
@@ -62,8 +64,10 @@ export default function App() {
             <Route path="/entrepreneurs/:id" element={<PublicLayout><EntrepreneurProfile /></PublicLayout>} />
             <Route path="/cart" element={<PublicLayout><Cart /></PublicLayout>} />
             <Route path="/matching-request" element={<PublicLayout><MatchingRequest /></PublicLayout>} />
-            <Route path="/apply" element={<PublicLayout><Apply /></PublicLayout>} />
+            <Route path="/apply" element={<PublicLayout><ApplyChoose /></PublicLayout>} />
+            <Route path="/apply/entrepreneur" element={<PublicLayout><Apply /></PublicLayout>} />
             <Route path="/apply/coach" element={<PublicLayout><ApplyCoach /></PublicLayout>} />
+            <Route path="/contact" element={<PublicLayout><Contact /></PublicLayout>} />
             <Route path="/donate" element={<PublicLayout><Donate /></PublicLayout>} />
             <Route path="/seed-fund" element={<PublicLayout><SeedFund /></PublicLayout>} />
             <Route path="/blog/:slug" element={<PublicLayout><BlogPost /></PublicLayout>} />

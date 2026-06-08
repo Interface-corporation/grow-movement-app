@@ -8,11 +8,10 @@ export function GrowFooter() {
     {
       title: 'Programs',
       links: [
-        { label: 'Apply as Entrepreneur', to: '/apply' },
-        { label: 'Apply as Coach', to: '/apply/coach' },
+        { label: 'Apply', to: '/apply' },
         { label: 'Browse Entrepreneurs', to: '/entrepreneurs' },
+        { label: 'Seed Fund', to: '/seed-fund' },
         { label: 'Donate', to: '/donate' },
-        { label: 'Selection Cart', to: '/cart' },
       ],
     },
     {
@@ -30,7 +29,7 @@ export function GrowFooter() {
         { label: 'Blog', to: '/blog' },
         { label: 'Success Stories', to: '/#stories' },
         { label: 'FAQ', to: '/#faq' },
-        { label: 'Contact', to: '/#contact' },
+        { label: 'Contact', to: '/contact' },
       ],
     },
   ];
@@ -60,9 +59,9 @@ export function GrowFooter() {
               and strategic connections with investors worldwide.
             </p>
             <ul className="space-y-2 text-sm">
-              <li className="flex items-center gap-3"><Mail className="h-4 w-4 text-primary" /><a href="mailto:info@growmovement.org" className="hover:text-white transition-colors">info@growmovement.org</a></li>
-              <li className="flex items-center gap-3"><Phone className="h-4 w-4 text-primary" /><span>+250 788 000 000</span></li>
-              <li className="flex items-center gap-3"><MapPin className="h-4 w-4 text-primary" /><span>KG 9 Avenue, Kigali, Rwanda</span></li>
+              <li className="flex items-center gap-3"><Mail className="h-4 w-4 text-primary" /><a href="mailto:violet@growmovement.org" className="hover:text-white transition-colors">violet@growmovement.org</a></li>
+              <li className="flex items-center gap-3"><Phone className="h-4 w-4 text-primary" /><a href="tel:+447943592369" className="hover:text-white">+44 (0) 7943 592 369</a></li>
+              <li className="flex items-start gap-3"><MapPin className="h-4 w-4 text-primary mt-1" /><span>86–90 Paul Street, London, England EC2A 4NE</span></li>
             </ul>
           </div>
 
