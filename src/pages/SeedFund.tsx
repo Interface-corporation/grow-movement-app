@@ -99,8 +99,8 @@ const partnerTracks = [
 ];
 
 const testimonials = [
-  { q: 'Being part of the Grow Movement Seed Fund was transformational.', who: 'Candidate, 2024 Cohort' },
-  { q: "Beyond the opportunity itself, the connections, encouragement, and practical business support gave me the confidence to take my business to the next level.", who: 'Candidate, 2025 Cohort' },
+  { q: 'Being part of the Grow Movement Seed Fund was transformational.', who: ' Keren Uhiriwe, 2025 finalist' },
+  { q: "Beyond the opportunity itself, the connections, encouragement, and practical business support gave me the confidence to take my business to the next level.", who: 'Nadege Umuhire, 2025 finalist' },
 ];
 
 function socialIcon(url: string) {
