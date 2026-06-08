@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import donateHero from '@/assets/donate-hero.jpg';
+import donateHero from '@/assets/growImage/donate.png';
 
 const bankDetails = [
   { label: 'Account Name', value: 'Grow Movement' },
@@ -113,7 +113,7 @@ export default function Donate() {
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold uppercase tracking-[0.2em] text-primary mb-6">
               <Heart className="h-3.5 w-3.5 fill-primary" /> Support the Movement
             </span>
-            <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-black leading-[1.05] mb-6">
+            <h1 className="font-display text-4xl md:text-6xl text-white lg:text-7xl font-black leading-[1.05] mb-6">
               Your gift fuels{' '}
               <span className="text-primary">real entrepreneurs,</span> real growth.
             </h1>

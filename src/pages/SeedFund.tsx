@@ -14,7 +14,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { toast } from '@/hooks/use-toast';
 import { getProfilePhoto } from '@/lib/avatars';
-import heroImg from '@/assets/seedfund-hero.jpg';
+import heroImg from '@/assets/growImage/seedHero2.png';
+import seedAbout1 from '@/assets/growImage/seedAbout1.png';
+import seedAbout2 from '@/assets/growImage/seedAbout2.png';
 
 type Competition = {
   id: string; title: string; edition: string | null;
@@ -383,13 +385,13 @@ export default function SeedFund() {
               className="absolute top-0 right-0 w-3/4 h-72 rounded-3xl overflow-hidden shadow-2xl"
               whileHover={{ scale: 1.03, rotate: 1 }}
             >
-              <img src={heroImg} alt="Pitch event" className="w-full h-full object-cover" />
+              <img src={seedAbout1} alt="Pitch event" className="w-full h-full object-cover" />
             </motion.div>
             <motion.div
               className="absolute bottom-0 left-0 w-2/3 h-64 rounded-3xl overflow-hidden shadow-2xl border-4 border-background"
               whileHover={{ scale: 1.03, rotate: -1 }}
             >
-              <img src={heroImg} alt="Entrepreneur" className="w-full h-full object-cover" />
+              <img src={seedAbout2} alt="Entrepreneur" className="w-full h-full object-cover" />
             </motion.div>
             <motion.div
               className="absolute top-1/2 right-4 -translate-y-1/2 bg-grow-coral text-white rounded-2xl p-5 shadow-2xl max-w-[180px]"
