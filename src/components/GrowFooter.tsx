@@ -11,7 +11,7 @@ export function GrowFooter() {
         { label: 'Apply', to: '/apply' },
         { label: 'Browse Entrepreneurs', to: '/entrepreneurs' },
         { label: 'Seed Fund', to: '/seed-fund' },
-        { label: 'Donate', to: '/donate' },
+        { label: 'Contact Us', to: '/contact' },
       ],
     },
     {

@@ -4,12 +4,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Award, Calendar, Globe2, Mail, MapPin, Sparkles, Trophy,
   Users, ArrowRight, CheckCircle2, Vote, Loader2, RotateCcw,
-  Heart, Briefcase, Building2, GraduationCap, Lightbulb, ChevronDown,
-  ChevronRight, Facebook, Linkedin, Instagram, Twitter, Globe, Quote
+  Briefcase, Building2, GraduationCap, Lightbulb, ChevronDown,
+  ChevronRight, Facebook, Linkedin, Instagram, Twitter, Globe, Quote,
+  X, KeyRound, ChevronUp,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { toast } from '@/hooks/use-toast';
@@ -21,6 +24,9 @@ import seedAbout2 from '@/assets/growImage/seedAbout2.png';
 type Competition = {
   id: string; title: string; edition: string | null;
   description: string | null; event_date: string | null; status: string;
+  auth_method: 'otp' | 'private_code' | 'public_code';
+  max_selections: number;
+  public_code: string | null;
 };
 
 type Candidate = {
@@ -128,12 +134,18 @@ export default function SeedFund() {
   const [alumni, setAlumni] = useState<Alumni[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Voter selection state
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [mobileExpanded, setMobileExpanded] = useState(false);
+
+  // Voting modal
   const [voteOpen, setVoteOpen] = useState(false);
-  const [selected, setSelected] = useState<Candidate | null>(null);
   const [step, setStep] = useState<'form' | 'otp' | 'done'>('form');
   const [voterName, setVoterName] = useState('');
   const [voterEmail, setVoterEmail] = useState('');
   const [otp, setOtp] = useState('');
+  const [code, setCode] = useState('');
+  const [voteToken, setVoteToken] = useState('');
   const [sending, setSending] = useState(false);
 
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -173,29 +185,62 @@ export default function SeedFund() {
     }
 
     const { data: alums } = await (supabase as any)
-      .from('entrepreneurs')
-      .select('*')
-      .eq('status', 'Seed Fund Alumni')
+      .from('entrepreneurs').select('*').eq('status', 'Seed Fund Alumni')
       .order('created_at', { ascending: false });
     setAlumni(alums || []);
     setLoading(false);
   })(); }, []);
 
+  // Realtime vote counts
+  useEffect(() => {
+    if (!comp?.id) return;
+    const ch = (supabase as any).channel(`votes-${comp.id}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'seed_fund_votes', filter: `competition_id=eq.${comp.id}` },
+        async () => {
+          const { data: tally } = await (supabase as any).rpc('get_seed_fund_vote_counts', { _competition_id: comp.id });
+          const map: Record<string, number> = {};
+          (tally || []).forEach((r: any) => { map[r.candidate_id] = Number(r.votes || 0); });
+          setCounts(map);
+        }).subscribe();
+    return () => { (supabase as any).removeChannel(ch); };
+  }, [comp?.id]);
+
   const totalVotes = useMemo(() => Object.values(counts).reduce((a, b) => a + b, 0), [counts]);
   const isActive = comp?.status === 'active';
+  const maxSel = comp?.max_selections ?? 1;
+  const exactReady = selectedIds.length === maxSel;
+  const authMethod = comp?.auth_method || 'otp';
 
-  const openVote = (c: Candidate) => { setSelected(c); setStep('form'); setOtp(''); setVoteOpen(true); };
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      if (prev.includes(id)) return prev.filter(x => x !== id);
+      if (prev.length >= maxSel) {
+        toast({ title: `You can only select ${maxSel} candidate${maxSel === 1 ? '' : 's'}`, variant: 'destructive' });
+        return prev;
+      }
+      return [...prev, id];
+    });
+  };
+
   const openDetails = (c: Candidate) => { setDetailsCand(c); setDetailsOpen(true); };
 
+  const startVote = () => {
+    if (!exactReady) {
+      toast({ title: `Select exactly ${maxSel} candidate${maxSel === 1 ? '' : 's'}`, variant: 'destructive' });
+      return;
+    }
+    setStep('form'); setOtp(''); setCode(''); setVoteToken(''); setVoteOpen(true);
+  };
+
   const requestOtp = async () => {
-    if (!selected || !comp) return;
+    if (!comp) return;
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(voterEmail)) {
       toast({ title: 'Invalid email', description: 'Please enter a valid email.', variant: 'destructive' });
       return;
     }
     setSending(true);
     const { data, error } = await (supabase as any).functions.invoke('request-vote-otp', {
-      body: { competition_id: comp.id, candidate_id: selected.id, email: voterEmail.trim(), voter_name: voterName.trim() || null },
+      body: { competition_id: comp.id, email: voterEmail.trim(), voter_name: voterName.trim() || null },
     });
     setSending(false);
     if (error || (data as any)?.error) {
@@ -210,32 +255,55 @@ export default function SeedFund() {
     setStep('otp');
   };
 
-  const submitVote = async () => {
+  const submitOtpVote = async () => {
     if (!comp) return;
     if (!/^\d{6}$/.test(otp)) { toast({ title: 'Enter the 6-digit code', variant: 'destructive' }); return; }
     setSending(true);
     const { data, error } = await (supabase as any).functions.invoke('verify-vote-otp', {
-      body: { competition_id: comp.id, email: voterEmail.trim(), code: otp.trim() },
+      body: { competition_id: comp.id, email: voterEmail.trim(), code: otp.trim(), candidate_ids: selectedIds },
     });
     setSending(false);
     if (error || (data as any)?.error) {
       toast({ title: 'Verification failed', description: (data as any)?.error || error?.message, variant: 'destructive' });
       return;
     }
+    setVoteToken((data as any)?.vote_token || '');
     setStep('done');
-    const { data: tally } = await (supabase as any).rpc('get_seed_fund_vote_counts', { _competition_id: comp.id });
-    const map: Record<string, number> = {};
-    (tally || []).forEach((r: any) => { map[r.candidate_id] = Number(r.votes || 0); });
-    setCounts(map);
+    setSelectedIds([]);
   };
 
-  const resetVote = () => { setVoterName(''); setVoterEmail(''); setOtp(''); setStep('form'); };
+  const submitCodeVote = async () => {
+    if (!comp) return;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(voterEmail)) {
+      toast({ title: 'Invalid email', variant: 'destructive' }); return;
+    }
+    if (!code.trim()) { toast({ title: 'Enter your code', variant: 'destructive' }); return; }
+    setSending(true);
+    const { data, error } = await (supabase as any).functions.invoke('cast-code-vote', {
+      body: {
+        competition_id: comp.id, email: voterEmail.trim(), voter_name: voterName.trim() || null,
+        code: code.trim(), candidate_ids: selectedIds,
+      },
+    });
+    setSending(false);
+    if (error || (data as any)?.error) {
+      toast({ title: 'Could not submit vote', description: (data as any)?.error || error?.message, variant: 'destructive' });
+      return;
+    }
+    setVoteToken((data as any)?.vote_token || '');
+    setStep('done');
+    setSelectedIds([]);
+  };
+
+  const resetVote = () => { setVoterName(''); setVoterEmail(''); setOtp(''); setCode(''); setStep('form'); };
 
   const e = detailsCand?.entrepreneur || {};
   const detailsSocials = parseSocials(e.social_media_links);
+  const selectedCandObjs = candidates.filter(c => selectedIds.includes(c.id));
 
   return (
     <div className="bg-background text-foreground">
+
       {/* ========= CINEMATIC HERO with rotating content ========= */}
       <section className="relative min-h-[95vh] flex items-center overflow-hidden">
         <motion.div
@@ -416,15 +484,20 @@ export default function SeedFund() {
           </motion.div>
 
           {/* How to vote */}
-          <div className="max-w-3xl mx-auto mb-12 bg-background border border-border rounded-2xl p-6 flex items-start gap-4">
-            <div className="w-10 h-10 rounded-full bg-grow-coral/10 flex items-center justify-center shrink-0">
-              <Vote className="h-5 w-5 text-grow-coral" />
-            </div>
-            <div className="text-sm text-muted-foreground leading-relaxed">
-              <span className="font-semibold text-foreground">How voting works: </span>
-              Click <em>Vote</em> on your favourite candidate, enter your email and the 6-digit code we send you.
-              One vote per email. Voting is open until the live pitch event.
-            </div>
+          <div className="max-w-3xl mx-auto mb-10 bg-background border border-border rounded-2xl p-6 grid sm:grid-cols-3 gap-4">
+            {[
+              { n: '1', t: 'Select', d: `Tick the box on ${maxSel} candidate${maxSel === 1 ? '' : 's'} you want to advance.` },
+              { n: '2', t: authMethod === 'otp' ? 'Verify' : 'Enter code', d: authMethod === 'otp' ? 'Enter your email & the 6-digit code we send.' : 'Enter the voting code you received.' },
+              { n: '3', t: 'Submit', d: 'Your ballot is recorded once. Live results update instantly.' },
+            ].map(s => (
+              <div key={s.n} className="flex gap-3">
+                <div className="w-8 h-8 rounded-full bg-grow-coral text-white font-bold flex items-center justify-center shrink-0">{s.n}</div>
+                <div>
+                  <div className="font-semibold text-sm">{s.t}</div>
+                  <div className="text-xs text-muted-foreground leading-snug">{s.d}</div>
+                </div>
+              </div>
+            ))}
           </div>
 
           {loading ? (
@@ -440,80 +513,93 @@ export default function SeedFund() {
           ) : candidates.length === 0 ? (
             <div className="text-center text-muted-foreground py-12">Candidates will be announced shortly.</div>
           ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-7">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-32 lg:pb-12">
               {candidates.map((c, i) => {
                 const en = c.entrepreneur || {};
                 const v = counts[c.id] || 0;
                 const pct = totalVotes ? Math.round((v / totalVotes) * 100) : 0;
                 const socials = parseSocials(en.social_media_links);
+                const isSelected = selectedIds.includes(c.id);
+                const atLimit = !isSelected && selectedIds.length >= maxSel;
                 return (
                   <motion.div
                     key={c.id}
-                    initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.07 }}
-                    whileHover={{ y: -6 }}
-                    className="group relative bg-background rounded-3xl overflow-hidden border border-border hover:border-grow-coral/40 hover:shadow-2xl transition-all flex flex-col"
+                    initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }} transition={{ duration: 0.45, delay: i * 0.06 }}
+                    className={`group relative bg-background rounded-2xl overflow-hidden border-2 transition-all flex flex-col ${
+                      isSelected ? 'border-grow-coral shadow-2xl shadow-grow-coral/20 ring-4 ring-grow-coral/10'
+                                  : 'border-border hover:border-grow-coral/40 hover:shadow-xl'
+                    }`}
                   >
-                    <div className="relative h-56 overflow-hidden bg-muted">
+                    {/* Top: select bar */}
+                    <button
+                      type="button"
+                      onClick={() => toggleSelect(c.id)}
+                      disabled={atLimit}
+                      className={`flex items-center justify-between gap-2 px-4 py-2.5 text-sm font-semibold transition-colors ${
+                        isSelected ? 'bg-grow-coral text-white' :
+                        atLimit ? 'bg-muted text-muted-foreground cursor-not-allowed' :
+                        'bg-background text-foreground hover:bg-grow-coral/5 border-b border-border'
+                      }`}
+                    >
+                      <span className="flex items-center gap-2">
+                        <Checkbox checked={isSelected} className={isSelected ? 'border-white data-[state=checked]:bg-white data-[state=checked]:text-grow-coral' : ''} />
+                        {isSelected ? 'Selected' : atLimit ? `Limit reached (${maxSel})` : 'Select for Final Pitch'}
+                      </span>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${isSelected ? 'bg-white/20 text-white' : 'bg-grow-gold/15 text-grow-gold'}`}>Top Candidate</span>
+                    </button>
+
+                    <div className="p-4 flex gap-3">
                       <img
                         src={getProfilePhoto(en.photo_url, en.gender)}
                         alt={en.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                        className="w-24 h-28 rounded-xl object-cover flex-shrink-0 shadow-sm"
                         loading="lazy"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-grow-navy/80 via-grow-navy/10 to-transparent" />
-                      <div className="absolute top-3 left-3 flex gap-2">
-                        <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-grow-gold text-grow-navy shadow">Candidate</span>
-                        {en.country && <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-white/95 text-grow-navy shadow">{en.country}</span>}
-                      </div>
-                      <div className="absolute bottom-0 p-4 text-white">
-                        <div className="text-[10px] uppercase tracking-widest opacity-80">{en.sector}</div>
-                        <h3 className="font-display text-xl font-bold leading-tight">{en.name}</h3>
-                        <div className="text-xs opacity-90">{en.business_name}</div>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-display text-lg font-bold leading-tight truncate">{en.name}</h3>
+                        {en.business_name && <p className="text-xs font-semibold text-foreground/85 truncate">{en.business_name}</p>}
+                        <div className="flex items-center gap-1 text-[11px] text-muted-foreground mt-0.5 truncate"><MapPin className="h-3 w-3" /> {en.country}</div>
+                        {en.sector && <div className="text-[11px] font-medium text-grow-teal mt-1 truncate">{en.sector}</div>}
+                        {en.about_entrepreneur && (
+                          <p className="text-[11px] text-muted-foreground mt-1.5 line-clamp-2 leading-snug">{en.about_entrepreneur}</p>
+                        )}
                       </div>
                     </div>
 
-                    <div className="p-5 flex flex-col flex-1">
-                      {/* Quick info */}
-                      <div className="space-y-2 mb-3 text-xs text-muted-foreground">
-                        {en.about_entrepreneur && (
-                          <div><span className="font-semibold text-foreground">Story: </span>{String(en.about_entrepreneur).slice(0, 90)}{en.about_entrepreneur.length > 90 ? '…' : ''}</div>
-                        )}
-                        {(en.business_description || en.products_services) && (
-                          <div><span className="font-semibold text-foreground">Business: </span>{String(en.business_description || en.products_services).slice(0, 90)}{(en.business_description || en.products_services).length > 90 ? '…' : ''}</div>
-                        )}
-                        {en.impact && (
-                          <div><span className="font-semibold text-foreground">Impact: </span>{String(en.impact).slice(0, 80)}{en.impact.length > 80 ? '…' : ''}</div>
-                        )}
-                        {c.raising_for && (
-                          <div><span className="font-semibold text-foreground">Raising for: </span>{c.raising_for}</div>
-                        )}
-                      </div>
+                    <div className="px-4 pb-4 flex flex-col flex-1 gap-2.5 text-xs">
+                      {(en.business_description || en.products_services) && (
+                        <div><span className="font-semibold text-foreground">Business: </span><span className="text-muted-foreground">{String(en.business_description || en.products_services).slice(0, 110)}{(en.business_description || en.products_services).length > 110 ? '…' : ''}</span></div>
+                      )}
+                      {en.impact && (
+                        <div><span className="font-semibold text-foreground">Impact: </span><span className="text-muted-foreground">{String(en.impact).slice(0, 90)}{en.impact.length > 90 ? '…' : ''}</span></div>
+                      )}
+                      {c.raising_for && (
+                        <div><span className="font-semibold text-foreground">Raising for: </span><span className="text-muted-foreground">{c.raising_for}</span></div>
+                      )}
 
-                      {/* Socials */}
                       {socials.length > 0 && (
-                        <div className="flex gap-2 mb-3">
+                        <div className="flex gap-1.5 mt-1">
                           {socials.slice(0, 4).map((url, idx) => {
                             const I = socialIcon(url);
                             return (
                               <a key={idx} href={url} target="_blank" rel="noreferrer"
-                                className="w-7 h-7 rounded-full bg-muted hover:bg-grow-coral hover:text-white flex items-center justify-center transition-colors"
-                                aria-label="Social link"
+                                className="w-6 h-6 rounded-full bg-muted hover:bg-grow-coral hover:text-white flex items-center justify-center transition-colors"
+                                aria-label="Social link" onClick={(e) => e.stopPropagation()}
                               >
-                                <I className="h-3.5 w-3.5" />
+                                <I className="h-3 w-3" />
                               </a>
                             );
                           })}
                         </div>
                       )}
 
-                      {/* Vote bar */}
-                      <div className="mb-4 mt-auto">
-                        <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+                      <div className="mt-auto pt-2">
+                        <div className="flex items-center justify-between text-[11px] text-muted-foreground mb-1">
                           <span>{v} {v === 1 ? 'vote' : 'votes'}</span>
                           <span>{pct}%</span>
                         </div>
-                        <div className="h-2 rounded-full bg-muted overflow-hidden">
+                        <div className="h-1.5 rounded-full bg-muted overflow-hidden">
                           <motion.div
                             className="h-full bg-gradient-to-r from-grow-coral to-grow-gold"
                             initial={{ width: 0 }} whileInView={{ width: `${pct}%` }}
@@ -521,14 +607,10 @@ export default function SeedFund() {
                           />
                         </div>
                       </div>
-                      <div className="flex gap-2">
-                        <Button variant="outline" className="flex-1" onClick={() => openDetails(c)}>
-                          Read more
-                        </Button>
-                        <Button className="flex-1 bg-grow-coral hover:bg-grow-coral/90" onClick={() => openVote(c)}>
-                          <Vote /> Vote
-                        </Button>
-                      </div>
+
+                      <Button variant="outline" size="sm" className="w-full mt-1" onClick={() => openDetails(c)}>
+                        Read more <ChevronRight className="h-3.5 w-3.5" />
+                      </Button>
                     </div>
                   </motion.div>
                 );
@@ -714,34 +796,148 @@ export default function SeedFund() {
         </div>
       </section>
 
+      {/* ========= STICKY VOTING INDICATOR ========= */}
+      {isActive && (
+        <>
+          {/* Desktop floating panel */}
+          <motion.aside
+            initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}
+            className="hidden lg:flex fixed bottom-6 right-6 z-40 w-80 bg-card/95 backdrop-blur-xl border border-border rounded-2xl shadow-2xl flex-col overflow-hidden"
+          >
+            <div className="px-4 py-3 bg-grow-navy text-white flex items-center justify-between">
+              <div>
+                <div className="text-[10px] uppercase tracking-widest opacity-80">Your Selections</div>
+                <div className="font-display font-bold text-lg">{selectedIds.length} / {maxSel}</div>
+              </div>
+              <Vote className="h-5 w-5 text-grow-gold" />
+            </div>
+            <div className="p-3 max-h-56 overflow-y-auto space-y-2">
+              {selectedCandObjs.length === 0 ? (
+                <p className="text-xs text-muted-foreground py-2 text-center">
+                  Tick candidates to add them here.
+                </p>
+              ) : selectedCandObjs.map(c => (
+                <div key={c.id} className="flex items-center gap-2 bg-background border border-border rounded-lg p-2">
+                  <img src={getProfilePhoto(c.entrepreneur?.photo_url, c.entrepreneur?.gender)}
+                    alt="" className="w-8 h-8 rounded-full object-cover" />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs font-semibold truncate">{c.entrepreneur?.name}</div>
+                    <div className="text-[10px] text-muted-foreground truncate">{c.entrepreneur?.business_name}</div>
+                  </div>
+                  <button onClick={() => toggleSelect(c.id)} className="text-muted-foreground hover:text-destructive" aria-label="Remove">
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <Button
+              disabled={!exactReady} onClick={startVote}
+              className="m-3 mt-1 bg-grow-coral hover:bg-grow-coral/90 disabled:bg-muted disabled:text-muted-foreground"
+            >
+              <CheckCircle2 className="h-4 w-4" /> Submit My Selections ({selectedIds.length}/{maxSel})
+            </Button>
+          </motion.aside>
+
+          {/* Mobile bottom bar */}
+          <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-xl border-t border-border shadow-2xl">
+            <button
+              onClick={() => setMobileExpanded(v => !v)}
+              className="w-full px-4 py-2.5 flex items-center justify-between"
+            >
+              <div className="flex items-center gap-2 text-sm font-semibold">
+                <Vote className="h-4 w-4 text-grow-coral" />
+                {selectedIds.length} / {maxSel} selected
+              </div>
+              {mobileExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+            </button>
+            <AnimatePresence>
+              {mobileExpanded && (
+                <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }}
+                  className="overflow-hidden border-t border-border">
+                  <div className="p-3 space-y-2 max-h-48 overflow-y-auto">
+                    {selectedCandObjs.length === 0
+                      ? <p className="text-xs text-muted-foreground text-center py-2">No selections yet.</p>
+                      : selectedCandObjs.map(c => (
+                          <div key={c.id} className="flex items-center gap-2 bg-background border border-border rounded-lg p-2">
+                            <img src={getProfilePhoto(c.entrepreneur?.photo_url, c.entrepreneur?.gender)} alt="" className="w-7 h-7 rounded-full object-cover" />
+                            <span className="text-xs flex-1 truncate">{c.entrepreneur?.name}</span>
+                            <button onClick={() => toggleSelect(c.id)} aria-label="Remove"><X className="h-3.5 w-3.5 text-muted-foreground" /></button>
+                          </div>
+                        ))
+                    }
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+            <div className="p-2 border-t border-border">
+              <Button disabled={!exactReady} onClick={startVote}
+                className="w-full bg-grow-coral hover:bg-grow-coral/90 disabled:bg-muted disabled:text-muted-foreground">
+                Submit ({selectedIds.length}/{maxSel})
+              </Button>
+            </div>
+          </div>
+        </>
+      )}
+
       {/* ========= VOTE MODAL ========= */}
       <Dialog open={voteOpen} onOpenChange={(o) => { setVoteOpen(o); if (!o) resetVote(); }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Vote for {selected?.entrepreneur?.name}</DialogTitle>
+            <DialogTitle>
+              {step === 'done' ? 'Vote submitted' : `Confirm your ${maxSel === 1 ? 'vote' : 'ballot'}`}
+            </DialogTitle>
             <DialogDescription>
-              {step === 'form' && 'Enter your details. We will email you a 6-digit code to verify your vote.'}
-              {step === 'otp'  && `Enter the 6-digit code we sent to ${voterEmail}.`}
-              {step === 'done' && 'Thank you! Your vote has been counted.'}
+              {step === 'form' && (authMethod === 'otp'
+                ? 'Enter your details. We will email you a 6-digit code to verify your vote.'
+                : authMethod === 'public_code'
+                  ? 'Enter your details and the public voting code shared with you.'
+                  : 'Enter your details and the private one-time code that was sent to you.')}
+              {step === 'otp' && `Enter the 6-digit code we sent to ${voterEmail}.`}
+              {step === 'done' && 'Thank you — your ballot has been recorded.'}
             </DialogDescription>
           </DialogHeader>
+
+          {step !== 'done' && (
+            <div className="bg-muted/50 rounded-lg p-3 text-xs">
+              <div className="font-semibold mb-1">Your selections ({selectedIds.length}/{maxSel}):</div>
+              <ul className="space-y-0.5 text-muted-foreground">
+                {selectedCandObjs.map(c => (
+                  <li key={c.id}>• {c.entrepreneur?.name} <span className="opacity-60">— {c.entrepreneur?.business_name}</span></li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           <AnimatePresence mode="wait">
             {step === 'form' && (
               <motion.div key="f" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-3">
                 <div>
-                  <label className="text-sm font-medium">Your name (optional)</label>
+                  <Label className="text-sm">Your name (optional)</Label>
                   <Input value={voterName} onChange={e => setVoterName(e.target.value)} placeholder="Jane Doe" />
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Email <span className="text-grow-coral">*</span></label>
+                  <Label className="text-sm">Email <span className="text-grow-coral">*</span></Label>
                   <Input type="email" value={voterEmail} onChange={e => setVoterEmail(e.target.value)} placeholder="you@example.com" />
                 </div>
+                {(authMethod === 'public_code' || authMethod === 'private_code') && (
+                  <div>
+                    <Label className="text-sm flex items-center gap-1"><KeyRound className="h-3.5 w-3.5" /> Voting code *</Label>
+                    <Input value={code} onChange={e => setCode(e.target.value.toUpperCase())}
+                      placeholder={authMethod === 'public_code' ? 'GROW2026' : 'XXXX-XXXX-XXXX'}
+                      className="font-mono tracking-wider" />
+                  </div>
+                )}
                 <div className="flex justify-between pt-2">
                   <Button variant="ghost" size="sm" onClick={resetVote}><RotateCcw className="h-4 w-4" /> Clear</Button>
-                  <Button onClick={requestOtp} disabled={sending} className="bg-grow-coral hover:bg-grow-coral/90">
-                    {sending ? <Loader2 className="animate-spin" /> : <ArrowRight />} Send code
-                  </Button>
+                  {authMethod === 'otp' ? (
+                    <Button onClick={requestOtp} disabled={sending} className="bg-grow-coral hover:bg-grow-coral/90">
+                      {sending ? <Loader2 className="animate-spin" /> : <ArrowRight />} Send code
+                    </Button>
+                  ) : (
+                    <Button onClick={submitCodeVote} disabled={sending} className="bg-grow-coral hover:bg-grow-coral/90">
+                      {sending ? <Loader2 className="animate-spin" /> : <CheckCircle2 />} Submit ballot
+                    </Button>
+                  )}
                 </div>
               </motion.div>
             )}
@@ -749,23 +945,29 @@ export default function SeedFund() {
               <motion.div key="o" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-3">
                 <Input
                   value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  inputMode="numeric" placeholder="123456" className="text-center tracking-[0.5em] text-2xl"
+                  inputMode="numeric" placeholder="123456"
+                  className="text-center tracking-[0.5em] text-2xl font-mono"
                 />
                 <div className="flex justify-between pt-2">
                   <Button variant="ghost" size="sm" onClick={() => setStep('form')}>Back</Button>
-                  <Button onClick={submitVote} disabled={sending} className="bg-grow-coral hover:bg-grow-coral/90">
-                    {sending ? <Loader2 className="animate-spin" /> : <CheckCircle2 />} Submit vote
+                  <Button onClick={submitOtpVote} disabled={sending} className="bg-grow-coral hover:bg-grow-coral/90">
+                    {sending ? <Loader2 className="animate-spin" /> : <CheckCircle2 />} Submit ballot
                   </Button>
                 </div>
               </motion.div>
             )}
             {step === 'done' && (
-              <motion.div key="d" initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-center py-6">
+              <motion.div key="d" initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-center py-4">
                 <div className="mx-auto w-16 h-16 rounded-full bg-grow-teal/20 flex items-center justify-center mb-4">
                   <CheckCircle2 className="h-10 w-10 text-grow-teal" />
                 </div>
-                <p className="font-semibold text-lg">Vote counted!</p>
-                <p className="text-sm text-muted-foreground">Thank you for supporting {selected?.entrepreneur?.name}.</p>
+                <p className="font-semibold text-lg">Ballot recorded!</p>
+                <p className="text-sm text-muted-foreground">Thank you for taking part in {comp?.title}.</p>
+                {voteToken && (
+                  <p className="text-[11px] text-muted-foreground mt-3 font-mono break-all">
+                    Reference: {voteToken}
+                  </p>
+                )}
                 <Button className="mt-4" onClick={() => setVoteOpen(false)}>Close</Button>
               </motion.div>
             )}
@@ -808,9 +1010,13 @@ export default function SeedFund() {
                   <Link to={`/entrepreneurs/${e.id}`} className="flex-1">
                     <Button variant="outline" className="w-full">Full profile <ChevronRight className="h-4 w-4" /></Button>
                   </Link>
-                  <Button className="flex-1 bg-grow-coral hover:bg-grow-coral/90" onClick={() => { setDetailsOpen(false); openVote(detailsCand); }}>
-                    <Vote /> Vote
-                  </Button>
+                  {detailsCand && isActive && (
+                    <Button className="flex-1 bg-grow-coral hover:bg-grow-coral/90"
+                      onClick={() => { toggleSelect(detailsCand.id); setDetailsOpen(false); }}>
+                      <CheckCircle2 className="h-4 w-4" />
+                      {selectedIds.includes(detailsCand.id) ? 'Selected' : 'Select'}
+                    </Button>
+                  )}
                 </div>
               </div>
             </>
