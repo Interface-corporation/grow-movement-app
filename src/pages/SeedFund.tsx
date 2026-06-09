@@ -134,12 +134,18 @@ export default function SeedFund() {
   const [alumni, setAlumni] = useState<Alumni[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Voter selection state
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [mobileExpanded, setMobileExpanded] = useState(false);
+
+  // Voting modal
   const [voteOpen, setVoteOpen] = useState(false);
-  const [selected, setSelected] = useState<Candidate | null>(null);
   const [step, setStep] = useState<'form' | 'otp' | 'done'>('form');
   const [voterName, setVoterName] = useState('');
   const [voterEmail, setVoterEmail] = useState('');
   const [otp, setOtp] = useState('');
+  const [code, setCode] = useState('');
+  const [voteToken, setVoteToken] = useState('');
   const [sending, setSending] = useState(false);
 
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -179,29 +185,62 @@ export default function SeedFund() {
     }
 
     const { data: alums } = await (supabase as any)
-      .from('entrepreneurs')
-      .select('*')
-      .eq('status', 'Seed Fund Alumni')
+      .from('entrepreneurs').select('*').eq('status', 'Seed Fund Alumni')
       .order('created_at', { ascending: false });
     setAlumni(alums || []);
     setLoading(false);
   })(); }, []);
 
+  // Realtime vote counts
+  useEffect(() => {
+    if (!comp?.id) return;
+    const ch = (supabase as any).channel(`votes-${comp.id}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'seed_fund_votes', filter: `competition_id=eq.${comp.id}` },
+        async () => {
+          const { data: tally } = await (supabase as any).rpc('get_seed_fund_vote_counts', { _competition_id: comp.id });
+          const map: Record<string, number> = {};
+          (tally || []).forEach((r: any) => { map[r.candidate_id] = Number(r.votes || 0); });
+          setCounts(map);
+        }).subscribe();
+    return () => { (supabase as any).removeChannel(ch); };
+  }, [comp?.id]);
+
   const totalVotes = useMemo(() => Object.values(counts).reduce((a, b) => a + b, 0), [counts]);
   const isActive = comp?.status === 'active';
+  const maxSel = comp?.max_selections ?? 1;
+  const exactReady = selectedIds.length === maxSel;
+  const authMethod = comp?.auth_method || 'otp';
 
-  const openVote = (c: Candidate) => { setSelected(c); setStep('form'); setOtp(''); setVoteOpen(true); };
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      if (prev.includes(id)) return prev.filter(x => x !== id);
+      if (prev.length >= maxSel) {
+        toast({ title: `You can only select ${maxSel} candidate${maxSel === 1 ? '' : 's'}`, variant: 'destructive' });
+        return prev;
+      }
+      return [...prev, id];
+    });
+  };
+
   const openDetails = (c: Candidate) => { setDetailsCand(c); setDetailsOpen(true); };
 
+  const startVote = () => {
+    if (!exactReady) {
+      toast({ title: `Select exactly ${maxSel} candidate${maxSel === 1 ? '' : 's'}`, variant: 'destructive' });
+      return;
+    }
+    setStep('form'); setOtp(''); setCode(''); setVoteToken(''); setVoteOpen(true);
+  };
+
   const requestOtp = async () => {
-    if (!selected || !comp) return;
+    if (!comp) return;
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(voterEmail)) {
       toast({ title: 'Invalid email', description: 'Please enter a valid email.', variant: 'destructive' });
       return;
     }
     setSending(true);
     const { data, error } = await (supabase as any).functions.invoke('request-vote-otp', {
-      body: { competition_id: comp.id, candidate_id: selected.id, email: voterEmail.trim(), voter_name: voterName.trim() || null },
+      body: { competition_id: comp.id, email: voterEmail.trim(), voter_name: voterName.trim() || null },
     });
     setSending(false);
     if (error || (data as any)?.error) {
@@ -216,32 +255,55 @@ export default function SeedFund() {
     setStep('otp');
   };
 
-  const submitVote = async () => {
+  const submitOtpVote = async () => {
     if (!comp) return;
     if (!/^\d{6}$/.test(otp)) { toast({ title: 'Enter the 6-digit code', variant: 'destructive' }); return; }
     setSending(true);
     const { data, error } = await (supabase as any).functions.invoke('verify-vote-otp', {
-      body: { competition_id: comp.id, email: voterEmail.trim(), code: otp.trim() },
+      body: { competition_id: comp.id, email: voterEmail.trim(), code: otp.trim(), candidate_ids: selectedIds },
     });
     setSending(false);
     if (error || (data as any)?.error) {
       toast({ title: 'Verification failed', description: (data as any)?.error || error?.message, variant: 'destructive' });
       return;
     }
+    setVoteToken((data as any)?.vote_token || '');
     setStep('done');
-    const { data: tally } = await (supabase as any).rpc('get_seed_fund_vote_counts', { _competition_id: comp.id });
-    const map: Record<string, number> = {};
-    (tally || []).forEach((r: any) => { map[r.candidate_id] = Number(r.votes || 0); });
-    setCounts(map);
+    setSelectedIds([]);
   };
 
-  const resetVote = () => { setVoterName(''); setVoterEmail(''); setOtp(''); setStep('form'); };
+  const submitCodeVote = async () => {
+    if (!comp) return;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(voterEmail)) {
+      toast({ title: 'Invalid email', variant: 'destructive' }); return;
+    }
+    if (!code.trim()) { toast({ title: 'Enter your code', variant: 'destructive' }); return; }
+    setSending(true);
+    const { data, error } = await (supabase as any).functions.invoke('cast-code-vote', {
+      body: {
+        competition_id: comp.id, email: voterEmail.trim(), voter_name: voterName.trim() || null,
+        code: code.trim(), candidate_ids: selectedIds,
+      },
+    });
+    setSending(false);
+    if (error || (data as any)?.error) {
+      toast({ title: 'Could not submit vote', description: (data as any)?.error || error?.message, variant: 'destructive' });
+      return;
+    }
+    setVoteToken((data as any)?.vote_token || '');
+    setStep('done');
+    setSelectedIds([]);
+  };
+
+  const resetVote = () => { setVoterName(''); setVoterEmail(''); setOtp(''); setCode(''); setStep('form'); };
 
   const e = detailsCand?.entrepreneur || {};
   const detailsSocials = parseSocials(e.social_media_links);
+  const selectedCandObjs = candidates.filter(c => selectedIds.includes(c.id));
 
   return (
     <div className="bg-background text-foreground">
+
       {/* ========= CINEMATIC HERO with rotating content ========= */}
       <section className="relative min-h-[95vh] flex items-center overflow-hidden">
         <motion.div
