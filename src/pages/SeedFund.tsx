@@ -4,12 +4,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Award, Calendar, Globe2, Mail, MapPin, Sparkles, Trophy,
   Users, ArrowRight, CheckCircle2, Vote, Loader2, RotateCcw,
-  Heart, Briefcase, Building2, GraduationCap, Lightbulb, ChevronDown,
-  ChevronRight, Facebook, Linkedin, Instagram, Twitter, Globe, Quote
+  Briefcase, Building2, GraduationCap, Lightbulb, ChevronDown,
+  ChevronRight, Facebook, Linkedin, Instagram, Twitter, Globe, Quote,
+  X, KeyRound, ChevronUp,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { toast } from '@/hooks/use-toast';
@@ -21,6 +24,9 @@ import seedAbout2 from '@/assets/growImage/seedAbout2.png';
 type Competition = {
   id: string; title: string; edition: string | null;
   description: string | null; event_date: string | null; status: string;
+  auth_method: 'otp' | 'private_code' | 'public_code';
+  max_selections: number;
+  public_code: string | null;
 };
 
 type Candidate = {
