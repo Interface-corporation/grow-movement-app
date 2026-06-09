@@ -1,122 +1,92 @@
+# Grow Movement — Modernization & Seed Fund Overhaul Plan
 
-
-# Implementation Plan: Grow Movement System Enhancements
-
-## Summary of Issues and Features to Implement
-
-After thoroughly reviewing the codebase, here are the specific gaps identified and the changes needed:
+This is a large multi-area update. I'll group it into 6 work streams. Confirm or adjust before I implement.
 
 ---
 
-## 1. Program Assignment for Entrepreneurs and Coaches (Admin)
+## 1. Global Typography & Navbar
 
-**Current state:** Entrepreneurs have a `program_id` column but the admin form in `AdminEntrepreneurs.tsx` does not expose a program dropdown. Coaches are assigned to programs via the `program_coaches` junction table, but there is no UI in `AdminCoaches.tsx` to assign them to programs.
+- Load **Glacial Indifference** (headings) and **Roboto** (body) via `@fontsource` packages.
+- Update `tailwind.config.ts` (`fontFamily.display`, `fontFamily.sans`) and `src/index.css` base styles so every `h1–h6` uses Glacial Indifference, all body text uses Roboto.
+- Sweep components to remove leftover custom font classes.
+- **Navbar**: rewrite `src/components/Navbar.tsx` so text is always legible on any background — solid text color + soft backdrop-blur pill behind links when over hero images, smooth transition to dark text on scroll. Remove the two separate Apply links → single **Apply** entry pointing to `/apply`.
 
-**Changes:**
-- **`AdminEntrepreneurs.tsx`**: Add a program dropdown to the entrepreneur create/edit form. Fetch programs list and include `program_id` in the save payload.
-- **`AdminCoaches.tsx`**: Add a program multi-select or dropdown. On save, insert/update rows in `program_coaches` table to link the coach to selected programs. Fetch existing program assignments when editing.
+## 2. Unified Apply Hub
 
----
+- Rebuild `src/pages/ApplyChoose.tsx` (`/apply`) as the only entry point: program intro, eligibility, then two premium choice cards → `/apply/entrepreneur` and `/apply/coach`.
+- Remove the duplicate Apply links from `Navbar.tsx` and footer.
 
-## 2. Program Admin Visibility of Assigned Coaches, Entrepreneurs, and Projects
+## 3. Seed Fund Page — Full Redesign (`src/pages/SeedFund.tsx`)
 
-**Current state:** `ProgramAdminDashboard.tsx` shows counts but no lists. `AdminProgramDetail.tsx` shows entrepreneurs filtered by `program_id` and coaches via `program_coaches`, but only the admin can access it.
+Sections, in order:
 
-**Changes:**
-- **`ProgramAdminDashboard.tsx`**: Enhance to show lists of assigned entrepreneurs, coaches, and projects (not just counts). Add a link to the program detail page.
-- **`AdminEntrepreneurs.tsx`**: Add program_admin filtering -- when `userRole === 'program_admin'`, filter entrepreneurs by `program_id`.
-- **`AdminCoaches.tsx`**: When `userRole === 'program_admin'`, filter coaches via `program_coaches` for their program.
-- **`AdminLayout.tsx`**: Give `program_admin` access to the Entrepreneurs and Coaches sidebar links.
+1. **Cinematic Hero Slider** — auto-sliding (Framer Motion `AnimatePresence`) with 3–4 narrative frames about the Seed Fund + Grow Movement using the provided copy. Ken Burns zoom, gradient overlay, dual CTA (Vote / Partner).
+2. **Animated Impact Stats** — count-up numbers (entrepreneurs supported, countries, funds raised, jobs created) with scroll-triggered reveal.
+3. **About the Program** — left: brief + short testimonial card; right: animated collage of related images with parallax/tilt hover.
+4. **Meet the 2026 Candidates** heading + subheading + short "How voting works" explainer (3 micro-steps).
+5. **Candidate Cards** — redesigned per uploaded reference: shorter portrait, founder name + flag, business name, country, sector chips, founder story (clamped), business summary, measurable impact, funding purpose, social links, "Read more" sheet, **Vote checkbox** at top of card (like the screenshot). Add a **sticky selection indicator** (desktop: top-right pinned panel; mobile: fixed bottom bar that expands on tap) showing current selections + "Submit My Selections (x/N)".
+6. **Partners** — logo + name + desc cards in a smooth infinite marquee.
+7. **Alumni** — each past candidate gets a one-sentence review describing how funds helped her.
+8. **Partner with Grow Movement banner** — cinematic glassmorphism section with the 4 partner-type cards (Companies, Professionals, Universities, Foundations) and a single CTA **Contact us**. Replace the old "Donate to the fund" button with **Contact us** (and keep a secondary **Vote our candidates** anchor).
+9. **Closing message** — large editorial typography of the "Together, we don't simply fund businesses..." quote.
 
----
+## 4. Flexible Voting Authentication System
 
-## 3. Fix Track Notes (Project Notes System)
+### Database (SQL migration to run on your Supabase)
+New / extended tables:
+- `seed_fund_competitions`: add `auth_method` (`otp` | `private_code` | `public_code`), `public_code` text, `max_selections` int default 1.
+- `seed_fund_promo_codes`: `id, competition_id, code (unique), used_by_email, used_at, created_at`.
+- `seed_fund_votes`: already exists — add `vote_token uuid`, `auth_method`, `selections_count`. Drop the unique-per-candidate constraint and instead enforce **one ballot per voter per competition** (unique on `competition_id, voter_email`), then store one row per selected candidate sharing the same `vote_token`.
+- `seed_fund_audit_log`: `id, competition_id, voter_email, voter_ip, candidate_ids[], vote_token, auth_method, submitted_at`.
+- RPC `cast_seed_fund_ballot(_competition_id, _voter_email, _voter_name, _candidate_ids[], _auth_method, _code)` — validates method, code/OTP, max selections, no-double-vote, inserts votes + audit row atomically.
 
-**Current state:** The code in `AdminProjects.tsx` and `AdminProgramDetail.tsx` inserts into `project_track_notes` with `author_id: user?.id` and queries with a join to `profiles:author_id(full_name)`. The issue is likely an RLS policy blocking inserts, or the `profiles` join failing because `author_id` references `auth.users` but the join expects a `profiles` table with matching foreign key.
+### Edge functions
+- Update `request-vote-otp` / `verify-vote-otp` to accept an **array of candidate_ids** and enforce `max_selections` exactly.
+- New `validate-promo-code` function for private/public code paths.
+- New `generate-promo-codes` function: admin-only, generates N unique codes for a competition, returns CSV for distribution.
 
-**Changes:**
-- Check and fix the `project_track_notes` table's RLS policies to allow authenticated users to insert and select.
-- Verify the join `profiles:author_id(full_name)` works. The `profiles` table has `user_id` as the reference column, not `id` matching `author_id`. The foreign key may be missing. We need to either:
-  - Add a foreign key from `project_track_notes.author_id` to `profiles.user_id`, OR
-  - Change the query to manually resolve author names.
-- Ensure the note author's name displays correctly using `profiles.full_name`.
+### Admin dashboard (`AdminSeedFundVotes.tsx`)
+- Per-competition settings panel: **Auth Method** (radio: OTP / Private Code / Public Code), **Max selections per voter** (number), **Public code** input (when applicable), **Generate promo codes** button (count input → downloads CSV).
+- Live results: realtime subscription to `seed_fund_votes`, leaderboard + bar/pie auto-refresh.
+- **Export results**: buttons for CSV and Excel (`.xlsx` via `xlsx` lib) — exports vote totals + full audit log.
+- Audit log tab: searchable table of every ballot (email, time, candidates, token, method).
 
-**Database migration needed:**
-```sql
--- Add foreign key if missing (or fix the join approach in code)
--- Also ensure RLS allows insert/select for authenticated users
-```
+### Voter flow on SeedFund page
+- Multi-step modal that adapts to the competition's `auth_method`:
+  - OTP → email → code → confirm selections
+  - Private code → enter unique code → confirm
+  - Public code → enter shared code → email (for audit) → confirm
+- Enforces exact `max_selections` before "Submit" is enabled.
+- Success screen shows the `vote_token` for the voter's records.
 
----
+## 5. Contact Page (`src/pages/Contact.tsx`)
 
-## 4. Resource Access for Coaches in a Program
+- Real details: Violet Busingye, Co-Founder, violet@growmovement.org, 86–90 Paul Street, London EC2A 4NE, +44 (0) 7943592369.
+- Generated QR code linking to the email.
+- Premium enquiry form (name, email, organisation, interest dropdown — partnership / volunteering / mentoring / sponsorship / grant / investment / entrepreneur support, message) with zod validation; stores to a new `contact_enquiries` table.
+- Update footer + Partner CTA links to `/contact`.
 
-**Current state:** `AdminResources.tsx` fetches all resources without filtering by program. Coaches should only see public resources plus private resources belonging to their assigned program(s).
+## 6. Site-wide Polish Pass
 
-**Changes:**
-- **`AdminResources.tsx`**: When `userRole === 'coach'`, filter resources to show:
-  - All resources with `visibility = 'public'`
-  - Private resources where `program_id` matches one of the coach's assigned programs (fetched via `program_coaches`)
-- When `userRole === 'program_admin'`, filter private resources to their `programId` only.
-
----
-
-## 5. Admin Match Status Control (Complete, Unmatch, Cancel)
-
-**Current state:** `AdminMatching.tsx` already has `handleEndCoaching` (sets match to completed, entrepreneur to Alumni, coach to Unmatched) and `handleUnmatch` (sets match to cancelled, entrepreneur to Admitted, coach to Unmatched). These work correctly.
-
-**Changes needed for sync:**
-- **`AdminProgramDetail.tsx`**: Add match status control buttons (End Coaching, Unmatch) to the matches listed within a program. Currently only projects are shown; add a Matches section with status actions.
-- **Coach dashboard matching view**: Coaches viewing matches should see the status but not be able to change it (read-only). Ensure the `AdminMatching.tsx` page for coaches shows matches filtered to their `coach_id` without edit controls.
-- **Match status sync in projects**: When a match is completed/cancelled from `AdminMatching.tsx`, the associated project status should optionally be updated too (or at minimum, the project detail should reflect the current match status).
-
----
-
-## 6. Charts for Coach and Program Admin Dashboards
-
-**Current state:** `CoachDashboard.tsx` and `ProgramAdminDashboard.tsx` show stat cards with numbers only, no charts. The main `DashboardHome.tsx` has bar/pie charts using recharts.
-
-**Changes:**
-- **`CoachDashboard.tsx`**: Add a bar chart showing matches by status (Active/Completed) and a pie chart for project status distribution. Import recharts components.
-- **`ProgramAdminDashboard.tsx`**: Add a bar chart showing entrepreneurs/coaches/matches/projects counts, and a pie chart for project status distribution. Fetch project status breakdown.
+- Audit all pages for typography consistency, spacing rhythm, premium micro-interactions (subtle hover lifts, gradient accents, glassmorphism cards), and a11y (semantic landmarks, alt text, focus states).
+- Add scroll-reveal on key sections, consistent section padding tokens.
 
 ---
 
-## 7. DashboardHome Stats Refinement
+## Technical notes (for reference)
 
-**Current state:** Shows total counts for entrepreneurs, coaches, requests, matches.
-
-**Changes:**
-- Add program and project counts to the stat cards.
-- Show 6 stat cards instead of 4.
+- Voting integrity: server-side via Postgres RPC + RLS; client never trusts itself.
+- All new tables: include `GRANT` block + RLS policies; admin writes via `service_role` in edge functions.
+- Realtime: enable Supabase replication on `seed_fund_votes` for live admin dashboard.
+- Libraries to add: `@fontsource/roboto`, `xlsx`, `qrcode.react` (or keep the api.qrserver image), `react-intersection-observer` (if not present).
 
 ---
 
-## Files to Modify
+## Manual steps you'll need to do
+1. Run the new SQL migration I'll provide in `db/seed_fund_voting.sql` in your Supabase SQL editor.
+2. Redeploy edge functions: `request-vote-otp`, `verify-vote-otp`, `validate-promo-code`, `generate-promo-codes`.
+3. Confirm `RESEND_API_KEY` is set (already done previously).
 
-| File | Changes |
-|------|---------|
-| `src/pages/admin/AdminEntrepreneurs.tsx` | Add program dropdown, program_admin filtering |
-| `src/pages/admin/AdminCoaches.tsx` | Add program assignment dropdown, program_admin filtering |
-| `src/pages/admin/AdminLayout.tsx` | Give program_admin access to Entrepreneurs/Coaches links |
-| `src/pages/admin/ProgramAdminDashboard.tsx` | Add charts, lists of assigned entities |
-| `src/pages/admin/CoachDashboard.tsx` | Add charts for stats |
-| `src/pages/admin/DashboardHome.tsx` | Add program/project stat cards |
-| `src/pages/admin/AdminProjects.tsx` | Fix track notes join/RLS |
-| `src/pages/admin/AdminProgramDetail.tsx` | Add matches section with status controls, fix track notes |
-| `src/pages/admin/AdminResources.tsx` | Filter resources by role/program for coaches |
-| `src/pages/admin/AdminMatching.tsx` | Filter for coach role (read-only view of their matches) |
+---
 
-## Database Changes Needed
-
-1. **RLS policy for `project_track_notes`**: Ensure INSERT and SELECT policies exist for authenticated users
-2. **Foreign key check**: Verify `project_track_notes.author_id` can join to `profiles` -- may need to adjust the query approach if FK doesn't exist
-
-## Technical Notes
-
-- All charts use `recharts` (already installed)
-- Program assignment for coaches uses the existing `program_coaches` junction table
-- Entrepreneur program assignment uses the existing `entrepreneurs.program_id` column
-- No new database tables needed
-- Match status workflow (active -> completed/cancelled) already exists in AdminMatching; needs to be replicated in program detail view
-
+**Shall I proceed with all 6 streams as one large update, or would you prefer I ship them in phases (e.g. 1+2+5 first, then 3+4, then 6)?**
