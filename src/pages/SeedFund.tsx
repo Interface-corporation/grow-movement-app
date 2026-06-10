@@ -631,15 +631,18 @@ export default function SeedFund() {
                     key={c.id}
                     initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }} transition={{ duration: 0.45, delay: i * 0.06 }}
-                    className={`group relative bg-background rounded-2xl overflow-hidden border-2 transition-all flex flex-col ${
+                    onClick={() => en.id && navigate(`/entrepreneurs/${en.id}`)}
+                    role="link" tabIndex={0}
+                    onKeyDown={(ev) => { if ((ev.key === 'Enter' || ev.key === ' ') && en.id) { ev.preventDefault(); navigate(`/entrepreneurs/${en.id}`); } }}
+                    className={`group relative bg-background rounded-2xl overflow-hidden border-2 transition-all flex flex-col cursor-pointer ${
                       isSelected ? 'border-grow-coral shadow-2xl shadow-grow-coral/20 ring-4 ring-grow-coral/10'
-                                  : 'border-border hover:border-grow-coral/40 hover:shadow-xl'
+                                  : 'border-border hover:border-grow-coral/40 hover:shadow-xl hover:-translate-y-0.5'
                     }`}
                   >
                     {/* Top: select bar */}
                     <button
                       type="button"
-                      onClick={() => toggleSelect(c.id)}
+                      onClick={(ev) => { ev.stopPropagation(); toggleSelect(c.id); }}
                       disabled={atLimit}
                       className={`flex items-center justify-between gap-2 px-4 py-2.5 text-sm font-semibold transition-colors ${
                         isSelected ? 'bg-grow-coral text-white' :
@@ -680,7 +683,7 @@ export default function SeedFund() {
                         <div><span className="font-semibold text-foreground">Impact: </span><span className="text-muted-foreground">{String(en.impact).slice(0, 90)}{en.impact.length > 90 ? '…' : ''}</span></div>
                       )}
                       {c.raising_for && (
-                        <div><span className="font-semibold text-foreground">Raising for: </span><span className="text-muted-foreground">{c.raising_for}</span></div>
+                        <div><span className="font-semibold text-foreground">Grant use: </span><span className="text-muted-foreground">{c.raising_for}</span></div>
                       )}
 
                       {socials.length > 0 && (
@@ -713,9 +716,15 @@ export default function SeedFund() {
                         </div>
                       </div>
 
-                      <Button variant="outline" size="sm" className="w-full mt-1" onClick={() => openDetails(c)}>
-                        Read more <ChevronRight className="h-3.5 w-3.5" />
-                      </Button>
+                      <div className="grid grid-cols-2 gap-2 mt-1" onClick={(ev) => ev.stopPropagation()}>
+                        <Button variant="outline" size="sm" onClick={() => openDetails(c)}>
+                          Read more <ChevronRight className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button size="sm" className="bg-grow-navy hover:bg-grow-navy/90 text-white"
+                          onClick={() => en.id && navigate(`/entrepreneurs/${en.id}`)}>
+                          View Full Details
+                        </Button>
+                      </div>
                     </div>
                   </motion.div>
                 );
