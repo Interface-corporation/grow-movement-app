@@ -7,6 +7,7 @@ import {
   Briefcase, Building2, GraduationCap, Lightbulb, ChevronDown,
   ChevronRight, Facebook, Linkedin, Instagram, Twitter, Globe, Quote,
   X, KeyRound, ChevronUp,
+  CupSoda,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -17,7 +18,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { toast } from '@/hooks/use-toast';
 import { getProfilePhoto } from '@/lib/avatars';
-import heroImg from '@/assets/growImage/seedHero2.png';
+import heroImg from '@/assets/growImage/homeStory1.png';
 import seedAbout1 from '@/assets/growImage/seedAbout1.png';
 import seedAbout2 from '@/assets/growImage/seedAbout2.png';
 
@@ -39,22 +40,22 @@ type Alumni = any;
 
 const heroSlides = [
   {
-    eyebrow: 'GROW WOMEN SEED FUND • 2026 EDITION',
-    title: ['Watch. Vote.', 'She rises.'],
+    eyebrow: '',
+    title: ['Watch. Vote.'],
     accent: 'Support.',
-    text: 'Six exceptional women entrepreneurs from Africa and Asia pitch live for seed funding, mentorship, and a global stage.',
+    text: ' women entrepreneurs from Africa and Asia pitch live for seed funding, mentorship, and a global stage.',
   },
   {
-    eyebrow: 'A LAUNCHPAD FOR WOMEN-LED BUSINESS',
-    title: ['Capital is the spark.', 'Community is the fire.'],
-    accent: 'Together,',
+    eyebrow: '',
+    title: ['Capital is the spark.', ''],
+    accent: '',
     text: 'Every candidate receives seed capital, world-class mentorship, investment readiness training and a lifelong network.',
   },
   {
-    eyebrow: 'POWERED BY GLOBAL VOLUNTEERS',
+    eyebrow: '',
     title: ['Invest in a woman.', 'a community.'],
     accent: 'Transform',
-    text: 'Delivered with Linklaters, BCG, London Business School, LSE and a network of expert coaches from around the world.',
+    text: '',
   },
 ];
 
@@ -63,6 +64,12 @@ const heroStats = [
   { v: '9', l: 'Grants Awarded' },
   { v: '600+', l: 'Entrepreneurs Supported' },
   { v: '40+', l: 'Countries Reached' },
+
+  // { v: '4,000+', l: 'Entrepreneurs coached' },
+  // { v: '60,000+', l: 'Jobs collectively created' },
+  // { v: '7,000+', l: 'Consultants and students engaged' },
+  // { v: '2,000+', l: 'Corporate coaches worldwide' },
+  // { v: '2,000+', l: 'Corporate coaches worldwide' },
 ];
 
 const supportPillars = [
@@ -85,28 +92,29 @@ const partnerTracks = [
   {
     icon: Building2,
     title: 'Companies & Firms',
-    text: 'Collaborate with us to transform employee expertise into leadership development and social impact. Engage employees through meaningful skills-based global volunteering that advances talent development, ESG, and impact goals.',
+    text: 'Collaborate with us to transform employee expertise into leadership development and social impact. Grow Movement helps organisations engage employees through meaningful skills-based global volunteering that advances talent development, employee engagement, ESG, and social impact goals.',
   },
   {
     icon: Briefcase,
     title: 'Professionals & Volunteer Coaches',
-    text: 'Use your skills to create meaningful impact while developing your own leadership capabilities. Mentor ambitious entrepreneurs, build coaching and cross-cultural skills, expand your global perspective.',
+    text: 'Use your skills to create meaningful impact while developing your own leadership capabilities. Mentor ambitious entrepreneurs, build coaching and cross-cultural skills, expand your global perspective, and help businesses create jobs and economic opportunity.',
   },
   {
     icon: GraduationCap,
     title: 'Universities & Students',
-    text: 'Apply classroom learning to real-world challenges while developing leadership, consulting and communication skills. Gain hands-on experience supporting entrepreneurs and social enterprises.',
+    text: 'Apply classroom learning and frameworks to real-world challenges while developing leadership, consulting, cross-cultural, and communication skills. Students gain hands-on experience supporting entrepreneurs and social enterprises while building the capabilities needed to thrive in a global workforce.',
   },
   {
     icon: Lightbulb,
     title: 'Foundations, Grant Makers & Investors',
-    text: 'Support high-potential entrepreneurs creating economic and social impact. Partner through grants, sponsorship, impact investment, or funding that helps businesses grow and scale.',
+    text: 'Support high-potential entrepreneurs creating economic and social impact. Partner with Grow Movement through grants, sponsorship, impact investment, or funding opportunities that help businesses grow and scale.',
+
   },
 ];
 
 const testimonials = [
-  { q: 'Being part of the Grow Movement Seed Fund was transformational.', who: ' Keren Uhiriwe, 2025 finalist' },
-  { q: "Beyond the opportunity itself, the connections, encouragement, and practical business support gave me the confidence to take my business to the next level.", who: 'Nadege Umuhire, 2025  finalist' },
+  
+  { q: "I gained the confidence to present my business effectively to stakeholders and investors. I learned how to communicate my vision with clarity, strengthen my pitch, and develop professional fundraising materials. The mentorship and support encouraged me to think beyond my current challenges and envision greater possibilities for the growth and impact of our company and the families we serve.", who: 'Nadege Umuhire, Founder of Nutricela Ltd, based in Rwanda' },
 ];
 
 function socialIcon(url: string) {
@@ -339,8 +347,8 @@ export default function SeedFund() {
                 transition={{ duration: 0.9, ease: 'easeOut' }}
               >
                 <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 text-white text-xs font-semibold px-4 py-2 rounded-full mb-6">
-                  <Sparkles className="h-3.5 w-3.5 text-grow-gold" />
-                  {heroSlides[slideIdx].eyebrow}
+                  {/* <Sparkles className="h-3.5 w-3.5 text-grow-gold" /> */}
+                 {/* / {heroSlides[slideIdx].eyebrow} */}
                 </div>
                 <h1 className="font-display text-5xl md:text-7xl font-bold text-white leading-[1.05] tracking-tight">
                   {heroSlides[slideIdx].title[0]} <span className="text-grow-coral">{heroSlides[slideIdx].accent}</span><br />
@@ -371,6 +379,8 @@ export default function SeedFund() {
                   {new Date(comp.event_date).toLocaleDateString(undefined, { dateStyle: 'long' })}
                 </div>
               )}
+              <div className="flex items-center gap-2"><Trophy className="h-4 w-4 text-grow-gold" />Grand • Final</div>
+              
               <div className="flex items-center gap-2"><Globe2 className="h-4 w-4 text-grow-teal" /> Africa • Asia</div>
               <div className="flex items-center gap-2">
                 <span className={`h-2 w-2 rounded-full ${isActive ? 'bg-green-400 animate-pulse' : 'bg-grow-gold'}`} />
@@ -401,8 +411,10 @@ export default function SeedFund() {
       <section className="py-16 md:py-20 bg-card border-y border-border">
         <div className="container mx-auto px-6 lg:px-8">
           <div className="text-center mb-10">
-            <p className="text-xs font-semibold tracking-[0.3em] text-grow-coral uppercase mb-3">Seed Fund & Grow Movement Impact</p>
-            <h2 className="font-display text-3xl md:text-4xl font-bold">Measurable, growing, global.</h2>
+            <p className="text-xs font-semibold tracking-[0.3em] text-grow-coral uppercase mb-3">The impact we can have together.
+</p>
+            <h2 className="font-display text-3xl md:text-4xl font-bold">Your Impact. Our Footprint 
+</h2>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
             {heroStats.map((s, i) => (
@@ -429,12 +441,11 @@ export default function SeedFund() {
           <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}>
             <p className="text-xs font-semibold tracking-[0.3em] text-grow-coral uppercase mb-3">About the Programme</p>
             <h2 className="font-display text-4xl md:text-5xl font-bold leading-tight mb-6">
-              More than seed capital — a launchpad for women-led businesses.
+              GROW Women Seed Fund
             </h2>
             <p className="text-muted-foreground text-lg leading-relaxed mb-6">
-              Delivered by Grow Movement in partnership with Linklaters, the Grow Women Seed Fund
-              supports women entrepreneurs and startup founders from Africa and Asia with seed grants,
-              mentorship, investment readiness training and leadership development.
+              Supporting women entrepreneurs across Africa and Asia with seed capital, grants, mentorship, investment readiness support, and leadership development opportunities.
+
             </p>
             <div className="space-y-4 mb-8">
               {testimonials.map((t) => (
@@ -445,7 +456,7 @@ export default function SeedFund() {
                 </blockquote>
               ))}
             </div>
-            <a href="#candidates"><Button className="bg-grow-coral hover:bg-grow-coral/90 text-white">Meet the candidates <ArrowRight className="ml-1 h-4 w-4" /></Button></a>
+            {/* <a href="#candidates"><Button className="bg-grow-coral hover:bg-grow-coral/90 text-white">Meet the candidates <ArrowRight className="ml-1 h-4 w-4" /></Button></a> */}
           </motion.div>
 
           <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }} className="relative h-[520px]">
@@ -465,7 +476,7 @@ export default function SeedFund() {
               className="absolute top-1/2 right-4 -translate-y-1/2 bg-grow-coral text-white rounded-2xl p-5 shadow-2xl max-w-[180px]"
               animate={{ y: [0, -8, 0] }} transition={{ duration: 4, repeat: Infinity }}
             >
-              <div className="font-display text-3xl font-bold">$30K+</div>
+              <div className="font-display text-3xl font-bold">£30K+</div>
               <div className="text-xs opacity-90">in seed grants awarded across editions</div>
             </motion.div>
           </motion.div>
@@ -479,7 +490,13 @@ export default function SeedFund() {
             <p className="text-xs font-semibold tracking-[0.3em] text-grow-coral uppercase mb-3">Candidates</p>
             <h2 className="font-display text-4xl md:text-5xl font-bold mb-4">Meet the {comp?.edition || '2026'} Candidates</h2>
             <p className="text-muted-foreground text-lg">
-              Explore their journeys, businesses, impact, and aspirations for future growth.
+              Explore their journeys, businesses, impact, and aspirations for future growth. <br></br> <br></br>
+              We have shortlisted 12 outstanding women entrepreneurs for the Semi-Final. 
+Please review the candidates and select your top 4 to advance to the Live Zoom Pitch Final. 
+The top 6 candidates will progress to the Pitch Final, where all finalists will receive seed capital grants. 
+
+Through a live online pitch competition, participants present their businesses to panelists and a global audience. 
+
             </p>
           </motion.div>
 
@@ -648,8 +665,8 @@ export default function SeedFund() {
       {/* ========= PARTNERS — sliding marquee ========= */}
       <section className="py-20 overflow-hidden">
         <div className="container mx-auto px-6 lg:px-8 text-center mb-10">
-          <p className="text-xs font-semibold tracking-[0.3em] text-muted-foreground uppercase mb-3">In Partnership With</p>
-          <h2 className="font-display text-3xl md:text-4xl font-bold">World-class partners powering the programme</h2>
+          <p className="text-xs font-semibold tracking-[0.3em] text-muted-foreground   uppercase mb-3">Grow Women Fund Partners</p>
+          <h2 className="font-display text-3xl md:text-4xl font-bold"> In Partnership With</h2>
         </div>
         <div className="relative">
           <motion.div
@@ -674,11 +691,11 @@ export default function SeedFund() {
       <section className="py-24 bg-card">
         <div className="container mx-auto px-6 lg:px-8">
           <div className="text-center mb-14">
-            <p className="text-xs font-semibold tracking-[0.3em] text-grow-coral uppercase mb-3">Alumni Entrepreneurs</p>
-            <h2 className="font-display text-4xl md:text-5xl font-bold">The impact, in their own words</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto mt-4">
+            <p className="text-xs font-semibold tracking-[0.3em] text-grow-coral uppercase mb-3"> Grow Women Seed Fund Alumni</p>
+            <h2 className="font-display text-4xl md:text-5xl font-bold">Meet Past Funded Alumni Entrepreneurs</h2>
+            {/* <p className="text-muted-foreground max-w-2xl mx-auto mt-4">
               Past candidates tell us how the seed fund transformed their businesses.
-            </p>
+            </p> */}
           </div>
 
           {alumni.length === 0 ? (
@@ -732,20 +749,42 @@ export default function SeedFund() {
               initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
               className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur border border-white/20 text-xs font-semibold tracking-widest uppercase"
             >
-              <Sparkles className="h-3.5 w-3.5 text-grow-gold" /> Partner With Us
+               Create Jobs and Social Impact with us
             </motion.span>
             <motion.h2
               initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}
               className="font-display text-4xl md:text-6xl font-bold mt-5 leading-tight"
             >
-              Partner with <span className="bg-gradient-to-r from-grow-coral via-grow-gold to-white bg-clip-text text-transparent">Grow Movement</span>
+              About  <span className="bg-gradient-to-r from-grow-coral via-grow-gold to-white bg-clip-text text-transparent">Grow Movement</span>
             </motion.h2>
             <p className="mt-5 text-white/85 max-w-2xl mx-auto text-lg">
-              Whether you're a company, university, foundation, investor, mentor or volunteer coach — we'd love to hear from you.
+              Trusted by Leading Global Corporate Organisations and Universities
+Grow Movement partners with leading companies for example and universities to deliver social impact, leadership development, and entrepreneur mentoring programmes that create measurable results for both professionals and entrepreneurs. 
+
             </p>
+            <motion.h2
+              initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}
+              className="font-display text-4xl md:text-6xl font-bold mt-5 leading-tight"
+            >
+              Partner with  <span className="bg-gradient-to-r from-grow-coral via-grow-gold to-white bg-clip-text text-transparent">Grow Movement</span>
+            </motion.h2>
+            <p className="mt-5 text-white/85 max-w-2xl mx-auto text-lg">
+              Whether you're a company, university, foundation, investor, mentor, volunteer coach, we'd love to hear from you.
+
+Trusted by leading global organisations, including Boston Consulting Group, Linklaters, the National Community Investment Fund, London Business School, the London School of Economics, and Copenhagen Business School.
+Through Grow Movement, company professionals and university students coach and advise small businesses in emerging markets, creating jobs and economic opportunity while developing leadership, consulting, cross-cultural, and remote collaboration skills.
+
+            </p>
+             <motion.h2
+              initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}
+              className="font-display text-4xl md:text-6xl font-bold mt-5 leading-tight"
+            >
+              Benefits for   <span className="bg-gradient-to-r from-grow-coral via-grow-gold to-white bg-clip-text text-transparent">Partners</span>
+            </motion.h2>
           </div>
 
           <div className="grid md:grid-cols-2 gap-5">
+              
             {partnerTracks.map((t, i) => (
               <motion.div key={t.title}
                 initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
@@ -781,7 +820,7 @@ export default function SeedFund() {
       </section>
 
       {/* ========= CLOSING MESSAGE ========= */}
-      <section className="py-24 bg-background">
+      {/* <section className="py-24 bg-background">
         <div className="container mx-auto px-6 lg:px-8 max-w-4xl text-center">
           <motion.p
             initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.9 }}
@@ -794,7 +833,7 @@ export default function SeedFund() {
             and empower the next generation of women entrepreneurs across Africa and Asia.
           </motion.p>
         </div>
-      </section>
+      </section> */}
 
       {/* ========= STICKY VOTING INDICATOR ========= */}
       {isActive && (

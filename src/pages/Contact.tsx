@@ -137,7 +137,7 @@ export default function Contact() {
       </section>
 
       {/* Closing message */}
-      <section className="py-24 bg-gradient-to-br from-grow-navy via-grow-navy to-grow-coral/40 text-white relative overflow-hidden">
+      {/* <section className="py-24 bg-gradient-to-br from-grow-navy via-grow-navy to-grow-coral/40 text-white relative overflow-hidden">
         <motion.div
           className="absolute top-10 left-1/3 w-96 h-96 rounded-full blur-3xl opacity-20"
           style={{ background: 'radial-gradient(circle, var(--grow-gold), transparent 70%)' }}
@@ -148,7 +148,7 @@ export default function Contact() {
             initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.9 }}
             className="font-display text-3xl md:text-5xl font-bold leading-tight"
           >
-            Together, we don't simply fund businesses.
+            Together, we don't  fund businesses.
             <br />
             <span className="bg-gradient-to-r from-grow-coral via-grow-gold to-white bg-clip-text text-transparent">
               We unlock potential, strengthen communities,
@@ -156,7 +156,7 @@ export default function Contact() {
             <br /> and empower the next generation of women entrepreneurs across Africa and Asia.
           </motion.p>
         </div>
-      </section>
+      </section> */}
     </div>
   );
 }
