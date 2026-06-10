@@ -977,44 +977,70 @@ export default function SeedFund() {
           animate={{ scale: [1.1, 1, 1.1] }} transition={{ duration: 14, repeat: Infinity }} />
 
         <div className="container mx-auto px-6 lg:px-8 relative z-10 max-w-6xl">
-          <div className="text-center mb-14">
+          {/* Header */}
+          <div className="text-center mb-14 max-w-4xl mx-auto">
             <motion.span
               initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
               className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur border border-white/20 text-xs font-semibold tracking-widest uppercase"
             >
-               Create Jobs and Social Impact with us
+              <Handshake className="h-3.5 w-3.5 text-grow-gold" /> Create Jobs · Social Impact
             </motion.span>
             <motion.h2
               initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}
               className="font-display text-4xl md:text-6xl font-bold mt-5 leading-tight"
             >
-              About  <span className="bg-gradient-to-r from-grow-coral via-grow-gold to-white bg-clip-text text-transparent">Grow Movement</span>
+              Partner with <span className="bg-gradient-to-r from-grow-coral via-grow-gold to-white bg-clip-text text-transparent">Grow Movement</span>
             </motion.h2>
-            <p className="mt-5 text-white/85 max-w-2xl mx-auto text-lg">
-              Trusted by Leading Global Corporate Organisations and Universities
-Grow Movement partners with leading companies for example and universities to deliver social impact, leadership development, and entrepreneur mentoring programmes that create measurable results for both professionals and entrepreneurs. 
-
+            <p className="mt-5 text-white/85 text-lg leading-relaxed">
+              Trusted by leading global organisations including Boston Consulting Group, Linklaters,
+              the National Community Investment Fund, London Business School, the London School of Economics
+              and Copenhagen Business School — we deliver social impact, leadership development and
+              entrepreneur mentoring programmes that create measurable results for both professionals
+              and entrepreneurs.
             </p>
-            <motion.h2
-              initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}
-              className="font-display text-4xl md:text-6xl font-bold mt-5 leading-tight"
-            >
-              Partner with  <span className="bg-gradient-to-r from-grow-coral via-grow-gold to-white bg-clip-text text-transparent">Grow Movement</span>
-            </motion.h2>
-            <p className="mt-5 text-white/85 max-w-2xl mx-auto text-lg">
-              Whether you're a company, university, foundation, investor, mentor, volunteer coach, we'd love to hear from you.
-
-Trusted by leading global organisations, including Boston Consulting Group, Linklaters, the National Community Investment Fund, London Business School, the London School of Economics, and Copenhagen Business School.
-Through Grow Movement, company professionals and university students coach and advise small businesses in emerging markets, creating jobs and economic opportunity while developing leadership, consulting, cross-cultural, and remote collaboration skills.
-
-            </p>
-             <motion.h2
-              initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}
-              className="font-display text-4xl md:text-6xl font-bold mt-5 leading-tight"
-            >
-              Benefits for   <span className="bg-gradient-to-r from-grow-coral via-grow-gold to-white bg-clip-text text-transparent">Partners</span>
-            </motion.h2>
           </div>
+
+          {/* Two-column intro grid */}
+          <div className="grid lg:grid-cols-12 gap-8 mb-14">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+              className="lg:col-span-5 bg-white/5 backdrop-blur-xl border border-white/15 rounded-3xl p-7 flex flex-col justify-between"
+            >
+              <div>
+                <div className="text-xs font-bold tracking-[0.25em] uppercase text-grow-gold mb-3">About Grow Movement</div>
+                <h3 className="font-display text-2xl font-bold leading-tight">A global community changing lives through skills-based volunteering</h3>
+              </div>
+              <p className="text-white/80 mt-4 leading-relaxed">
+                Through Grow Movement, company professionals and university students coach and advise small
+                businesses in emerging markets — creating jobs and economic opportunity while developing
+                leadership, consulting, cross-cultural, and remote collaboration skills.
+              </p>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
+              className="lg:col-span-7 grid sm:grid-cols-2 gap-4"
+            >
+              {[
+                { v: '4,000+', l: 'Entrepreneurs supported' },
+                { v: '60,000+', l: 'Jobs created' },
+                { v: '60+', l: 'Countries reached' },
+                { v: '10', l: 'University partnerships' },
+              ].map(s => (
+                <div key={s.l} className="rounded-2xl bg-white/5 border border-white/15 p-5">
+                  <div className="font-display text-3xl font-bold bg-gradient-to-r from-grow-coral to-grow-gold bg-clip-text text-transparent">{s.v}</div>
+                  <div className="text-sm text-white/80">{s.l}</div>
+                </div>
+              ))}
+            </motion.div>
+          </div>
+
+          {/* Benefits sub-heading */}
+          <motion.h3
+            initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+            className="font-display text-3xl md:text-4xl font-bold text-center mb-8"
+          >
+            Benefits for <span className="bg-gradient-to-r from-grow-coral to-grow-gold bg-clip-text text-transparent">our partners</span>
+          </motion.h3>
 
           <div className="grid md:grid-cols-2 gap-5">
               
