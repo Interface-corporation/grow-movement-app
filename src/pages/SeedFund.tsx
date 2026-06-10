@@ -1095,7 +1095,7 @@ export default function SeedFund() {
       </section> */}
 
       {/* ========= STICKY VOTING INDICATOR ========= */}
-      {isActive && (
+      {isActive && !alreadyVoted && (
         <>
           {/* Desktop floating panel */}
           <motion.aside
