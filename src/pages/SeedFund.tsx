@@ -1,13 +1,12 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect, useMemo, useState, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence, useInView } from 'framer-motion';
 import {
   Award, Calendar, Globe2, Mail, MapPin, Sparkles, Trophy,
   Users, ArrowRight, CheckCircle2, Vote, Loader2, RotateCcw,
   Briefcase, Building2, GraduationCap, Lightbulb, ChevronDown,
   ChevronRight, Facebook, Linkedin, Instagram, Twitter, Globe, Quote,
-  X, KeyRound, ChevronUp,
-  CupSoda,
+  X, KeyRound, ChevronUp, Heart, TrendingUp, Handshake, Radio, Image as ImageIcon,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -79,14 +78,55 @@ const supportPillars = [
   { icon: Award,    title: 'Leadership Building',  text: 'Confidence, storytelling and decision making.' },
 ];
 
+// Partner logos — drop image files into /public/partners or replace logoUrl with your own asset.
 const partners = [
-  { name: 'Linklaters', desc: 'Global law firm — strategic legal partner' },
-  { name: 'Boston Consulting Group', desc: 'Strategy & business development support' },
-  { name: 'London Business School', desc: 'Academic excellence & mentorship' },
-  { name: 'London School of Economics', desc: 'Research partner & talent pipeline' },
-  { name: 'CBS & CEMS', desc: 'European business school network' },
-  { name: 'National Community Investment Fund', desc: 'Investment readiness partner' },
+  { name: 'Linklaters', logoUrl: '/partners/linklaters.png', desc: 'Global law firm — strategic legal partner' },
+  { name: 'Boston Consulting Group', logoUrl: '/partners/bcg.png', desc: 'Strategy & business development support' },
+  { name: 'London Business School', logoUrl: '/partners/lbs.png', desc: 'Academic excellence & mentorship' },
+  { name: 'London School of Economics', logoUrl: '/partners/lse.png', desc: 'Research partner & talent pipeline' },
+  { name: 'Copenhagen Business School', logoUrl: '/partners/cbs.png', desc: 'European business school network' },
+  { name: 'CEMS', logoUrl: '/partners/cems.png', desc: 'Global alliance in management education' },
+  { name: 'National Community Investment Fund', logoUrl: '/partners/ncif.png', desc: 'Investment readiness partner' },
 ];
+
+// Programme-wide animated impact stats (shown under candidate catalog)
+const impactStats = [
+  { v: 4000,   suffix: '+', l: 'Entrepreneurs coached' },
+  { v: 60000,  suffix: '+', l: 'Jobs collectively created' },
+  { v: 7000,   suffix: '+', l: 'Consultants & students engaged' },
+  { v: 2000,   suffix: '+', l: 'Corporate coaches worldwide' },
+  { v: 13,     suffix: '',  l: 'Countries across Africa & Asia' },
+  { v: 60,     suffix: '+', l: 'Countries represented by coaches & students' },
+  { v: 10,     suffix: '',  l: 'Global university partnerships' },
+  { v: 15,     suffix: '',  l: 'Women entrepreneurs we invested in' },
+  { v: 150,    suffix: '+', l: 'Annual attendees at our Live Pitch' },
+];
+
+function formatStat(n: number) {
+  if (n >= 1000) return n.toLocaleString();
+  return String(n);
+}
+
+function AnimatedCounter({ value, suffix = '' }: { value: number; suffix?: string }) {
+  const ref = useRef<HTMLSpanElement | null>(null);
+  const inView = useInView(ref, { once: true, margin: '-80px' });
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    if (!inView) return;
+    const duration = 1800;
+    const start = performance.now();
+    let raf = 0;
+    const tick = (t: number) => {
+      const p = Math.min(1, (t - start) / duration);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setN(Math.round(eased * value));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [inView, value]);
+  return <span ref={ref}>{formatStat(n)}{suffix}</span>;
+}
 
 const partnerTracks = [
   {
@@ -136,11 +176,13 @@ function parseSocials(raw: any): string[] {
 }
 
 export default function SeedFund() {
+  const navigate = useNavigate();
   const [comp, setComp] = useState<Competition | null>(null);
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [alumni, setAlumni] = useState<Alumni[]>([]);
   const [loading, setLoading] = useState(true);
+  const [alreadyVoted, setAlreadyVoted] = useState(false);
 
   // Voter selection state
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -162,7 +204,7 @@ export default function SeedFund() {
   const [slideIdx, setSlideIdx] = useState(0);
 
   useEffect(() => {
-    const id = setInterval(() => setSlideIdx((i) => (i + 1) % heroSlides.length), 6500);
+    const id = setInterval(() => setSlideIdx((i) => (i + 1) % heroSlides.length), 9000);
     return () => clearInterval(id);
   }, []);
 
@@ -177,6 +219,12 @@ export default function SeedFund() {
       .limit(1);
     const c = comps?.[0] || null;
     setComp(c as any);
+    if (c) {
+      try {
+        if (localStorage.getItem(`sf-voted-${c.id}`) === '1') setAlreadyVoted(true);
+      } catch {}
+    }
+
 
     if (c) {
       const { data: cands } = await (supabase as any)
@@ -233,6 +281,10 @@ export default function SeedFund() {
   const openDetails = (c: Candidate) => { setDetailsCand(c); setDetailsOpen(true); };
 
   const startVote = () => {
+    if (alreadyVoted) {
+      toast({ title: 'Thanks — you have already voted!', description: 'Only one ballot per device is allowed.' });
+      return;
+    }
     if (!exactReady) {
       toast({ title: `Select exactly ${maxSel} candidate${maxSel === 1 ? '' : 's'}`, variant: 'destructive' });
       return;
@@ -278,21 +330,33 @@ export default function SeedFund() {
     setVoteToken((data as any)?.vote_token || '');
     setStep('done');
     setSelectedIds([]);
+    try { if (comp) localStorage.setItem(`sf-voted-${comp.id}`, '1'); } catch {}
+    setAlreadyVoted(true);
   };
 
   const submitCodeVote = async () => {
     if (!comp) return;
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(voterEmail)) {
+    const isPublic = authMethod === 'public_code';
+    // For public-code voting we DO NOT collect email; localStorage prevents repeat votes.
+    if (!isPublic && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(voterEmail)) {
       toast({ title: 'Invalid email', variant: 'destructive' }); return;
     }
     if (!code.trim()) { toast({ title: 'Enter your code', variant: 'destructive' }); return; }
+    if (isPublic) {
+      try {
+        if (localStorage.getItem(`sf-voted-${comp.id}`) === '1') {
+          toast({ title: 'You have already voted', description: 'Only one ballot per device is allowed.', variant: 'destructive' });
+          setVoteOpen(false); setAlreadyVoted(true); return;
+        }
+      } catch {}
+    }
     setSending(true);
-    const { data, error } = await (supabase as any).functions.invoke('cast-code-vote', {
-      body: {
-        competition_id: comp.id, email: voterEmail.trim(), voter_name: voterName.trim() || null,
-        code: code.trim(), candidate_ids: selectedIds,
-      },
-    });
+    const body: any = {
+      competition_id: comp.id, voter_name: voterName.trim() || null,
+      code: code.trim(), candidate_ids: selectedIds,
+    };
+    if (!isPublic) body.email = voterEmail.trim();
+    const { data, error } = await (supabase as any).functions.invoke('cast-code-vote', { body });
     setSending(false);
     if (error || (data as any)?.error) {
       toast({ title: 'Could not submit vote', description: (data as any)?.error || error?.message, variant: 'destructive' });
@@ -301,7 +365,12 @@ export default function SeedFund() {
     setVoteToken((data as any)?.vote_token || '');
     setStep('done');
     setSelectedIds([]);
+    try { localStorage.setItem(`sf-voted-${comp.id}`, '1'); } catch {}
+    setAlreadyVoted(true);
   };
+
+
+
 
   const resetVote = () => { setVoterName(''); setVoterEmail(''); setOtp(''); setCode(''); setStep('form'); };
 
@@ -346,9 +415,14 @@ export default function SeedFund() {
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.9, ease: 'easeOut' }}
               >
-                <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 text-white text-xs font-semibold px-4 py-2 rounded-full mb-6">
-                  {/* <Sparkles className="h-3.5 w-3.5 text-grow-gold" /> */}
-                 {/* / {heroSlides[slideIdx].eyebrow} */}
+                <div className="inline-flex items-center gap-2 mb-6">
+                  <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-grow-coral/90 text-white text-[11px] font-bold uppercase tracking-[0.18em] shadow-lg shadow-grow-coral/40">
+                    <Radio className="h-3.5 w-3.5 animate-pulse" />
+                    Live Grand Final {comp?.edition || '2026'}
+                  </span>
+                  <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white/90 text-[11px] font-semibold uppercase tracking-widest">
+                    <Sparkles className="h-3.5 w-3.5 text-grow-gold" /> Online Pitch Competition
+                  </span>
                 </div>
                 <h1 className="font-display text-5xl md:text-7xl font-bold text-white leading-[1.05] tracking-tight">
                   {heroSlides[slideIdx].title[0]} <span className="text-grow-coral">{heroSlides[slideIdx].accent}</span><br />
@@ -486,17 +560,31 @@ export default function SeedFund() {
       {/* ========= CANDIDATES ========= */}
       <section id="candidates" className="py-24 bg-card">
         <div className="container mx-auto px-6 lg:px-8">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-10 max-w-3xl mx-auto">
-            <p className="text-xs font-semibold tracking-[0.3em] text-grow-coral uppercase mb-3">Candidates</p>
-            <h2 className="font-display text-4xl md:text-5xl font-bold mb-4">Meet the {comp?.edition || '2026'} Candidates</h2>
-            <p className="text-muted-foreground text-lg">
-              Explore their journeys, businesses, impact, and aspirations for future growth. <br></br> <br></br>
-              We have shortlisted 12 outstanding women entrepreneurs for the Semi-Final. 
-Please review the candidates and select your top 4 to advance to the Live Zoom Pitch Final. 
-The top 6 candidates will progress to the Pitch Final, where all finalists will receive seed capital grants. 
-
-Through a live online pitch competition, participants present their businesses to panelists and a global audience. 
-
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12 max-w-4xl mx-auto">
+            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-grow-coral/10 text-grow-coral text-[11px] font-bold tracking-[0.25em] uppercase mb-4">
+              <Sparkles className="h-3.5 w-3.5" /> Semi-Final Shortlist
+            </span>
+            <h2 className="font-display text-4xl md:text-5xl font-bold mb-5 leading-tight">
+              Meet the {comp?.edition || '2026'} <span className="bg-gradient-to-r from-grow-coral to-grow-gold bg-clip-text text-transparent">Candidates</span>
+            </h2>
+            <p className="text-foreground/85 text-lg leading-relaxed mb-4">
+              We've shortlisted <strong className="text-foreground">12 outstanding women entrepreneurs</strong> for the Semi-Final.
+              Please review the candidates and <strong className="text-grow-coral">select your top {maxSel}</strong> to advance to the Live Zoom Pitch Final.
+            </p>
+            <div className="grid sm:grid-cols-3 gap-3 mt-6 text-left max-w-3xl mx-auto">
+              {[
+                { n: '12', t: 'Shortlisted semi-finalists', i: Users },
+                { n: '6',  t: 'Pitch Final places',        i: Trophy },
+                { n: 'All',t: 'Finalists receive a grant', i: Award },
+              ].map(s => (
+                <div key={s.t} className="flex items-center gap-3 bg-background border border-border rounded-xl p-3">
+                  <div className="w-9 h-9 rounded-lg bg-grow-coral/10 text-grow-coral flex items-center justify-center"><s.i className="h-4 w-4" /></div>
+                  <div><div className="font-display font-bold text-foreground">{s.n}</div><div className="text-[11px] text-muted-foreground leading-snug">{s.t}</div></div>
+                </div>
+              ))}
+            </div>
+            <p className="text-sm text-muted-foreground mt-6 italic">
+              Through a live online pitch competition, participants present their businesses to panelists and a global audience.
             </p>
           </motion.div>
 
@@ -543,15 +631,18 @@ Through a live online pitch competition, participants present their businesses t
                     key={c.id}
                     initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }} transition={{ duration: 0.45, delay: i * 0.06 }}
-                    className={`group relative bg-background rounded-2xl overflow-hidden border-2 transition-all flex flex-col ${
+                    onClick={() => en.id && navigate(`/entrepreneurs/${en.id}`)}
+                    role="link" tabIndex={0}
+                    onKeyDown={(ev) => { if ((ev.key === 'Enter' || ev.key === ' ') && en.id) { ev.preventDefault(); navigate(`/entrepreneurs/${en.id}`); } }}
+                    className={`group relative bg-background rounded-2xl overflow-hidden border-2 transition-all flex flex-col cursor-pointer ${
                       isSelected ? 'border-grow-coral shadow-2xl shadow-grow-coral/20 ring-4 ring-grow-coral/10'
-                                  : 'border-border hover:border-grow-coral/40 hover:shadow-xl'
+                                  : 'border-border hover:border-grow-coral/40 hover:shadow-xl hover:-translate-y-0.5'
                     }`}
                   >
                     {/* Top: select bar */}
                     <button
                       type="button"
-                      onClick={() => toggleSelect(c.id)}
+                      onClick={(ev) => { ev.stopPropagation(); toggleSelect(c.id); }}
                       disabled={atLimit}
                       className={`flex items-center justify-between gap-2 px-4 py-2.5 text-sm font-semibold transition-colors ${
                         isSelected ? 'bg-grow-coral text-white' :
@@ -592,7 +683,7 @@ Through a live online pitch competition, participants present their businesses t
                         <div><span className="font-semibold text-foreground">Impact: </span><span className="text-muted-foreground">{String(en.impact).slice(0, 90)}{en.impact.length > 90 ? '…' : ''}</span></div>
                       )}
                       {c.raising_for && (
-                        <div><span className="font-semibold text-foreground">Raising for: </span><span className="text-muted-foreground">{c.raising_for}</span></div>
+                        <div><span className="font-semibold text-foreground">Grant use: </span><span className="text-muted-foreground">{c.raising_for}</span></div>
                       )}
 
                       {socials.length > 0 && (
@@ -625,15 +716,60 @@ Through a live online pitch competition, participants present their businesses t
                         </div>
                       </div>
 
-                      <Button variant="outline" size="sm" className="w-full mt-1" onClick={() => openDetails(c)}>
-                        Read more <ChevronRight className="h-3.5 w-3.5" />
-                      </Button>
+                      <div className="grid grid-cols-2 gap-2 mt-1" onClick={(ev) => ev.stopPropagation()}>
+                        <Button variant="outline" size="sm" onClick={() => openDetails(c)}>
+                          Read more <ChevronRight className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button size="sm" className="bg-grow-navy hover:bg-grow-navy/90 text-white"
+                          onClick={() => en.id && navigate(`/entrepreneurs/${en.id}`)}>
+                          View Full Details
+                        </Button>
+                      </div>
                     </div>
                   </motion.div>
                 );
               })}
             </div>
           )}
+        </div>
+      </section>
+
+      {/* ========= PROGRAMME IMPACT STATS (animated) ========= */}
+      <section className="relative py-24 bg-gradient-to-br from-grow-navy via-grow-navy to-[#1a1430] text-white overflow-hidden">
+        <motion.div className="absolute -top-32 -left-20 w-[28rem] h-[28rem] rounded-full blur-3xl opacity-25"
+          style={{ background: 'radial-gradient(circle, var(--grow-coral), transparent 70%)' }}
+          animate={{ scale: [1, 1.15, 1] }} transition={{ duration: 12, repeat: Infinity }} />
+        <motion.div className="absolute -bottom-20 -right-20 w-[24rem] h-[24rem] rounded-full blur-3xl opacity-20"
+          style={{ background: 'radial-gradient(circle, var(--grow-teal), transparent 70%)' }}
+          animate={{ scale: [1.1, 1, 1.1] }} transition={{ duration: 14, repeat: Infinity }} />
+        <div className="container mx-auto px-6 lg:px-8 relative z-10">
+          <div className="text-center mb-14 max-w-3xl mx-auto">
+            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-[11px] font-bold tracking-[0.25em] uppercase">
+              <TrendingUp className="h-3.5 w-3.5 text-grow-gold" /> Programme Impact
+            </span>
+            <h2 className="font-display text-4xl md:text-5xl font-bold mt-4 leading-tight">
+              A global footprint <span className="bg-gradient-to-r from-grow-coral via-grow-gold to-white bg-clip-text text-transparent">measured in lives changed</span>
+            </h2>
+            <p className="mt-4 text-white/80 text-lg">Numbers that show what's possible when professionals, students, and entrepreneurs work together.</p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-5">
+            {impactStats.map((s, i) => (
+              <motion.div key={s.l}
+                initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-60px' }} transition={{ delay: (i % 3) * 0.08, duration: 0.55 }}
+                whileHover={{ y: -4 }}
+                className="relative rounded-2xl p-6 bg-white/5 backdrop-blur-md border border-white/15 overflow-hidden group"
+              >
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-br from-grow-coral/10 to-grow-gold/10 transition-opacity" />
+                <div className="relative">
+                  <div className="font-display text-4xl md:text-5xl font-bold bg-gradient-to-r from-grow-coral via-grow-gold to-white bg-clip-text text-transparent">
+                    <AnimatedCounter value={s.v} suffix={s.suffix} />
+                  </div>
+                  <div className="text-sm text-white/80 mt-1.5 leading-snug">{s.l}</div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -663,40 +799,135 @@ Through a live online pitch competition, participants present their businesses t
       </section>
 
       {/* ========= PARTNERS — sliding marquee ========= */}
-      <section className="py-20 overflow-hidden">
-        <div className="container mx-auto px-6 lg:px-8 text-center mb-10">
-          <p className="text-xs font-semibold tracking-[0.3em] text-muted-foreground   uppercase mb-3">Grow Women Fund Partners</p>
-          <h2 className="font-display text-3xl md:text-4xl font-bold"> In Partnership With</h2>
+      <section className="py-24 overflow-hidden bg-background">
+        <div className="container mx-auto px-6 lg:px-8 text-center mb-12 max-w-3xl mx-auto">
+          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-grow-coral/10 text-grow-coral text-[11px] font-bold tracking-[0.25em] uppercase mb-4">
+            <Handshake className="h-3.5 w-3.5" /> In Partnership With
+          </span>
+          <h2 className="font-display text-4xl md:text-5xl font-bold leading-tight">
+            Grow Women Seed Fund <span className="bg-gradient-to-r from-grow-coral to-grow-gold bg-clip-text text-transparent">Partners</span>
+          </h2>
+          <p className="mt-4 text-muted-foreground text-lg">Backed by leading global organisations, universities and impact funds.</p>
         </div>
         <div className="relative">
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-background to-transparent z-10" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-background to-transparent z-10" />
           <motion.div
             className="flex gap-6"
-            animate={{ x: [0, -1200] }}
-            transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
+            animate={{ x: [0, -1400] }}
+            transition={{ duration: 35, repeat: Infinity, ease: 'linear' }}
           >
             {[...partners, ...partners, ...partners].map((p, i) => (
-              <div key={i} className="shrink-0 w-72 bg-card border border-border rounded-2xl p-6 hover:border-grow-coral/40 hover:shadow-lg transition-all">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-grow-coral/20 to-grow-gold/20 flex items-center justify-center mb-3">
-                  <span className="font-display font-bold text-grow-coral">{p.name.charAt(0)}</span>
+              <div key={i} className="shrink-0 w-64 bg-card border border-border rounded-2xl p-6 flex flex-col items-center text-center hover:border-grow-coral/40 hover:shadow-lg transition-all">
+                <div className="w-full h-20 mb-3 rounded-xl bg-gradient-to-br from-muted to-secondary flex items-center justify-center overflow-hidden">
+                  <img
+                    src={p.logoUrl}
+                    alt={`${p.name} logo`}
+                    className="max-h-16 max-w-[80%] object-contain"
+                    onError={(ev) => {
+                      const el = ev.currentTarget as HTMLImageElement;
+                      el.style.display = 'none';
+                      el.parentElement!.innerHTML = `<div class="flex flex-col items-center gap-1 text-muted-foreground"><svg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8'><rect x='3' y='3' width='18' height='18' rx='2'/><circle cx='9' cy='9' r='2'/><path d='m21 15-5-5L5 21'/></svg><span class='text-[10px]'>Drop logo here</span></div>`;
+                    }}
+                  />
                 </div>
-                <h4 className="font-display font-bold text-foreground mb-1">{p.name}</h4>
-                <p className="text-xs text-muted-foreground">{p.desc}</p>
+                <h4 className="font-display font-bold text-foreground text-sm">{p.name}</h4>
+                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{p.desc}</p>
               </div>
             ))}
           </motion.div>
         </div>
+        <p className="text-center text-xs text-muted-foreground mt-6">
+          <ImageIcon className="inline h-3.5 w-3.5 mr-1 align-text-bottom" />
+          Tip: drop real logos in <code className="px-1 rounded bg-muted">/public/partners/</code> using the filenames above.
+        </p>
       </section>
+
+      {/* ========= WHY WOMEN ENTREPRENEURS? ========= */}
+      <section className="py-24 bg-card">
+        <div className="container mx-auto px-6 lg:px-8 max-w-6xl">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }} transition={{ duration: 0.7 }}
+              className="relative"
+            >
+              <div className="relative aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl">
+                <img
+                  src={seedAbout2}
+                  alt="Woman entrepreneur leading her business"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-grow-navy/60 via-transparent to-transparent" />
+                <motion.div
+                  className="absolute -bottom-6 -right-6 bg-grow-coral text-white rounded-2xl p-5 shadow-2xl max-w-[220px]"
+                  animate={{ y: [0, -8, 0] }} transition={{ duration: 4, repeat: Infinity }}
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <Heart className="h-4 w-4 text-white" fill="currentColor" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest">Multiplier Effect</span>
+                  </div>
+                  <p className="text-sm leading-snug">Every $1 invested in a woman returns up to $7 in community impact.</p>
+                </motion.div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }} transition={{ duration: 0.7 }}
+            >
+              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-grow-coral/10 text-grow-coral text-[11px] font-bold tracking-[0.25em] uppercase mb-4">
+                <Heart className="h-3.5 w-3.5" /> Why It Matters
+              </span>
+              <h2 className="font-display text-4xl md:text-5xl font-bold leading-tight mb-4">
+                Why <span className="bg-gradient-to-r from-grow-coral to-grow-gold bg-clip-text text-transparent">Women Entrepreneurs?</span>
+              </h2>
+              <p className="text-xl text-foreground/85 italic font-display mb-6 leading-snug">
+                "Invest in a woman entrepreneur, and you invest in a whole community."
+              </p>
+              <div className="space-y-4 text-foreground/80 leading-relaxed">
+                <p>
+                  Women entrepreneurs create jobs, generate income, solve local challenges, and drive economic growth.
+                  Yet many still face barriers to accessing business networks, mentorship, and investment.
+                </p>
+                <p>
+                  When women-led businesses grow, the impact extends far beyond revenue. They create employment,
+                  strengthen families, inspire future generations, and generate a multiplier effect that benefits
+                  entire communities.
+                </p>
+              </div>
+              <div className="mt-8 grid grid-cols-3 gap-4">
+                {[
+                  { v: 'Jobs', l: 'created locally' },
+                  { v: 'Families', l: 'strengthened' },
+                  { v: 'Communities', l: 'transformed' },
+                ].map(x => (
+                  <div key={x.v} className="rounded-xl border border-border p-3 text-center bg-background">
+                    <div className="font-display font-bold text-grow-coral">{x.v}</div>
+                    <div className="text-[11px] text-muted-foreground">{x.l}</div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+
 
       {/* ========= ALUMNI ========= */}
       <section className="py-24 bg-card">
         <div className="container mx-auto px-6 lg:px-8">
-          <div className="text-center mb-14">
-            <p className="text-xs font-semibold tracking-[0.3em] text-grow-coral uppercase mb-3"> Grow Women Seed Fund Alumni</p>
-            <h2 className="font-display text-4xl md:text-5xl font-bold">Meet Past Funded Alumni Entrepreneurs</h2>
-            {/* <p className="text-muted-foreground max-w-2xl mx-auto mt-4">
-              Past candidates tell us how the seed fund transformed their businesses.
-            </p> */}
+          <div className="text-center mb-14 max-w-3xl mx-auto">
+            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-grow-teal/10 text-grow-teal text-[11px] font-bold tracking-[0.25em] uppercase mb-4">
+              <Award className="h-3.5 w-3.5" /> Seed Fund Alumni
+            </span>
+            <h2 className="font-display text-4xl md:text-5xl font-bold leading-tight">
+              In their <span className="bg-gradient-to-r from-grow-coral to-grow-gold bg-clip-text text-transparent">own words</span>
+            </h2>
+            <p className="text-muted-foreground mt-4">Real reviews from past funded entrepreneurs across our cohorts.</p>
           </div>
+
 
           {alumni.length === 0 ? (
             <div className="text-center text-muted-foreground py-12">Alumni stories are coming soon.</div>
@@ -723,10 +954,12 @@ Through a live online pitch competition, participants present their businesses t
                     </div>
                   </Link>
                   <div className="px-5 pb-5">
-                    <p className="text-sm text-muted-foreground italic border-l-2 border-grow-coral pl-3 line-clamp-3">
-                      "{a.impact || a.pitch_summary || `The seed fund helped ${a.name?.split(' ')[0] || 'her'} expand operations, hire team members, and reach new markets — turning a dream into a thriving business.`}"
+                    <Quote className="h-4 w-4 text-grow-coral mb-1.5" />
+                    <p className="text-sm text-foreground/80 italic border-l-2 border-grow-coral pl-3 line-clamp-4">
+                      "{a.review || a.impact || a.pitch_summary || `The seed fund helped ${a.name?.split(' ')[0] || 'her'} expand operations, hire team members, and reach new markets — turning a dream into a thriving business.`}"
                     </p>
                   </div>
+
                 </motion.div>
               ))}
             </div>
@@ -744,44 +977,70 @@ Through a live online pitch competition, participants present their businesses t
           animate={{ scale: [1.1, 1, 1.1] }} transition={{ duration: 14, repeat: Infinity }} />
 
         <div className="container mx-auto px-6 lg:px-8 relative z-10 max-w-6xl">
-          <div className="text-center mb-14">
+          {/* Header */}
+          <div className="text-center mb-14 max-w-4xl mx-auto">
             <motion.span
               initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
               className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur border border-white/20 text-xs font-semibold tracking-widest uppercase"
             >
-               Create Jobs and Social Impact with us
+              <Handshake className="h-3.5 w-3.5 text-grow-gold" /> Create Jobs · Social Impact
             </motion.span>
             <motion.h2
               initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}
               className="font-display text-4xl md:text-6xl font-bold mt-5 leading-tight"
             >
-              About  <span className="bg-gradient-to-r from-grow-coral via-grow-gold to-white bg-clip-text text-transparent">Grow Movement</span>
+              Partner with <span className="bg-gradient-to-r from-grow-coral via-grow-gold to-white bg-clip-text text-transparent">Grow Movement</span>
             </motion.h2>
-            <p className="mt-5 text-white/85 max-w-2xl mx-auto text-lg">
-              Trusted by Leading Global Corporate Organisations and Universities
-Grow Movement partners with leading companies for example and universities to deliver social impact, leadership development, and entrepreneur mentoring programmes that create measurable results for both professionals and entrepreneurs. 
-
+            <p className="mt-5 text-white/85 text-lg leading-relaxed">
+              Trusted by leading global organisations including Boston Consulting Group, Linklaters,
+              the National Community Investment Fund, London Business School, the London School of Economics
+              and Copenhagen Business School — we deliver social impact, leadership development and
+              entrepreneur mentoring programmes that create measurable results for both professionals
+              and entrepreneurs.
             </p>
-            <motion.h2
-              initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}
-              className="font-display text-4xl md:text-6xl font-bold mt-5 leading-tight"
-            >
-              Partner with  <span className="bg-gradient-to-r from-grow-coral via-grow-gold to-white bg-clip-text text-transparent">Grow Movement</span>
-            </motion.h2>
-            <p className="mt-5 text-white/85 max-w-2xl mx-auto text-lg">
-              Whether you're a company, university, foundation, investor, mentor, volunteer coach, we'd love to hear from you.
-
-Trusted by leading global organisations, including Boston Consulting Group, Linklaters, the National Community Investment Fund, London Business School, the London School of Economics, and Copenhagen Business School.
-Through Grow Movement, company professionals and university students coach and advise small businesses in emerging markets, creating jobs and economic opportunity while developing leadership, consulting, cross-cultural, and remote collaboration skills.
-
-            </p>
-             <motion.h2
-              initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}
-              className="font-display text-4xl md:text-6xl font-bold mt-5 leading-tight"
-            >
-              Benefits for   <span className="bg-gradient-to-r from-grow-coral via-grow-gold to-white bg-clip-text text-transparent">Partners</span>
-            </motion.h2>
           </div>
+
+          {/* Two-column intro grid */}
+          <div className="grid lg:grid-cols-12 gap-8 mb-14">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+              className="lg:col-span-5 bg-white/5 backdrop-blur-xl border border-white/15 rounded-3xl p-7 flex flex-col justify-between"
+            >
+              <div>
+                <div className="text-xs font-bold tracking-[0.25em] uppercase text-grow-gold mb-3">About Grow Movement</div>
+                <h3 className="font-display text-2xl font-bold leading-tight">A global community changing lives through skills-based volunteering</h3>
+              </div>
+              <p className="text-white/80 mt-4 leading-relaxed">
+                Through Grow Movement, company professionals and university students coach and advise small
+                businesses in emerging markets — creating jobs and economic opportunity while developing
+                leadership, consulting, cross-cultural, and remote collaboration skills.
+              </p>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}
+              className="lg:col-span-7 grid sm:grid-cols-2 gap-4"
+            >
+              {[
+                { v: '4,000+', l: 'Entrepreneurs supported' },
+                { v: '60,000+', l: 'Jobs created' },
+                { v: '60+', l: 'Countries reached' },
+                { v: '10', l: 'University partnerships' },
+              ].map(s => (
+                <div key={s.l} className="rounded-2xl bg-white/5 border border-white/15 p-5">
+                  <div className="font-display text-3xl font-bold bg-gradient-to-r from-grow-coral to-grow-gold bg-clip-text text-transparent">{s.v}</div>
+                  <div className="text-sm text-white/80">{s.l}</div>
+                </div>
+              ))}
+            </motion.div>
+          </div>
+
+          {/* Benefits sub-heading */}
+          <motion.h3
+            initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+            className="font-display text-3xl md:text-4xl font-bold text-center mb-8"
+          >
+            Benefits for <span className="bg-gradient-to-r from-grow-coral to-grow-gold bg-clip-text text-transparent">our partners</span>
+          </motion.h3>
 
           <div className="grid md:grid-cols-2 gap-5">
               
@@ -836,7 +1095,7 @@ Through Grow Movement, company professionals and university students coach and a
       </section> */}
 
       {/* ========= STICKY VOTING INDICATOR ========= */}
-      {isActive && (
+      {isActive && !alreadyVoted && (
         <>
           {/* Desktop floating panel */}
           <motion.aside
@@ -954,10 +1213,17 @@ Through Grow Movement, company professionals and university students coach and a
                   <Label className="text-sm">Your name (optional)</Label>
                   <Input value={voterName} onChange={e => setVoterName(e.target.value)} placeholder="Jane Doe" />
                 </div>
-                <div>
-                  <Label className="text-sm">Email <span className="text-grow-coral">*</span></Label>
-                  <Input type="email" value={voterEmail} onChange={e => setVoterEmail(e.target.value)} placeholder="you@example.com" />
-                </div>
+                {authMethod !== 'public_code' && (
+                  <div>
+                    <Label className="text-sm">Email <span className="text-grow-coral">*</span></Label>
+                    <Input type="email" value={voterEmail} onChange={e => setVoterEmail(e.target.value)} placeholder="you@example.com" />
+                  </div>
+                )}
+                {authMethod === 'public_code' && (
+                  <p className="text-[11px] text-muted-foreground -mt-1">
+                    No email required — your ballot is tied to this device to prevent double voting.
+                  </p>
+                )}
                 {(authMethod === 'public_code' || authMethod === 'private_code') && (
                   <div>
                     <Label className="text-sm flex items-center gap-1"><KeyRound className="h-3.5 w-3.5" /> Voting code *</Label>
