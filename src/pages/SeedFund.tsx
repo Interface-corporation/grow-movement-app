@@ -1,13 +1,12 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect, useMemo, useState, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence, useInView } from 'framer-motion';
 import {
   Award, Calendar, Globe2, Mail, MapPin, Sparkles, Trophy,
   Users, ArrowRight, CheckCircle2, Vote, Loader2, RotateCcw,
   Briefcase, Building2, GraduationCap, Lightbulb, ChevronDown,
   ChevronRight, Facebook, Linkedin, Instagram, Twitter, Globe, Quote,
-  X, KeyRound, ChevronUp,
-  CupSoda,
+  X, KeyRound, ChevronUp, Heart, TrendingUp, Handshake, Radio, Image as ImageIcon,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -79,14 +78,55 @@ const supportPillars = [
   { icon: Award,    title: 'Leadership Building',  text: 'Confidence, storytelling and decision making.' },
 ];
 
+// Partner logos — drop image files into /public/partners or replace logoUrl with your own asset.
 const partners = [
-  { name: 'Linklaters', desc: 'Global law firm — strategic legal partner' },
-  { name: 'Boston Consulting Group', desc: 'Strategy & business development support' },
-  { name: 'London Business School', desc: 'Academic excellence & mentorship' },
-  { name: 'London School of Economics', desc: 'Research partner & talent pipeline' },
-  { name: 'CBS & CEMS', desc: 'European business school network' },
-  { name: 'National Community Investment Fund', desc: 'Investment readiness partner' },
+  { name: 'Linklaters', logoUrl: '/partners/linklaters.png', desc: 'Global law firm — strategic legal partner' },
+  { name: 'Boston Consulting Group', logoUrl: '/partners/bcg.png', desc: 'Strategy & business development support' },
+  { name: 'London Business School', logoUrl: '/partners/lbs.png', desc: 'Academic excellence & mentorship' },
+  { name: 'London School of Economics', logoUrl: '/partners/lse.png', desc: 'Research partner & talent pipeline' },
+  { name: 'Copenhagen Business School', logoUrl: '/partners/cbs.png', desc: 'European business school network' },
+  { name: 'CEMS', logoUrl: '/partners/cems.png', desc: 'Global alliance in management education' },
+  { name: 'National Community Investment Fund', logoUrl: '/partners/ncif.png', desc: 'Investment readiness partner' },
 ];
+
+// Programme-wide animated impact stats (shown under candidate catalog)
+const impactStats = [
+  { v: 4000,   suffix: '+', l: 'Entrepreneurs coached' },
+  { v: 60000,  suffix: '+', l: 'Jobs collectively created' },
+  { v: 7000,   suffix: '+', l: 'Consultants & students engaged' },
+  { v: 2000,   suffix: '+', l: 'Corporate coaches worldwide' },
+  { v: 13,     suffix: '',  l: 'Countries across Africa & Asia' },
+  { v: 60,     suffix: '+', l: 'Countries represented by coaches & students' },
+  { v: 10,     suffix: '',  l: 'Global university partnerships' },
+  { v: 15,     suffix: '',  l: 'Women entrepreneurs we invested in' },
+  { v: 150,    suffix: '+', l: 'Annual attendees at our Live Pitch' },
+];
+
+function formatStat(n: number) {
+  if (n >= 1000) return n.toLocaleString();
+  return String(n);
+}
+
+function AnimatedCounter({ value, suffix = '' }: { value: number; suffix?: string }) {
+  const ref = useRef<HTMLSpanElement | null>(null);
+  const inView = useInView(ref, { once: true, margin: '-80px' });
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    if (!inView) return;
+    const duration = 1800;
+    const start = performance.now();
+    let raf = 0;
+    const tick = (t: number) => {
+      const p = Math.min(1, (t - start) / duration);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setN(Math.round(eased * value));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [inView, value]);
+  return <span ref={ref}>{formatStat(n)}{suffix}</span>;
+}
 
 const partnerTracks = [
   {
