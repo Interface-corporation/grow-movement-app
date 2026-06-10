@@ -918,13 +918,16 @@ export default function SeedFund() {
       {/* ========= ALUMNI ========= */}
       <section className="py-24 bg-card">
         <div className="container mx-auto px-6 lg:px-8">
-          <div className="text-center mb-14">
-            <p className="text-xs font-semibold tracking-[0.3em] text-grow-coral uppercase mb-3"> Grow Women Seed Fund Alumni</p>
-            <h2 className="font-display text-4xl md:text-5xl font-bold">Meet Past Funded Alumni Entrepreneurs</h2>
-            {/* <p className="text-muted-foreground max-w-2xl mx-auto mt-4">
-              Past candidates tell us how the seed fund transformed their businesses.
-            </p> */}
+          <div className="text-center mb-14 max-w-3xl mx-auto">
+            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-grow-teal/10 text-grow-teal text-[11px] font-bold tracking-[0.25em] uppercase mb-4">
+              <Award className="h-3.5 w-3.5" /> Seed Fund Alumni
+            </span>
+            <h2 className="font-display text-4xl md:text-5xl font-bold leading-tight">
+              In their <span className="bg-gradient-to-r from-grow-coral to-grow-gold bg-clip-text text-transparent">own words</span>
+            </h2>
+            <p className="text-muted-foreground mt-4">Real reviews from past funded entrepreneurs across our cohorts.</p>
           </div>
+
 
           {alumni.length === 0 ? (
             <div className="text-center text-muted-foreground py-12">Alumni stories are coming soon.</div>
@@ -951,10 +954,12 @@ export default function SeedFund() {
                     </div>
                   </Link>
                   <div className="px-5 pb-5">
-                    <p className="text-sm text-muted-foreground italic border-l-2 border-grow-coral pl-3 line-clamp-3">
-                      "{a.impact || a.pitch_summary || `The seed fund helped ${a.name?.split(' ')[0] || 'her'} expand operations, hire team members, and reach new markets — turning a dream into a thriving business.`}"
+                    <Quote className="h-4 w-4 text-grow-coral mb-1.5" />
+                    <p className="text-sm text-foreground/80 italic border-l-2 border-grow-coral pl-3 line-clamp-4">
+                      "{a.review || a.impact || a.pitch_summary || `The seed fund helped ${a.name?.split(' ')[0] || 'her'} expand operations, hire team members, and reach new markets — turning a dream into a thriving business.`}"
                     </p>
                   </div>
+
                 </motion.div>
               ))}
             </div>
