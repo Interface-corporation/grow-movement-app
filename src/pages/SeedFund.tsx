@@ -560,17 +560,31 @@ export default function SeedFund() {
       {/* ========= CANDIDATES ========= */}
       <section id="candidates" className="py-24 bg-card">
         <div className="container mx-auto px-6 lg:px-8">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-10 max-w-3xl mx-auto">
-            <p className="text-xs font-semibold tracking-[0.3em] text-grow-coral uppercase mb-3">Candidates</p>
-            <h2 className="font-display text-4xl md:text-5xl font-bold mb-4">Meet the {comp?.edition || '2026'} Candidates</h2>
-            <p className="text-muted-foreground text-lg">
-              Explore their journeys, businesses, impact, and aspirations for future growth. <br></br> <br></br>
-              We have shortlisted 12 outstanding women entrepreneurs for the Semi-Final. 
-Please review the candidates and select your top 4 to advance to the Live Zoom Pitch Final. 
-The top 6 candidates will progress to the Pitch Final, where all finalists will receive seed capital grants. 
-
-Through a live online pitch competition, participants present their businesses to panelists and a global audience. 
-
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12 max-w-4xl mx-auto">
+            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-grow-coral/10 text-grow-coral text-[11px] font-bold tracking-[0.25em] uppercase mb-4">
+              <Sparkles className="h-3.5 w-3.5" /> Semi-Final Shortlist
+            </span>
+            <h2 className="font-display text-4xl md:text-5xl font-bold mb-5 leading-tight">
+              Meet the {comp?.edition || '2026'} <span className="bg-gradient-to-r from-grow-coral to-grow-gold bg-clip-text text-transparent">Candidates</span>
+            </h2>
+            <p className="text-foreground/85 text-lg leading-relaxed mb-4">
+              We've shortlisted <strong className="text-foreground">12 outstanding women entrepreneurs</strong> for the Semi-Final.
+              Please review the candidates and <strong className="text-grow-coral">select your top {maxSel}</strong> to advance to the Live Zoom Pitch Final.
+            </p>
+            <div className="grid sm:grid-cols-3 gap-3 mt-6 text-left max-w-3xl mx-auto">
+              {[
+                { n: '12', t: 'Shortlisted semi-finalists', i: Users },
+                { n: '6',  t: 'Pitch Final places',        i: Trophy },
+                { n: 'All',t: 'Finalists receive a grant', i: Award },
+              ].map(s => (
+                <div key={s.t} className="flex items-center gap-3 bg-background border border-border rounded-xl p-3">
+                  <div className="w-9 h-9 rounded-lg bg-grow-coral/10 text-grow-coral flex items-center justify-center"><s.i className="h-4 w-4" /></div>
+                  <div><div className="font-display font-bold text-foreground">{s.n}</div><div className="text-[11px] text-muted-foreground leading-snug">{s.t}</div></div>
+                </div>
+              ))}
+            </div>
+            <p className="text-sm text-muted-foreground mt-6 italic">
+              Through a live online pitch competition, participants present their businesses to panelists and a global audience.
             </p>
           </motion.div>
 
