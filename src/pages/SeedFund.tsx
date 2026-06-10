@@ -734,6 +734,45 @@ export default function SeedFund() {
         </div>
       </section>
 
+      {/* ========= PROGRAMME IMPACT STATS (animated) ========= */}
+      <section className="relative py-24 bg-gradient-to-br from-grow-navy via-grow-navy to-[#1a1430] text-white overflow-hidden">
+        <motion.div className="absolute -top-32 -left-20 w-[28rem] h-[28rem] rounded-full blur-3xl opacity-25"
+          style={{ background: 'radial-gradient(circle, var(--grow-coral), transparent 70%)' }}
+          animate={{ scale: [1, 1.15, 1] }} transition={{ duration: 12, repeat: Infinity }} />
+        <motion.div className="absolute -bottom-20 -right-20 w-[24rem] h-[24rem] rounded-full blur-3xl opacity-20"
+          style={{ background: 'radial-gradient(circle, var(--grow-teal), transparent 70%)' }}
+          animate={{ scale: [1.1, 1, 1.1] }} transition={{ duration: 14, repeat: Infinity }} />
+        <div className="container mx-auto px-6 lg:px-8 relative z-10">
+          <div className="text-center mb-14 max-w-3xl mx-auto">
+            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-[11px] font-bold tracking-[0.25em] uppercase">
+              <TrendingUp className="h-3.5 w-3.5 text-grow-gold" /> Programme Impact
+            </span>
+            <h2 className="font-display text-4xl md:text-5xl font-bold mt-4 leading-tight">
+              A global footprint <span className="bg-gradient-to-r from-grow-coral via-grow-gold to-white bg-clip-text text-transparent">measured in lives changed</span>
+            </h2>
+            <p className="mt-4 text-white/80 text-lg">Numbers that show what's possible when professionals, students, and entrepreneurs work together.</p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-5">
+            {impactStats.map((s, i) => (
+              <motion.div key={s.l}
+                initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-60px' }} transition={{ delay: (i % 3) * 0.08, duration: 0.55 }}
+                whileHover={{ y: -4 }}
+                className="relative rounded-2xl p-6 bg-white/5 backdrop-blur-md border border-white/15 overflow-hidden group"
+              >
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-br from-grow-coral/10 to-grow-gold/10 transition-opacity" />
+                <div className="relative">
+                  <div className="font-display text-4xl md:text-5xl font-bold bg-gradient-to-r from-grow-coral via-grow-gold to-white bg-clip-text text-transparent">
+                    <AnimatedCounter value={s.v} suffix={s.suffix} />
+                  </div>
+                  <div className="text-sm text-white/80 mt-1.5 leading-snug">{s.l}</div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ========= SUPPORT PILLARS ========= */}
       <section className="py-24 bg-grow-navy text-white">
         <div className="container mx-auto px-6 lg:px-8">
@@ -760,29 +799,121 @@ export default function SeedFund() {
       </section>
 
       {/* ========= PARTNERS — sliding marquee ========= */}
-      <section className="py-20 overflow-hidden">
-        <div className="container mx-auto px-6 lg:px-8 text-center mb-10">
-          <p className="text-xs font-semibold tracking-[0.3em] text-muted-foreground   uppercase mb-3">Grow Women Fund Partners</p>
-          <h2 className="font-display text-3xl md:text-4xl font-bold"> In Partnership With</h2>
+      <section className="py-24 overflow-hidden bg-background">
+        <div className="container mx-auto px-6 lg:px-8 text-center mb-12 max-w-3xl mx-auto">
+          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-grow-coral/10 text-grow-coral text-[11px] font-bold tracking-[0.25em] uppercase mb-4">
+            <Handshake className="h-3.5 w-3.5" /> In Partnership With
+          </span>
+          <h2 className="font-display text-4xl md:text-5xl font-bold leading-tight">
+            Grow Women Seed Fund <span className="bg-gradient-to-r from-grow-coral to-grow-gold bg-clip-text text-transparent">Partners</span>
+          </h2>
+          <p className="mt-4 text-muted-foreground text-lg">Backed by leading global organisations, universities and impact funds.</p>
         </div>
         <div className="relative">
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-background to-transparent z-10" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-background to-transparent z-10" />
           <motion.div
             className="flex gap-6"
-            animate={{ x: [0, -1200] }}
-            transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
+            animate={{ x: [0, -1400] }}
+            transition={{ duration: 35, repeat: Infinity, ease: 'linear' }}
           >
             {[...partners, ...partners, ...partners].map((p, i) => (
-              <div key={i} className="shrink-0 w-72 bg-card border border-border rounded-2xl p-6 hover:border-grow-coral/40 hover:shadow-lg transition-all">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-grow-coral/20 to-grow-gold/20 flex items-center justify-center mb-3">
-                  <span className="font-display font-bold text-grow-coral">{p.name.charAt(0)}</span>
+              <div key={i} className="shrink-0 w-64 bg-card border border-border rounded-2xl p-6 flex flex-col items-center text-center hover:border-grow-coral/40 hover:shadow-lg transition-all">
+                <div className="w-full h-20 mb-3 rounded-xl bg-gradient-to-br from-muted to-secondary flex items-center justify-center overflow-hidden">
+                  <img
+                    src={p.logoUrl}
+                    alt={`${p.name} logo`}
+                    className="max-h-16 max-w-[80%] object-contain"
+                    onError={(ev) => {
+                      const el = ev.currentTarget as HTMLImageElement;
+                      el.style.display = 'none';
+                      el.parentElement!.innerHTML = `<div class="flex flex-col items-center gap-1 text-muted-foreground"><svg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8'><rect x='3' y='3' width='18' height='18' rx='2'/><circle cx='9' cy='9' r='2'/><path d='m21 15-5-5L5 21'/></svg><span class='text-[10px]'>Drop logo here</span></div>`;
+                    }}
+                  />
                 </div>
-                <h4 className="font-display font-bold text-foreground mb-1">{p.name}</h4>
-                <p className="text-xs text-muted-foreground">{p.desc}</p>
+                <h4 className="font-display font-bold text-foreground text-sm">{p.name}</h4>
+                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{p.desc}</p>
               </div>
             ))}
           </motion.div>
         </div>
+        <p className="text-center text-xs text-muted-foreground mt-6">
+          <ImageIcon className="inline h-3.5 w-3.5 mr-1 align-text-bottom" />
+          Tip: drop real logos in <code className="px-1 rounded bg-muted">/public/partners/</code> using the filenames above.
+        </p>
       </section>
+
+      {/* ========= WHY WOMEN ENTREPRENEURS? ========= */}
+      <section className="py-24 bg-card">
+        <div className="container mx-auto px-6 lg:px-8 max-w-6xl">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }} transition={{ duration: 0.7 }}
+              className="relative"
+            >
+              <div className="relative aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl">
+                <img
+                  src={seedAbout2}
+                  alt="Woman entrepreneur leading her business"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-grow-navy/60 via-transparent to-transparent" />
+                <motion.div
+                  className="absolute -bottom-6 -right-6 bg-grow-coral text-white rounded-2xl p-5 shadow-2xl max-w-[220px]"
+                  animate={{ y: [0, -8, 0] }} transition={{ duration: 4, repeat: Infinity }}
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <Heart className="h-4 w-4 text-white" fill="currentColor" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest">Multiplier Effect</span>
+                  </div>
+                  <p className="text-sm leading-snug">Every $1 invested in a woman returns up to $7 in community impact.</p>
+                </motion.div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }} transition={{ duration: 0.7 }}
+            >
+              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-grow-coral/10 text-grow-coral text-[11px] font-bold tracking-[0.25em] uppercase mb-4">
+                <Heart className="h-3.5 w-3.5" /> Why It Matters
+              </span>
+              <h2 className="font-display text-4xl md:text-5xl font-bold leading-tight mb-4">
+                Why <span className="bg-gradient-to-r from-grow-coral to-grow-gold bg-clip-text text-transparent">Women Entrepreneurs?</span>
+              </h2>
+              <p className="text-xl text-foreground/85 italic font-display mb-6 leading-snug">
+                "Invest in a woman entrepreneur, and you invest in a whole community."
+              </p>
+              <div className="space-y-4 text-foreground/80 leading-relaxed">
+                <p>
+                  Women entrepreneurs create jobs, generate income, solve local challenges, and drive economic growth.
+                  Yet many still face barriers to accessing business networks, mentorship, and investment.
+                </p>
+                <p>
+                  When women-led businesses grow, the impact extends far beyond revenue. They create employment,
+                  strengthen families, inspire future generations, and generate a multiplier effect that benefits
+                  entire communities.
+                </p>
+              </div>
+              <div className="mt-8 grid grid-cols-3 gap-4">
+                {[
+                  { v: 'Jobs', l: 'created locally' },
+                  { v: 'Families', l: 'strengthened' },
+                  { v: 'Communities', l: 'transformed' },
+                ].map(x => (
+                  <div key={x.v} className="rounded-xl border border-border p-3 text-center bg-background">
+                    <div className="font-display font-bold text-grow-coral">{x.v}</div>
+                    <div className="text-[11px] text-muted-foreground">{x.l}</div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+
 
       {/* ========= ALUMNI ========= */}
       <section className="py-24 bg-card">
