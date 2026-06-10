@@ -281,6 +281,10 @@ export default function SeedFund() {
   const openDetails = (c: Candidate) => { setDetailsCand(c); setDetailsOpen(true); };
 
   const startVote = () => {
+    if (alreadyVoted) {
+      toast({ title: 'Thanks — you have already voted!', description: 'Only one ballot per device is allowed.' });
+      return;
+    }
     if (!exactReady) {
       toast({ title: `Select exactly ${maxSel} candidate${maxSel === 1 ? '' : 's'}`, variant: 'destructive' });
       return;
