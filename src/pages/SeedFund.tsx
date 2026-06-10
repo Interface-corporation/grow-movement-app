@@ -176,11 +176,13 @@ function parseSocials(raw: any): string[] {
 }
 
 export default function SeedFund() {
+  const navigate = useNavigate();
   const [comp, setComp] = useState<Competition | null>(null);
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [alumni, setAlumni] = useState<Alumni[]>([]);
   const [loading, setLoading] = useState(true);
+  const [alreadyVoted, setAlreadyVoted] = useState(false);
 
   // Voter selection state
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
