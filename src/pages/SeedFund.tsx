@@ -202,7 +202,7 @@ export default function SeedFund() {
   const [slideIdx, setSlideIdx] = useState(0);
 
   useEffect(() => {
-    const id = setInterval(() => setSlideIdx((i) => (i + 1) % heroSlides.length), 6500);
+    const id = setInterval(() => setSlideIdx((i) => (i + 1) % heroSlides.length), 9000);
     return () => clearInterval(id);
   }, []);
 
