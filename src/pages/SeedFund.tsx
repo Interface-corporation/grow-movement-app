@@ -1213,10 +1213,17 @@ export default function SeedFund() {
                   <Label className="text-sm">Your name (optional)</Label>
                   <Input value={voterName} onChange={e => setVoterName(e.target.value)} placeholder="Jane Doe" />
                 </div>
-                <div>
-                  <Label className="text-sm">Email <span className="text-grow-coral">*</span></Label>
-                  <Input type="email" value={voterEmail} onChange={e => setVoterEmail(e.target.value)} placeholder="you@example.com" />
-                </div>
+                {authMethod !== 'public_code' && (
+                  <div>
+                    <Label className="text-sm">Email <span className="text-grow-coral">*</span></Label>
+                    <Input type="email" value={voterEmail} onChange={e => setVoterEmail(e.target.value)} placeholder="you@example.com" />
+                  </div>
+                )}
+                {authMethod === 'public_code' && (
+                  <p className="text-[11px] text-muted-foreground -mt-1">
+                    No email required — your ballot is tied to this device to prevent double voting.
+                  </p>
+                )}
                 {(authMethod === 'public_code' || authMethod === 'private_code') && (
                   <div>
                     <Label className="text-sm flex items-center gap-1"><KeyRound className="h-3.5 w-3.5" /> Voting code *</Label>
