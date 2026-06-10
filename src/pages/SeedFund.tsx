@@ -326,6 +326,8 @@ export default function SeedFund() {
     setVoteToken((data as any)?.vote_token || '');
     setStep('done');
     setSelectedIds([]);
+    try { if (comp) localStorage.setItem(`sf-voted-${comp.id}`, '1'); } catch {}
+    setAlreadyVoted(true);
   };
 
   const submitCodeVote = async () => {
