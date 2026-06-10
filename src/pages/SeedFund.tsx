@@ -365,9 +365,8 @@ export default function SeedFund() {
     setAlreadyVoted(true);
   };
 
-  // Also lock OTP path after successful submission on this device
-  const _origSubmitOtp = submitOtpVote;
-  // (kept as-is; just persist below in the submit handler via wrapper)
+
+
 
   const resetVote = () => { setVoterName(''); setVoterEmail(''); setOtp(''); setCode(''); setStep('form'); };
 
