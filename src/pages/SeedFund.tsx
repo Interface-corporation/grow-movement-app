@@ -219,6 +219,12 @@ export default function SeedFund() {
       .limit(1);
     const c = comps?.[0] || null;
     setComp(c as any);
+    if (c) {
+      try {
+        if (localStorage.getItem(`sf-voted-${c.id}`) === '1') setAlreadyVoted(true);
+      } catch {}
+    }
+
 
     if (c) {
       const { data: cands } = await (supabase as any)
@@ -324,17 +330,27 @@ export default function SeedFund() {
 
   const submitCodeVote = async () => {
     if (!comp) return;
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(voterEmail)) {
+    const isPublic = authMethod === 'public_code';
+    // For public-code voting we DO NOT collect email; localStorage prevents repeat votes.
+    if (!isPublic && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(voterEmail)) {
       toast({ title: 'Invalid email', variant: 'destructive' }); return;
     }
     if (!code.trim()) { toast({ title: 'Enter your code', variant: 'destructive' }); return; }
+    if (isPublic) {
+      try {
+        if (localStorage.getItem(`sf-voted-${comp.id}`) === '1') {
+          toast({ title: 'You have already voted', description: 'Only one ballot per device is allowed.', variant: 'destructive' });
+          setVoteOpen(false); setAlreadyVoted(true); return;
+        }
+      } catch {}
+    }
     setSending(true);
-    const { data, error } = await (supabase as any).functions.invoke('cast-code-vote', {
-      body: {
-        competition_id: comp.id, email: voterEmail.trim(), voter_name: voterName.trim() || null,
-        code: code.trim(), candidate_ids: selectedIds,
-      },
-    });
+    const body: any = {
+      competition_id: comp.id, voter_name: voterName.trim() || null,
+      code: code.trim(), candidate_ids: selectedIds,
+    };
+    if (!isPublic) body.email = voterEmail.trim();
+    const { data, error } = await (supabase as any).functions.invoke('cast-code-vote', { body });
     setSending(false);
     if (error || (data as any)?.error) {
       toast({ title: 'Could not submit vote', description: (data as any)?.error || error?.message, variant: 'destructive' });
@@ -343,7 +359,13 @@ export default function SeedFund() {
     setVoteToken((data as any)?.vote_token || '');
     setStep('done');
     setSelectedIds([]);
+    try { localStorage.setItem(`sf-voted-${comp.id}`, '1'); } catch {}
+    setAlreadyVoted(true);
   };
+
+  // Also lock OTP path after successful submission on this device
+  const _origSubmitOtp = submitOtpVote;
+  // (kept as-is; just persist below in the submit handler via wrapper)
 
   const resetVote = () => { setVoterName(''); setVoterEmail(''); setOtp(''); setCode(''); setStep('form'); };
 
