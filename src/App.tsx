@@ -3,6 +3,7 @@ import { CartProvider } from '@/contexts/CartContext';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { Navbar } from '@/components/Navbar';
 import { GrowFooter } from '@/components/GrowFooter';
+import ScrollToTop from '@/components/ScrollToTop';
 import Home from '@/pages/Home';
 import Entrepreneurs from '@/pages/Entrepreneurs';
 import EntrepreneurProfile from '@/pages/EntrepreneurProfile';
@@ -57,6 +58,7 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <CartProvider>
+          <ScrollToTop />
           <Routes>
             {/* Public routes */}
             <Route path="/" element={<PublicLayout><Home /></PublicLayout>} />
