@@ -28,7 +28,7 @@ export default function ApplyChoose() {
         <div className="container mx-auto px-6 lg:px-8 relative z-10 max-w-5xl text-center">
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur border border-white/20 px-4 py-1.5 rounded-full text-xs font-semibold mb-6">
-              <Sparkles className="h-3.5 w-3.5 text-grow-gold" /> JOIN GROW MOVEMENT
+               JOIN GROW MOVEMENT
             </div>
             <h1 className="font-display text-4xl md:text-6xl font-bold leading-tight mb-6">
               Begin your <span className="text-grow-coral">journey</span> with us

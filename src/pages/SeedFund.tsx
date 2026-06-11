@@ -20,6 +20,11 @@ import { getProfilePhoto } from '@/lib/avatars';
 import heroImg from '@/assets/growImage/homeStory1.png';
 import seedAbout1 from '@/assets/growImage/seedAbout1.png';
 import seedAbout2 from '@/assets/growImage/seedAbout2.png';
+import seedWomen from '@/assets/growImage/seedWomen.png';
+
+import LinklatersLogo from "@/assets/partners/linklaters.png";
+import grow from "@/assets/partners/grow.jpg";
+import inspire from "@/assets/partners/inspire.png";
 
 type Competition = {
   id: string; title: string; edition: string | null;
@@ -80,13 +85,10 @@ const supportPillars = [
 
 // Partner logos — drop image files into /public/partners or replace logoUrl with your own asset.
 const partners = [
-  { name: 'Linklaters', logoUrl: '/partners/linklaters.png', desc: 'Global law firm — strategic legal partner' },
-  { name: 'Boston Consulting Group', logoUrl: '/partners/bcg.png', desc: 'Strategy & business development support' },
-  { name: 'London Business School', logoUrl: '/partners/lbs.png', desc: 'Academic excellence & mentorship' },
-  { name: 'London School of Economics', logoUrl: '/partners/lse.png', desc: 'Research partner & talent pipeline' },
-  { name: 'Copenhagen Business School', logoUrl: '/partners/cbs.png', desc: 'European business school network' },
-  { name: 'CEMS', logoUrl: '/partners/cems.png', desc: 'Global alliance in management education' },
-  { name: 'National Community Investment Fund', logoUrl: '/partners/ncif.png', desc: 'Investment readiness partner' },
+  { name: 'Linklaters', logoUrl: LinklatersLogo, desc: 'Global law firm — strategic legal partner' },
+  { name: 'Grow movement', logoUrl: grow, desc: 'Global law firm — strategic legal partner' },
+  { name: 'Inspire Dreams & Startups', logoUrl: inspire, desc: 'Global law firm — strategic legal partner' },
+  
 ];
 
 // Programme-wide animated impact stats (shown under candidate catalog)
@@ -417,12 +419,10 @@ export default function SeedFund() {
               >
                 <div className="inline-flex items-center gap-2 mb-6">
                   <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-grow-coral/90 text-white text-[11px] font-bold uppercase tracking-[0.18em] shadow-lg shadow-grow-coral/40">
-                    <Radio className="h-3.5 w-3.5 animate-pulse" />
+                    <Radio className="h-3.5 w-3.5 animate-pulse text-grow-coral" />
                     Live Grand Final {comp?.edition || '2026'}
                   </span>
-                  <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white/90 text-[11px] font-semibold uppercase tracking-widest">
-                    <Sparkles className="h-3.5 w-3.5 text-grow-gold" /> Online Pitch Competition
-                  </span>
+                  
                 </div>
                 <h1 className="font-display text-5xl md:text-7xl font-bold text-white leading-[1.05] tracking-tight">
                   {heroSlides[slideIdx].title[0]} <span className="text-grow-coral">{heroSlides[slideIdx].accent}</span><br />
@@ -482,7 +482,7 @@ export default function SeedFund() {
       </section>
 
       {/* ========= ANIMATED IMPACT STATS ========= */}
-      <section className="py-16 md:py-20 bg-card border-y border-border">
+      {/* <section className="py-16 md:py-20 bg-card border-y border-border">
         <div className="container mx-auto px-6 lg:px-8">
           <div className="text-center mb-10">
             <p className="text-xs font-semibold tracking-[0.3em] text-grow-coral uppercase mb-3">The impact we can have together.
@@ -507,7 +507,7 @@ export default function SeedFund() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* ========= ABOUT PROGRAMME + images ========= */}
       <section className="py-24">
@@ -562,7 +562,7 @@ export default function SeedFund() {
         <div className="container mx-auto px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12 max-w-4xl mx-auto">
             <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-grow-coral/10 text-grow-coral text-[11px] font-bold tracking-[0.25em] uppercase mb-4">
-              <Sparkles className="h-3.5 w-3.5" /> Semi-Final Shortlist
+               Semi-Final Shortlist
             </span>
             <h2 className="font-display text-4xl md:text-5xl font-bold mb-5 leading-tight">
               Meet the {comp?.edition || '2026'} <span className="bg-gradient-to-r from-grow-coral to-grow-gold bg-clip-text text-transparent">Candidates</span>
@@ -571,7 +571,7 @@ export default function SeedFund() {
               We've shortlisted <strong className="text-foreground">12 outstanding women entrepreneurs</strong> for the Semi-Final.
               Please review the candidates and <strong className="text-grow-coral">select your top {maxSel}</strong> to advance to the Live Zoom Pitch Final.
             </p>
-            <div className="grid sm:grid-cols-3 gap-3 mt-6 text-left max-w-3xl mx-auto">
+            {/* <div className="grid sm:grid-cols-3 gap-3 mt-6 text-left max-w-3xl mx-auto">
               {[
                 { n: '12', t: 'Shortlisted semi-finalists', i: Users },
                 { n: '6',  t: 'Pitch Final places',        i: Trophy },
@@ -582,9 +582,10 @@ export default function SeedFund() {
                   <div><div className="font-display font-bold text-foreground">{s.n}</div><div className="text-[11px] text-muted-foreground leading-snug">{s.t}</div></div>
                 </div>
               ))}
-            </div>
+            </div> */}
             <p className="text-sm text-muted-foreground mt-6 italic">
-              Through a live online pitch competition, participants present their businesses to panelists and a global audience.
+              The top 6 candidates will progress to the Pitch Final, where all finalists will receive seed capital grants. 
+Through a live online pitch competition, participants present their businesses to panelists and a global audience.
             </p>
           </motion.div>
 
@@ -718,7 +719,7 @@ export default function SeedFund() {
 
                       <div className="grid grid-cols-2 gap-2 mt-1" onClick={(ev) => ev.stopPropagation()}>
                         <Button variant="outline" size="sm" onClick={() => openDetails(c)}>
-                          Read more <ChevronRight className="h-3.5 w-3.5" />
+                          Preview <ChevronRight className="h-3.5 w-3.5" />
                         </Button>
                         <Button size="sm" className="bg-grow-navy hover:bg-grow-navy/90 text-white"
                           onClick={() => en.id && navigate(`/entrepreneurs/${en.id}`)}>
@@ -736,7 +737,7 @@ export default function SeedFund() {
 
       {/* ========= PROGRAMME IMPACT STATS (animated) ========= */}
       <section className="relative py-24 bg-gradient-to-br from-grow-navy via-grow-navy to-[#1a1430] text-white overflow-hidden">
-        <motion.div className="absolute -top-32 -left-20 w-[28rem] h-[28rem] rounded-full blur-3xl opacity-25"
+        <motion.div className="absolute -top-32 -left-20 w-[28rem] h-[28rem] rounded-full blur-3xl opacity-85"
           style={{ background: 'radial-gradient(circle, var(--grow-coral), transparent 70%)' }}
           animate={{ scale: [1, 1.15, 1] }} transition={{ duration: 12, repeat: Infinity }} />
         <motion.div className="absolute -bottom-20 -right-20 w-[24rem] h-[24rem] rounded-full blur-3xl opacity-20"
@@ -745,10 +746,10 @@ export default function SeedFund() {
         <div className="container mx-auto px-6 lg:px-8 relative z-10">
           <div className="text-center mb-14 max-w-3xl mx-auto">
             <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-[11px] font-bold tracking-[0.25em] uppercase">
-              <TrendingUp className="h-3.5 w-3.5 text-grow-gold" /> Programme Impact
+               The impact we can have together
             </span>
             <h2 className="font-display text-4xl md:text-5xl font-bold mt-4 leading-tight">
-              A global footprint <span className="bg-gradient-to-r from-grow-coral via-grow-gold to-white bg-clip-text text-transparent">measured in lives changed</span>
+              Your Impact. <span className="bg-gradient-to-r from-grow-coral via-grow-gold to-white bg-clip-text text-transparent">Our Footprint</span>
             </h2>
             <p className="mt-4 text-white/80 text-lg">Numbers that show what's possible when professionals, students, and entrepreneurs work together.</p>
           </div>
@@ -773,76 +774,6 @@ export default function SeedFund() {
         </div>
       </section>
 
-      {/* ========= SUPPORT PILLARS ========= */}
-      <section className="py-24 bg-grow-navy text-white">
-        <div className="container mx-auto px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <p className="text-xs font-semibold tracking-[0.3em] text-grow-gold uppercase mb-3">More Than Seed Capital</p>
-            <h2 className="font-display text-4xl md:text-5xl font-bold">What every entrepreneur receives</h2>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {supportPillars.map((p, i) => (
-              <motion.div key={p.title}
-                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-                className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/10 hover:-translate-y-1 transition-all"
-              >
-                <div className="w-12 h-12 rounded-xl bg-grow-coral/20 flex items-center justify-center mb-4">
-                  <p.icon className="h-6 w-6 text-grow-coral" />
-                </div>
-                <h3 className="font-display text-lg mb-1">{p.title}</h3>
-                <p className="text-sm text-white/70">{p.text}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ========= PARTNERS — sliding marquee ========= */}
-      <section className="py-24 overflow-hidden bg-background">
-        <div className="container mx-auto px-6 lg:px-8 text-center mb-12 max-w-3xl mx-auto">
-          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-grow-coral/10 text-grow-coral text-[11px] font-bold tracking-[0.25em] uppercase mb-4">
-            <Handshake className="h-3.5 w-3.5" /> In Partnership With
-          </span>
-          <h2 className="font-display text-4xl md:text-5xl font-bold leading-tight">
-            Grow Women Seed Fund <span className="bg-gradient-to-r from-grow-coral to-grow-gold bg-clip-text text-transparent">Partners</span>
-          </h2>
-          <p className="mt-4 text-muted-foreground text-lg">Backed by leading global organisations, universities and impact funds.</p>
-        </div>
-        <div className="relative">
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-background to-transparent z-10" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-background to-transparent z-10" />
-          <motion.div
-            className="flex gap-6"
-            animate={{ x: [0, -1400] }}
-            transition={{ duration: 35, repeat: Infinity, ease: 'linear' }}
-          >
-            {[...partners, ...partners, ...partners].map((p, i) => (
-              <div key={i} className="shrink-0 w-64 bg-card border border-border rounded-2xl p-6 flex flex-col items-center text-center hover:border-grow-coral/40 hover:shadow-lg transition-all">
-                <div className="w-full h-20 mb-3 rounded-xl bg-gradient-to-br from-muted to-secondary flex items-center justify-center overflow-hidden">
-                  <img
-                    src={p.logoUrl}
-                    alt={`${p.name} logo`}
-                    className="max-h-16 max-w-[80%] object-contain"
-                    onError={(ev) => {
-                      const el = ev.currentTarget as HTMLImageElement;
-                      el.style.display = 'none';
-                      el.parentElement!.innerHTML = `<div class="flex flex-col items-center gap-1 text-muted-foreground"><svg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8'><rect x='3' y='3' width='18' height='18' rx='2'/><circle cx='9' cy='9' r='2'/><path d='m21 15-5-5L5 21'/></svg><span class='text-[10px]'>Drop logo here</span></div>`;
-                    }}
-                  />
-                </div>
-                <h4 className="font-display font-bold text-foreground text-sm">{p.name}</h4>
-                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{p.desc}</p>
-              </div>
-            ))}
-          </motion.div>
-        </div>
-        <p className="text-center text-xs text-muted-foreground mt-6">
-          <ImageIcon className="inline h-3.5 w-3.5 mr-1 align-text-bottom" />
-          Tip: drop real logos in <code className="px-1 rounded bg-muted">/public/partners/</code> using the filenames above.
-        </p>
-      </section>
-
       {/* ========= WHY WOMEN ENTREPRENEURS? ========= */}
       <section className="py-24 bg-card">
         <div className="container mx-auto px-6 lg:px-8 max-w-6xl">
@@ -854,7 +785,7 @@ export default function SeedFund() {
             >
               <div className="relative aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl">
                 <img
-                  src={seedAbout2}
+                  src={seedWomen}
                   alt="Woman entrepreneur leading her business"
                   className="w-full h-full object-cover"
                 />
@@ -867,7 +798,7 @@ export default function SeedFund() {
                     <Heart className="h-4 w-4 text-white" fill="currentColor" />
                     <span className="text-[10px] font-bold uppercase tracking-widest">Multiplier Effect</span>
                   </div>
-                  <p className="text-sm leading-snug">Every $1 invested in a woman returns up to $7 in community impact.</p>
+                  <p className="text-sm leading-snug">Every £1 invested in a woman returns up to £7 in community impact.</p>
                 </motion.div>
               </div>
             </motion.div>
@@ -877,7 +808,7 @@ export default function SeedFund() {
               viewport={{ once: true }} transition={{ duration: 0.7 }}
             >
               <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-grow-coral/10 text-grow-coral text-[11px] font-bold tracking-[0.25em] uppercase mb-4">
-                <Heart className="h-3.5 w-3.5" /> Why It Matters
+                 Why It Matters
               </span>
               <h2 className="font-display text-4xl md:text-5xl font-bold leading-tight mb-4">
                 Why <span className="bg-gradient-to-r from-grow-coral to-grow-gold bg-clip-text text-transparent">Women Entrepreneurs?</span>
@@ -914,13 +845,42 @@ export default function SeedFund() {
       </section>
 
 
+      {/* ========= SUPPORT PILLARS ========= */}
+      <section className="py-24 bg-grow-navy text-white">
+        <div className="container mx-auto px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <p className="text-xs font-semibold tracking-[0.3em] text-grow-gold uppercase mb-3">More Than Seed Capital</p>
+            <h2 className="font-display text-4xl md:text-5xl font-bold">What every entrepreneur receives</h2>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {supportPillars.map((p, i) => (
+              <motion.div key={p.title}
+                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/10 hover:-translate-y-1 transition-all"
+              >
+                <div className="w-12 h-12 rounded-xl bg-grow-coral/20 flex items-center justify-center mb-4">
+                  <p.icon className="h-6 w-6 text-grow-coral" />
+                </div>
+                <h3 className="font-display text-lg mb-1">{p.title}</h3>
+                <p className="text-sm text-white/70">{p.text}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+      
+
+      
+      
+
 
       {/* ========= ALUMNI ========= */}
       <section className="py-24 bg-card">
         <div className="container mx-auto px-6 lg:px-8">
           <div className="text-center mb-14 max-w-3xl mx-auto">
-            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-grow-teal/10 text-grow-teal text-[11px] font-bold tracking-[0.25em] uppercase mb-4">
-              <Award className="h-3.5 w-3.5" /> Seed Fund Alumni
+            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-grow-teal/10 text-grow-coral text-[11px] font-bold tracking-[0.25em] uppercase mb-4">
+               Seed Fund Alumni
             </span>
             <h2 className="font-display text-4xl md:text-5xl font-bold leading-tight">
               In their <span className="bg-gradient-to-r from-grow-coral to-grow-gold bg-clip-text text-transparent">own words</span>
@@ -1077,22 +1037,100 @@ export default function SeedFund() {
           </div>
         </div>
       </section>
-
-      {/* ========= CLOSING MESSAGE ========= */}
-      {/* <section className="py-24 bg-background">
-        <div className="container mx-auto px-6 lg:px-8 max-w-4xl text-center">
-          <motion.p
-            initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.9 }}
-            className="font-display text-3xl md:text-5xl font-bold leading-tight text-foreground"
-          >
-            Together, we don't simply fund businesses.{' '}
-            <span className="bg-gradient-to-r from-grow-coral via-grow-gold to-grow-teal bg-clip-text text-transparent">
-              We unlock potential, strengthen communities,
-            </span>{' '}
-            and empower the next generation of women entrepreneurs across Africa and Asia.
-          </motion.p>
+{/* ========= PARTNERS — sliding marquee ========= */}
+      <section className="py-24 overflow-hidden bg-background">
+        <div className="container mx-auto px-6 lg:px-8 text-center mb-12 max-w-3xl mx-auto">
+          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-grow-coral/10 text-grow-coral text-[11px] font-bold tracking-[0.25em] uppercase mb-4">
+             In Partnership With
+          </span>
+          <h2 className="font-display text-4xl md:text-5xl font-bold leading-tight">
+            Grow Women Seed Fund <span className="bg-gradient-to-r from-grow-coral to-grow-gold bg-clip-text text-transparent">Partners</span>
+          </h2>
+          <p className="mt-4 text-muted-foreground text-lg">Backed by leading global organisations, universities and impact funds.</p>
         </div>
-      </section> */}
+        <div className="relative">
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-background to-transparent z-10" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-background to-transparent z-10" />
+          <motion.div
+  className="flex gap-8"
+  animate={{ x: [0, -1400] }}
+  transition={{
+    duration: 35,
+    repeat: Infinity,
+    ease: "linear",
+  }}
+>
+  {[...partners, ...partners, ...partners].map((p, i) => (
+    <div
+      key={i}
+      className="
+        shrink-0
+        w-72
+        bg-white
+        rounded-2xl
+        border
+        border-gray-200
+        shadow-sm
+        hover:shadow-xl
+        hover:-translate-y-1
+        transition-all
+        duration-300
+        p-6
+        flex
+        flex-col
+        items-center
+        text-center
+      "
+    >
+      {/* Logo Container */}
+      <div className="w-full h-28 flex items-center justify-center bg-white rounded-xl p-4 mb-5">
+        <img
+          src={p.logoUrl}
+          alt={`${p.name} logo`}
+          className="
+            max-h-20
+            max-w-full
+            object-contain
+            transition-transform
+            duration-300
+            hover:scale-105
+          "
+          onError={(ev) => {
+            const el = ev.currentTarget as HTMLImageElement;
+            el.style.display = "none";
+            el.parentElement!.innerHTML = `
+              <div class="flex flex-col items-center justify-center text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/>
+                  <circle cx="9" cy="9" r="2"/>
+                  <path d="M21 15l-5-5L5 21"/>
+                </svg>
+                <span class="text-xs mt-2">
+                  Logo unavailable
+                </span>
+              </div>
+            `;
+          }}
+        />
+      </div>
+
+      {/* Company Name */}
+      <h4 className="text-lg font-bold text-foreground">
+        {p.name}
+      </h4>
+
+      {/* Description */}
+      <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+        {p.desc}
+      </p>
+    </div>
+  ))}
+</motion.div>
+        </div>
+        
+      </section>
+
+      
 
       {/* ========= STICKY VOTING INDICATOR ========= */}
       {isActive && !alreadyVoted && (

@@ -5,27 +5,27 @@ import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import slide1 from '@/assets/growImage/homeHero1.jpg';
 import slide2 from '@/assets/growImage/homeHero2.png';
-import slide3 from '@/assets/growImage/homeHero3.png';
+import slide3 from '@/assets/growImage/growTeam.png';
 
 const slides = [
   {
     image: slide1,
-    title: 'Build, Grow, and Scale Your Business',
-    subtitle: 'Connect with experienced global professionals and transform your business through structured, results-driven coaching.',
+    title: 'Unlock Economic Opportunity',
+    subtitle: 'Remote coaching and mentoring from professionals support entrepreneurs to build stronger businesses, create jobs, and strengthen communities.',
     primaryCta: { label: 'Apply as Entrepreneur', href: '/apply' },
     secondaryCta: { label: 'Explore Entrepreneurs', href: '/entrepreneurs' },
   },
   {
     image: slide2,
-    title: 'Where Vision Meets Opportunity',
-    subtitle: 'Join a thriving community of entrepreneurs, coaches, and partners building impact across continents.',
+    title: 'Develop Global Leaders',
+    subtitle: 'Professionals gain leadership, coaching, and cross-cultural and advisory experience through meaningful mentoring relationships with entrepreneurs across Africa, Asia, and beyond through business and leadership coaching.',
     primaryCta: { label: 'Become a Volunteer Coach', href: '/apply/coach' },
     secondaryCta: { label: 'See How It Works', href: '#how-it-works' },
   },
   {
     image: slide3,
-    title: 'Expert Guidance, Real Results',
-    subtitle: 'One-on-one mentorship with seasoned professionals who help you solve real business challenges.',
+    title: 'Create Measurable Impact',
+    subtitle: 'Professionals develop leadership and cross-cultural capabilities while organizations advance their social impact, employee and students engagement, ESG, and talent development goals.',
     primaryCta: { label: 'Partner With Us', href: '#partners' },
     secondaryCta: { label: 'Read Success Stories', href: '#stories' },
   },

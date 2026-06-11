@@ -1,18 +1,18 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, ChevronLeft, ChevronRight, Quote } from 'lucide-react';
-import story1 from '@/assets/growImage/testimonial1.png';
+import story1 from '@/assets/testmonial/twist.png';
 import story2 from '@/assets/growImage/testimonial2.png';
 import story3 from '@/assets/growImage/testimonial3.png';
 
 const stories = [
   {
     image: story1,
-    name: 'Aline Mukamana',
-    business: 'Founder, Imena Textiles',
+    name: 'Germain Niyogisubizo',
+    business: 'Managing Director, Twistblez',
     country: 'Rwanda',
     quote: 'Through Grow Movement, I increased my revenue 3x and now export traditional fabrics across East Africa. The coaching changed how I think about scale.',
-    video: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+    video: 'https://www.youtube.com/embed/bt6fx7B0OoE&t',
   },
   {
     image: story2,
@@ -20,7 +20,7 @@ const stories = [
     business: 'Founder, AgriTech Naija',
     country: 'Nigeria',
     quote: 'My coach helped me design a tech platform that connects 1,200 farmers to fair markets. We just closed our first investment round.',
-    video: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+    video: 'https://www.youtube.com/embed/bt6fx7B0OoE?start=1',
   },
   {
     image: story3,
