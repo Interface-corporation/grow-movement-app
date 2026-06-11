@@ -10,7 +10,6 @@ import slide3 from '@/assets/growImage/homeHero3.png';
 const slides = [
   {
     image: slide1,
-    eyebrow: 'For Entrepreneurs',
     title: 'Build, Grow, and Scale Your Business',
     subtitle: 'Connect with experienced global professionals and transform your business through structured, results-driven coaching.',
     primaryCta: { label: 'Apply as Entrepreneur', href: '/apply' },
@@ -18,7 +17,6 @@ const slides = [
   },
   {
     image: slide2,
-    eyebrow: 'A Global Movement',
     title: 'Where Vision Meets Opportunity',
     subtitle: 'Join a thriving community of entrepreneurs, coaches, and partners building impact across continents.',
     primaryCta: { label: 'Become a Volunteer Coach', href: '/apply/coach' },
@@ -26,7 +24,6 @@ const slides = [
   },
   {
     image: slide3,
-    eyebrow: 'Personalized Coaching',
     title: 'Expert Guidance, Real Results',
     subtitle: 'One-on-one mentorship with seasoned professionals who help you solve real business challenges.',
     primaryCta: { label: 'Partner With Us', href: '#partners' },
@@ -41,7 +38,7 @@ export function HeroSlider() {
   const prev = useCallback(() => setIndex((i) => (i - 1 + slides.length) % slides.length), []);
 
   useEffect(() => {
-    const id = setInterval(next, 7000);
+    const id = setInterval(next, 9000);
     return () => clearInterval(id);
   }, [next]);
 
@@ -56,7 +53,7 @@ export function HeroSlider() {
           initial={{ opacity: 0, scale: 1.05 }}
           animate={{ opacity: 1, scale: 1.15 }}
           exit={{ opacity: 0, scale: 1.2 }}
-          transition={{ opacity: { duration: 1.2 }, scale: { duration: 7, ease: 'linear' } }}
+          transition={{ opacity: { duration: 1.2 }, scale: { duration: 9, ease: 'linear' } }}
           className="absolute inset-0"
         >
           <img
@@ -96,10 +93,6 @@ export function HeroSlider() {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
             >
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 px-4 py-1.5 text-sm font-medium text-white mb-6">
-                <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                {slide.eyebrow}
-              </span>
 
               <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] text-white mb-6">
                 {slide.title}
@@ -163,7 +156,7 @@ export function HeroSlider() {
                     className="absolute inset-0 bg-primary"
                     initial={{ width: '0%' }}
                     animate={{ width: '100%' }}
-                    transition={{ duration: 7, ease: 'linear' }}
+                    transition={{ duration: 9, ease: 'linear' }}
                   />
                 )}
               </button>
