@@ -14,11 +14,18 @@ const json = (b: unknown, s = 200) =>
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   try {
-    const { competition_id, email, voter_name, code, candidate_ids } = await req.json();
-    if (!competition_id || !email || !code || !Array.isArray(candidate_ids) || candidate_ids.length === 0
-        || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return json({ error: "Invalid request" }, 400);
+    let payload: any = {};
+    try { payload = await req.json(); } catch { return json({ error: "Invalid JSON body" }, 400); }
+    const { competition_id, email, voter_name, code, candidate_ids } = payload || {};
+    if (!competition_id || !code || !Array.isArray(candidate_ids) || candidate_ids.length === 0) {
+      return json({ error: "Invalid request: competition_id, code and candidate_ids required" }, 400);
     }
+    // email is only required for private_code; public_code voting is anonymous
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return json({ error: "Invalid email" }, 400);
+    }
+
+
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -40,6 +47,7 @@ Deno.serve(async (req) => {
         return json({ error: "Invalid code." }, 400);
       }
     } else if (comp.auth_method === "private_code") {
+      if (!email) return json({ error: "Email is required for private-code voting." }, 400);
       const { data: promo } = await supabase
         .from("seed_fund_promo_codes")
         .select("*")
@@ -58,12 +66,20 @@ Deno.serve(async (req) => {
       return json({ error: "This competition uses email OTP voting." }, 400);
     }
 
+    // Public-code votes are anonymous — synthesise a unique pseudo-email so the
+    // one-ballot-per-voter constraint (voter_email) still works.
+    const effectiveEmail = email
+      ? String(email).toLowerCase()
+      : `anon+${crypto.randomUUID()}@public.vote`;
+
+
+
     const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
       || req.headers.get("cf-connecting-ip") || null;
 
     const { data: ballot, error: rpcErr } = await supabase.rpc("cast_seed_fund_ballot", {
       _competition_id: competition_id,
-      _voter_email: email,
+      _voter_email: effectiveEmail,
       _voter_name: voter_name || null,
       _candidate_ids: candidate_ids,
       _auth_method: comp.auth_method,
