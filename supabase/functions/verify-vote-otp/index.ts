@@ -14,9 +14,11 @@ const json = (b: unknown, s = 200) =>
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   try {
-    const { competition_id, email, code, candidate_ids } = await req.json();
+    let payload: any = {};
+    try { payload = await req.json(); } catch { return json({ error: "Invalid JSON body" }, 400); }
+    const { competition_id, email, code, candidate_ids } = payload || {};
     if (!competition_id || !email || !code || !Array.isArray(candidate_ids) || candidate_ids.length === 0) {
-      return json({ error: "Invalid request" }, 400);
+      return json({ error: "Invalid request: competition_id, email, code, candidate_ids required" }, 400);
     }
 
     const supabase = createClient(
