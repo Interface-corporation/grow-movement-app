@@ -14,11 +14,18 @@ const json = (b: unknown, s = 200) =>
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   try {
-    const { competition_id, email, voter_name, code, candidate_ids } = await req.json();
-    if (!competition_id || !email || !code || !Array.isArray(candidate_ids) || candidate_ids.length === 0
-        || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return json({ error: "Invalid request" }, 400);
+    let payload: any = {};
+    try { payload = await req.json(); } catch { return json({ error: "Invalid JSON body" }, 400); }
+    const { competition_id, email, voter_name, code, candidate_ids } = payload || {};
+    if (!competition_id || !code || !Array.isArray(candidate_ids) || candidate_ids.length === 0) {
+      return json({ error: "Invalid request: competition_id, code and candidate_ids required" }, 400);
     }
+    // email is only required for private_code; public_code voting is anonymous
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return json({ error: "Invalid email" }, 400);
+    }
+
+
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
