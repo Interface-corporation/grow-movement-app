@@ -93,10 +93,6 @@ export function HeroSlider() {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
             >
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 px-4 py-1.5 text-sm font-medium text-white mb-6">
-                <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                {slide.eyebrow}
-              </span>
 
               <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] text-white mb-6">
                 {slide.title}
