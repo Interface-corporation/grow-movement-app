@@ -32,23 +32,130 @@ export default function Contact() {
   return (
     <div className="bg-background text-foreground">
       {/* Hero */}
-      <section className="relative pt-32 pb-16 overflow-hidden bg-gradient-to-br from-grow-navy via-grow-navy/95 to-grow-navy/85 text-white">
-        <motion.div
-          className="absolute -top-40 -right-40 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-25"
-          style={{ background: 'radial-gradient(circle, var(--grow-coral), transparent 70%)' }}
-          animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 12, repeat: Infinity }}
-        />
-        <div className="container mx-auto px-6 lg:px-8 relative z-10 max-w-4xl text-center">
-          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-            <span className="text-xs font-semibold tracking-[0.3em] text-grow-gold uppercase">Contact</span>
-            <h1 className="font-display text-4xl md:text-6xl font-bold mt-4 mb-5 leading-tight">Get in touch</h1>
-            <p className="text-lg md:text-xl text-white/85 leading-relaxed max-w-3xl mx-auto">
-              Get in touch to discuss partnership, volunteering, mentoring, sponsorship,
-              grant-making, investment, or entrepreneur support opportunities.
-            </p>
-          </motion.div>
-        </div>
-      </section>
+<section className="relative min-h-[75vh] flex items-center justify-center overflow-hidden text-white">
+
+  {/* Background image */}
+  <motion.div
+    className="absolute inset-0"
+    initial={{ scale: 1.05 }}
+    animate={{
+      scale: [1.05, 1.12, 1.05],
+      x: [0, -20, 0],
+      y: [0, -10, 0],
+    }}
+    transition={{
+      duration: 30,
+      repeat: Infinity,
+      ease: "easeInOut",
+    }}
+  >
+    <img
+      src="/images/growContact2.png"
+      alt="Grow Movement"
+      className="w-full h-full object-cover"
+    />
+  </motion.div>
+
+  {/* Main cinematic overlay */}
+  <div
+    className="absolute inset-0"
+    style={{
+      background: `
+        radial-gradient(
+          circle at center,
+          rgba(11,31,58,0.35) 0%,
+          rgba(11,31,58,0.55) 45%,
+          rgba(11,31,58,0.78) 100%
+        )
+      `,
+    }}
+  />
+
+  {/* Bottom fade */}
+  <div className="absolute inset-0 bg-gradient-to-t from-grow-navy/85 via-grow-navy/20 to-grow-navy/40" />
+
+  {/* Ambient animated light */}
+  <motion.div
+    className="absolute w-[700px] h-[700px] rounded-full blur-3xl"
+    style={{
+      background:
+        "radial-gradient(circle, rgba(255,193,108,0.20), transparent 70%)",
+      top: "-200px",
+      right: "-150px",
+    }}
+    animate={{
+      scale: [1, 1.15, 1],
+      x: [0, 30, 0],
+      y: [0, -20, 0],
+    }}
+    transition={{
+      duration: 16,
+      repeat: Infinity,
+      ease: "easeInOut",
+    }}
+  />
+
+  {/* Coral glow */}
+  <motion.div
+    className="absolute w-[500px] h-[500px] rounded-full blur-3xl"
+    style={{
+      background:
+        "radial-gradient(circle, rgba(239,109,88,0.18), transparent 70%)",
+      bottom: "-150px",
+      left: "-100px",
+    }}
+    animate={{
+      scale: [1, 1.25, 1],
+      rotate: [0, 20, 0],
+    }}
+    transition={{
+      duration: 20,
+      repeat: Infinity,
+      ease: "easeInOut",
+    }}
+  />
+
+  {/* Content */}
+  <div className="container mx-auto px-6 lg:px-8 relative z-10 max-w-4xl text-center">
+
+    <motion.div
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{
+        duration: 0.9,
+        ease: "easeOut",
+      }}
+    >
+      <span className="text-sm font-semibold tracking-[0.35em] text-grow-gold uppercase">
+        Contact
+      </span>
+
+      <h1
+        className="font-display text-5xl md:text-7xl font-bold mt-6 text-grow-cream mb-6 leading-tight"
+        style={{
+          textShadow:
+            "0 4px 30px rgba(0,0,0,0.45)",
+        }}
+      >
+        Get in touch
+      </h1>
+
+      <p
+        className="text-lg md:text-2xl text-white/90 leading-relaxed max-w-3xl mx-auto"
+        style={{
+          textShadow:
+            "0 2px 20px rgba(0,0,0,0.4)",
+        }}
+      >
+        Get in touch to discuss partnership, volunteering,
+        mentoring, sponsorship, grant-making, investment,
+        or entrepreneur support opportunities.
+      </p>
+    </motion.div>
+
+  </div>
+
+</section>
 
       {/* Contact info + form */}
       <section className="py-20">

@@ -2,33 +2,34 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, ChevronLeft, ChevronRight, Quote } from 'lucide-react';
 import story1 from '@/assets/testmonial/twist.png';
-import story2 from '@/assets/growImage/testimonial2.png';
-import story3 from '@/assets/growImage/testimonial3.png';
+import story2 from '@/assets/testmonial/haraka.png';
+import story3 from '@/assets/testmonial/caroline.png';
 
 const stories = [
   {
     image: story1,
     name: 'Germain Niyogisubizo',
     business: 'Managing Director, Twistblez',
-    country: 'Rwanda',
-    quote: 'Through Grow Movement, I increased my revenue 3x and now export traditional fabrics across East Africa. The coaching changed how I think about scale.',
-    video: 'https://www.youtube.com/embed/bt6fx7B0OoE&t',
+    country: 'Nigeria',
+quote:"Thanks to Grow Movement's coaching, we improved our marketing, attracted more loyal customers, and accelerated the growth of our fresh juice business.",
+        video: 'https://www.youtube.com/embed/bt6fx7B0OoE?start=1',
   },
   {
     image: story2,
-    name: 'Samuel Okonkwo',
-    business: 'Founder, AgriTech Naija',
-    country: 'Nigeria',
-    quote: 'My coach helped me design a tech platform that connects 1,200 farmers to fair markets. We just closed our first investment round.',
-    video: 'https://www.youtube.com/embed/bt6fx7B0OoE?start=1',
+    name: 'Aristide Karasira',
+    business: 'Founder, Haraka Meds',
+    country: 'Rwanda',
+    quote: 'Working with the Chicago Booth Executive MBA students through Grow Movement transformed our marketing strategy and boosted our sales by 40%.',
+    video: 'https://www.youtube.com/embed/2nMaaQx0Iv4?start=1',
   },
   {
     image: story3,
-    name: 'Priya Sharma',
-    business: 'Founder, Spice Studio',
-    country: 'India',
-    quote: 'The structured sessions gave me the framework to package and sell internationally. My products are now in 4 countries.',
-    video: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+    name: 'Caroline Muhimpundu',
+    business: 'Founder & MD, BC Talento',
+    country: 'Rwanda',
+    quote:
+  "Working with a female mentor through Grow Movement empowered me to make better business decisions and unlock new opportunities for growth.",
+    video: 'https://www.youtube.com/embed/0ciy47zWpMA',
   },
 ];
 

@@ -45,7 +45,7 @@ export function HeroSlider() {
   const slide = slides[index];
 
   return (
-    <section className="relative h-[100svh] min-h-[640px] w-full overflow-hidden bg-grow-navy">
+    <section className="relative h-[100svh] min-h-[640px] w-full overflow-hidden bg-grow-navy/50">
       {/* Background image with floating zoom */}
       <AnimatePresence mode="sync">
         <motion.div
@@ -63,8 +63,8 @@ export function HeroSlider() {
             loading={index === 0 ? 'eager' : 'lazy'}
           />
           {/* Gradient overlays */}
-          <div className="absolute inset-0 bg-gradient-to-r from-grow-navy/90 via-grow-navy/70 to-grow-navy/30" />
-          <div className="absolute inset-0 bg-gradient-to-t from-grow-navy/80 via-transparent to-grow-navy/40" />
+<div className="absolute inset-0 bg-gradient-to-r from-grow-navy/95 via-grow-navy/75 to-transparent" />
+<div className="absolute inset-0 bg-gradient-to-t from-grow-navy/70 via-transparent to-grow-navy/20" />
         </motion.div>
       </AnimatePresence>
 

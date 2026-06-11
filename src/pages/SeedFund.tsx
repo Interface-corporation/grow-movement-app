@@ -17,7 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { toast } from '@/hooks/use-toast';
 import { getProfilePhoto } from '@/lib/avatars';
-import heroImg from '@/assets/growImage/homeStory1.png';
+import heroImg from '@/assets/growImage/seedFundHero.png';
 import seedAbout1 from '@/assets/growImage/seedAbout1.png';
 import seedAbout2 from '@/assets/growImage/seedAbout2.png';
 import seedWomen from '@/assets/growImage/seedWomen.png';
@@ -85,9 +85,9 @@ const supportPillars = [
 
 // Partner logos — drop image files into /public/partners or replace logoUrl with your own asset.
 const partners = [
-  { name: 'Linklaters', logoUrl: LinklatersLogo, desc: 'Global law firm — strategic legal partner' },
-  { name: 'Grow movement', logoUrl: grow, desc: 'Global law firm — strategic legal partner' },
-  { name: 'Inspire Dreams & Startups', logoUrl: inspire, desc: 'Global law firm — strategic legal partner' },
+  { name: 'Linklaters', logoUrl: LinklatersLogo, desc: 'Elite global law firm - our strategic legal partner.' },
+  { name: 'Grow movement', logoUrl: grow, desc: 'connecting volunteer coaches with entrepreneurs across Africa & Asia.' },
+  { name: 'Inspire Dreams & Startups', logoUrl: inspire, desc: 'accelerating early-stage startups with mentorship and market access.' },
   
 ];
 
@@ -718,10 +718,10 @@ Through a live online pitch competition, participants present their businesses t
                       </div>
 
                       <div className="grid grid-cols-2 gap-2 mt-1" onClick={(ev) => ev.stopPropagation()}>
-                        <Button variant="outline" size="sm" onClick={() => openDetails(c)}>
+                        <Button className='shadow-lg' variant="outline" size="sm" onClick={() => openDetails(c)}>
                           Preview <ChevronRight className="h-3.5 w-3.5" />
                         </Button>
-                        <Button size="sm" className="bg-grow-navy hover:bg-grow-navy/90 text-white"
+                        <Button size="sm" className="bg-grow-coral hover:bg-grow-teal text-white"
                           onClick={() => en.id && navigate(`/entrepreneurs/${en.id}`)}>
                           View Full Details
                         </Button>
