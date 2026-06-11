@@ -15,9 +15,10 @@ export function Navbar() {
     { to: '/', label: 'Home' },
     { to: '/entrepreneurs', label: 'Entrepreneurs' },
     { to: '/seed-fund', label: 'Seed Fund' },
-    { to: '/blog', label: 'Blog' },
+    // { to: '/blog', label: 'Blog' },
     { to: '/apply', label: 'Apply' },
     { to: '/contact', label: 'Contact' },
+    { to: '/admin', label: 'Login/Sign Up' },
   ];
 
   const isActive = (path: string) =>

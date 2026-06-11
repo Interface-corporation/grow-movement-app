@@ -18,7 +18,7 @@ export default function Home() {
       <HeroSlider />
       <StatsBar />
       <WhoWeAre />
-      <WhyChooseUs />
+      {/* <WhyChooseUs /> */}
       <HowItWorks />
       <Pathways />
       <PlatformPreview />

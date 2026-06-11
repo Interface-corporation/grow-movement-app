@@ -18,11 +18,15 @@ export function WhoWeAre() {
           >
             <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Who We Are</span>
             <h2 className="font-display text-4xl md:text-5xl font-black mt-3 mb-6 leading-[1.1]">
-              Building the next generation of <span className="text-primary">global entrepreneurs</span>
+              Building impact through  <span className="text-primary">human connection</span>
             </h2>
             <p className="text-lg text-muted-foreground leading-relaxed mb-10">
-              Grow Movement is a global capacity-building organization dedicated to empowering young entrepreneurs through structured training, expert coaching, and strategic connections with investors and mentors.
-            </p>
+            "Grow Movement brings together entrepreneurs, professionals, companies, universities, and partners worldwide to build stronger businesses and unlock economic potential in emerging economies.
+
+Through structured coaching and mentoring programs, we connect experienced professionals with ambitious entrepreneurs, helping businesses grow, create jobs, attract investment, strengthen local economies, and create greater stability for families and communities.
+
+At the same time, we help organisations advance their social impact, employee engagement, leadership development, and corporate responsibility goals through meaningful experiential learning opportunities that build leadership capabilities, cross-cultural skills, and global experience while creating measurable impact."
+</p>
 
             <div className="space-y-6">
               <div className="flex gap-4">
@@ -32,7 +36,7 @@ export function WhoWeAre() {
                 <div>
                   <h3 className="font-display text-xl font-bold mb-2">Our Vision</h3>
                   <p className="text-muted-foreground leading-relaxed">
-                    A world where every entrepreneur, regardless of geography, has access to the knowledge and network they need to build thriving businesses.
+                   A world where every entrepreneur, regardless of geography, has access to the knowledge, networks, and opportunities needed to build thriving businesses, create jobs, and strengthen communities.
                   </p>
                 </div>
               </div>
@@ -43,71 +47,88 @@ export function WhoWeAre() {
                 <div>
                   <h3 className="font-display text-xl font-bold mb-2">Our Mission</h3>
                   <p className="text-muted-foreground leading-relaxed">
-                    Bridge the gap between entrepreneurs and global expertise through a scalable, impactful coaching and matching platform.
-                  </p>
+                   To connect global expertise with local vision, supporting ambitious entrepreneurs to grow businesses that create jobs and economic opportunity, while enabling organizations to develop talent, strengthen leadership, and deliver meaningful social impact.</p>
                 </div>
               </div>
             </div>
           </motion.div>
 
-          {/* Right: video */}
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, delay: 0.1 }}
-            className="relative"
-          >
-            <div className="relative aspect-[4/5] rounded-3xl overflow-hidden bg-grow-navy shadow-2xl">
-              {playing ? (
-                <iframe
-                  src="https://www.youtube.com/embed/K-CEqtGly0s?autoplay=1" 
-                  title="Grow Movement intro"
-                  className="absolute inset-0 w-full h-full"
-                  allow="autoplay; encrypted-media"
-                  allowFullScreen
-                />
-              ) : (
-                <>
-                  <div className="absolute inset-0 bg-[url('/placeholder.svg')] bg-cover opacity-30" />
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/40 via-grow-navy/60 to-accent/40" />
-                  <button
-                    onClick={() => setPlaying(true)}
-                    aria-label="Play intro video"
-                    className="absolute inset-0 flex items-center justify-center group"
-                  >
-                    <span className="relative">
-                      <span className="absolute inset-0 rounded-full bg-white/30 animate-ping" />
-                      <span className="relative w-20 h-20 md:w-24 md:h-24 rounded-full bg-white flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
-                        <Play className="h-8 w-8 text-primary ml-1" fill="currentColor" />
-                      </span>
-                    </span>
-                  </button>
-                  <div className="absolute bottom-6 left-6 right-6 text-white">
-                    <p className="text-xs font-bold uppercase tracking-widest text-white/70">Watch our story</p>
-                    <p className="font-display text-xl md:text-2xl font-bold mt-1">2 minutes that explain everything</p>
-                  </div>
-                </>
-              )}
-            </div>
+          {/* Right: Video */}
+<motion.div
+  initial={{ opacity: 0, x: 30 }}
+  whileInView={{ opacity: 1, x: 0 }}
+  viewport={{ once: true }}
+  transition={{ duration: 0.7 }}
+  className="relative"
+>
+  <div className="relative aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl bg-black">
 
-            {/* Floating accent card */}
-            <motion.div
-              animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-              className="absolute -bottom-6 -left-6 bg-card rounded-2xl shadow-xl border border-border p-4 hidden md:block"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-grow-gold/20 flex items-center justify-center">
-                  <span className="text-xl">🌍</span>
-                </div>
-                <div>
-                  <div className="text-2xl font-display font-black text-foreground">13+</div>
-                  <div className="text-xs text-muted-foreground">Countries reached</div>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
+    {/* Only show iframe after clicking Play */}
+    {playing && (
+      <iframe
+        src="https://drive.google.com/file/d/1M_xUgB5P2xTYAJ-OikY7o-hSSYCiFhBW/preview?autoplay=1"
+        title="Grow Movement Video"
+        allow="autoplay; fullscreen"
+        allowFullScreen
+        className="absolute inset-0 w-full h-full border-0 z-20"
+      />
+    )}
+
+    {/* Cover Image */}
+    {!playing && (
+      <>
+        <img
+          src="/images/grow-video-cover.jpg"
+          alt="Grow Movement"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+
+        {/* Nice gradient */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent z-10" />
+
+        {/* Play Button */}
+        <button
+          onClick={() => setPlaying(true)}
+          className="absolute inset-0 flex items-center justify-center z-20 group"
+        >
+          <div className="relative">
+
+            {/* Animated ring */}
+            <div className="absolute inset-0 rounded-full bg-white/30 animate-ping" />
+
+            {/* Button */}
+            <div className="relative w-24 h-24 rounded-full bg-white flex items-center justify-center shadow-2xl transition-all duration-300 group-hover:scale-110">
+
+              <Play
+                className="w-10 h-10 text-green-600 ml-1"
+                fill="currentColor"
+              />
+
+            </div>
+          </div>
+        </button>
+
+        {/* Bottom text */}
+        <div className="absolute bottom-8 left-8 right-8 z-20 text-white">
+
+          <p className="uppercase tracking-[3px] text-sm text-white/80">
+            Featured Story
+          </p>
+
+          <h2 className="mt-2 text-3xl font-bold">
+            See how Grow Movement is changing lives.
+          </h2>
+
+          <p className="mt-2 text-white/90">
+            Watch our impact in just 2 minutes.
+          </p>
+
+        </div>
+      </>
+    )}
+  </div>
+
+</motion.div>
         </div>
       </div>
     </section>

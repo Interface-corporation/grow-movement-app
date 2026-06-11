@@ -13,34 +13,177 @@ export default function ApplyChoose() {
 
   return (
     <div className="bg-background text-foreground">
-      {/* HERO */}
-      <section className="relative pt-32 pb-20 overflow-hidden bg-gradient-to-br from-grow-navy via-grow-navy to-grow-navy/90 text-white">
-        <motion.div
-          className="absolute -top-20 -right-20 w-[28rem] h-[28rem] rounded-full blur-3xl opacity-30"
-          style={{ background: 'radial-gradient(circle, var(--grow-coral), transparent 70%)' }}
-          animate={{ scale: [1, 1.15, 1] }} transition={{ duration: 10, repeat: Infinity }}
-        />
-        <motion.div
-          className="absolute -bottom-32 -left-32 w-[24rem] h-[24rem] rounded-full blur-3xl opacity-25"
-          style={{ background: 'radial-gradient(circle, var(--grow-teal), transparent 70%)' }}
-          animate={{ scale: [1.1, 1, 1.1] }} transition={{ duration: 12, repeat: Infinity }}
-        />
-        <div className="container mx-auto px-6 lg:px-8 relative z-10 max-w-5xl text-center">
-          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur border border-white/20 px-4 py-1.5 rounded-full text-xs font-semibold mb-6">
-               JOIN GROW MOVEMENT
-            </div>
-            <h1 className="font-display text-4xl md:text-6xl font-bold leading-tight mb-6">
-              Begin your <span className="text-grow-coral">journey</span> with us
-            </h1>
-            <p className="text-lg md:text-xl text-white/85 max-w-2xl mx-auto leading-relaxed">
-              Grow Movement connects ambitious entrepreneurs in Africa and Asia with
-              experienced volunteer coaches from around the world. Choose your path below.
-            </p>
-          </motion.div>
-        </div>
-      </section>
+    
+     {/* ========================= HERO ========================= */}
+<section className="relative min-h-[90vh] flex items-center overflow-hidden">
 
+  {/* Background Image */}
+  <motion.div
+    initial={{ scale: 1.1 }}
+    animate={{ scale: 1 }}
+    transition={{
+      duration: 12,
+      ease: "easeOut",
+    }}
+    className="absolute inset-0"
+  >
+    <img
+      src="/images/applyHero.png"
+      alt="African entrepreneur growing a business"
+      className="w-full h-full object-cover"
+    />
+
+    {/* Dark cinematic overlay */}
+    <div className="absolute inset-0 bg-black/50" />
+
+    {/* Soft gradient */}
+    <div className="absolute inset-0 bg-gradient-to-r from-grow-navy/80 via-grow-navy/55 to-black/40" />
+  </motion.div>
+
+  {/* Floating lights */}
+  <motion.div
+    animate={{
+      scale: [1, 1.2, 1],
+      opacity: [0.15, 0.25, 0.15],
+    }}
+    transition={{
+      duration: 8,
+      repeat: Infinity,
+    }}
+    className="absolute -top-24 -right-20 w-96 h-96 rounded-full blur-[140px] bg-grow-coral"
+  />
+
+  <motion.div
+    animate={{
+      scale: [1.2, 1, 1.2],
+      opacity: [0.2, 0.3, 0.2],
+    }}
+    transition={{
+      duration: 10,
+      repeat: Infinity,
+    }}
+    className="absolute -bottom-24 -left-24 w-96 h-96 rounded-full blur-[160px] bg-grow-teal"
+  />
+
+  {/* Content */}
+  <div className="container mx-auto px-6 lg:px-8 relative z-20">
+
+    <div className="max-w-3xl">
+
+      {/* Badge */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="inline-flex items-center gap-2 mb-8 rounded-full border border-white/20 bg-white/10 backdrop-blur-md px-5 py-2 text-white"
+      >
+        <Sparkles className="h-4 w-4 text-grow-gold" />
+        <span className="text-sm font-semibold tracking-wide">
+          Applications are now open
+        </span>
+      </motion.div>
+
+      {/* Heading */}
+      <motion.h1
+        initial={{ opacity: 0, y: 25 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7 }}
+        className="font-display text-5xl md:text-7xl font-black leading-[1.05] text-white"
+      >
+        Turn your
+        <span className="block text-grow-coral">
+          business vision
+        </span>
+        into measurable impact.
+      </motion.h1>
+
+      {/* Description */}
+      <motion.p
+        initial={{ opacity: 0, y: 25 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.15 }}
+        className="mt-8 text-lg md:text-2xl text-white/85 leading-relaxed max-w-2xl"
+      >
+        Join thousands of entrepreneurs across Africa and Asia receiving
+        world-class coaching, leadership training, and connections to
+        investors through Grow Movement.
+      </motion.p>
+
+      {/* CTA Buttons */}
+      <motion.div
+        initial={{ opacity: 0, y: 25 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.9, delay: 0.3 }}
+        className="flex flex-col sm:flex-row gap-5 mt-10"
+      >
+        <Link to="/apply/entrepreneur">
+          <Button
+            size="lg"
+            className="h-14 px-8 text-lg bg-grow-coral hover:bg-grow-coral/90 rounded-full shadow-xl"
+          >
+            Apply as Entrepreneur
+            <ArrowRight className="ml-2 h-5 w-5" />
+          </Button>
+        </Link>
+
+        <Link to="/apply/coach">
+          <Button
+            size="lg"
+            variant="outline"
+            className="h-14 px-8 text-lg rounded-full border-white text-white bg-white/10 backdrop-blur hover:bg-white hover:text-grow-navy"
+          >
+            Become a Coach
+          </Button>
+        </Link>
+      </motion.div>
+
+    </div>
+
+  </div>
+
+  {/* Floating statistics */}
+  <motion.div
+    animate={{
+      y: [0, -10, 0],
+    }}
+    transition={{
+      duration: 5,
+      repeat: Infinity,
+    }}
+    className="hidden lg:block absolute bottom-12 right-12 z-30"
+  >
+    <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl px-8 py-6 shadow-2xl">
+
+      <div className="text-5xl font-black text-grow-gold">
+        4,000+
+      </div>
+
+      <div className="text-white/90 mt-2 font-medium">
+        Entrepreneurs supported
+      </div>
+
+      <div className="w-full h-px bg-white/20 my-4" />
+
+      <div className="flex items-center gap-3">
+
+        
+
+        <div>
+          <div className="text-white font-semibold">
+            Across Africa & Asia
+          </div>
+
+          <div className="text-sm text-white/70">
+            Building sustainable businesses
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </motion.div>
+
+</section>
       {/* About application */}
       <section className="py-16 bg-card">
         <div className="container mx-auto px-6 lg:px-8 max-w-5xl">
