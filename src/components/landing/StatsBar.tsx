@@ -1,12 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { Users, Briefcase, HeartHandshake, Building2 } from 'lucide-react';
+import { Users,  Building2, TrendingUp, Handshake, Heart, GraduationCap,
+  Globe2, Globe } from 'lucide-react';
+
 
 const stats = [
-  { icon: Users, value: 2000, suffix: '+', label: 'Entrepreneurs Coached', color: 'text-primary' },
-  { icon: Briefcase, value: 850, suffix: '+', label: 'Impactful Business Projects', color: 'text-accent' },
-  { icon: HeartHandshake, value: 320, suffix: '+', label: 'Volunteer Coaches', color: 'text-grow-gold' },
-  { icon: Building2, value: 45, suffix: '+', label: 'Corporate Partners', color: 'text-grow-sage' },
+  { icon: Users,        value: 4000,  suffix: '+', label: 'Entrepreneurs Coached',                           color: 'text-primary' },
+  { icon: TrendingUp,   value: 60000, suffix: '+', label: 'Jobs Collectively Created',                       color: 'text-grow-coral' },
+  { icon: GraduationCap,value: 7000,  suffix: '+', label: 'Consultants & Students Engaged',                  color: 'text-accent' },
+  { icon: Handshake,    value: 2000,  suffix: '+', label: 'Corporate Coaches Worldwide',                     color: 'text-grow-gold' },
+  { icon: Globe2,       value: 13,    suffix: '',  label: 'Countries Across Africa & Asia',                  color: 'text-grow-teal' },
+  { icon: Globe,        value: 60,    suffix: '+', label: 'Countries Represented by Coaches & Students',     color: 'text-grow-sage' },
+  { icon: Building2,    value: 10,    suffix: '',  label: 'Global University Partnerships',                  color: 'text-primary' },
+  { icon: Heart,        value: 15,    suffix: '',  label: 'Women Entrepreneurs Invested In',                 color: 'text-grow-coral' },
+  
 ];
 
 function Counter({ to, suffix }: { to: number; suffix: string }) {

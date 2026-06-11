@@ -1,62 +1,198 @@
 import { motion } from 'framer-motion';
+import { useState } from 'react';
 
+import bcg        from '@/assets/partners/bcg.png';
+import booth      from '@/assets/partners/booth.png';
+import cbs        from '@/assets/partners/CBS.png';
+import cems       from '@/assets/partners/cems.png';
+import genem      from '@/assets/partners/genem.png';
+import growPng    from '@/assets/partners/grow.png';
+import inspire    from '@/assets/partners/inspire.png';
+import lbs        from '@/assets/partners/lbs.png';
+import linklaters from '@/assets/partners/linklaters.png';
+import lse        from '@/assets/partners/lse.png';
+import ncif       from '@/assets/partners/NCIF.png';
+
+// ─── Partner data ─────────────────────────────────────────────────────────────
 const partners = [
-  { name: 'MasterCard Foundation', desc: 'Funds our flagship coaching program reaching 500+ entrepreneurs annually.' },
-  { name: 'Google for Startups', desc: 'Provides cloud credits and tech mentorship to our growth-stage cohort.' },
-  { name: 'GIZ', desc: 'Strategic partner for capacity building across East Africa and the Sahel.' },
-  { name: 'African Development Bank', desc: 'Co-investor in our entrepreneurs through follow-on financing.' },
-  { name: 'Stanford Seed', desc: 'Curriculum partner sharing world-class business frameworks.' },
-  { name: 'UNDP', desc: 'Supports our women entrepreneurship initiatives across 8 countries.' },
-  { name: 'BCG', desc: 'Provides pro-bono strategy consulting to our top-performing ventures.' },
-  { name: 'Acumen', desc: 'Co-designs our impact measurement framework for social enterprises.' },
+  {
+    name: 'BCG',
+    logo: bcg,
+    bg: '#ffffff',
+    desc: 'Global strategy consulting firm providing pro-bono advisory to our top-performing ventures.',
+  },
+  {
+    name: 'Chicago Booth',
+    logo: booth,
+    bg: '#ffffff',
+    desc: 'World-renowned business school sharing cutting-edge entrepreneurship curriculum and research.',
+  },
+  {
+    name: 'CBS',
+    logo: cbs,
+    bg: '#ffffff',
+    desc: 'Copenhagen Business School — academic partner supporting our European entrepreneur network.',
+  },
+  {
+    name: 'CEMS',
+    logo: cems,
+    bg: '#ffffff',
+    desc: 'Global alliance of leading business schools advancing management education worldwide.',
+  },
+  {
+    name: 'GenEM Foundation',
+    logo: genem,
+    bg: '#ffffff',
+    desc: 'Dedicated to developing the next generation of emerging market entrepreneurs.',
+  },
+  {
+    name: 'Grow Movement',
+    logo: growPng,
+    bg: '#ffffff',
+    desc: 'Our founding organisation — connecting volunteer coaches with entrepreneurs across Africa & Asia.',
+  },
+  {
+    name: 'Inspire Dreams & Startups',
+    logo: inspire,
+    bg: '#ffffff',
+    desc: 'Ecosystem builder accelerating early-stage startups with mentorship and market access.',
+  },
+  {
+    name: 'London Business School',
+    logo: lbs,
+    bg: '#1e3a5f',
+    desc: 'Top-ranked global business school providing leadership development and coaching expertise.',
+  },
+  {
+    name: 'Linklaters',
+    logo: linklaters,
+    bg: '#ffffff',
+    desc: 'Elite global law firm — our strategic legal partner supporting entrepreneurs with pro-bono counsel.',
+  },
+  {
+    name: 'LSE',
+    logo: lse,
+    bg: '#1a1a1a',
+    desc: 'London School of Economics — research and policy partner driving evidence-based entrepreneurship.',
+  },
+  {
+    name: 'NCIF',
+    logo: ncif,
+    bg: '#ffffff',
+    desc: 'National Community Investment Fund channelling capital to underserved entrepreneurs.',
+  },
 ];
 
+// ─── Single card ──────────────────────────────────────────────────────────────
+function PartnerCard({ p, i }: { p: typeof partners[0]; i: number }) {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.45, delay: i * 0.06 }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className="relative rounded-2xl border border-border overflow-hidden cursor-default"
+      style={{ background: p.bg }}
+    >
+      {/* Logo face */}
+      <motion.div
+        animate={{ opacity: hovered ? 0 : 1, scale: hovered ? 0.92 : 1 }}
+        transition={{ duration: 0.32, ease: 'easeInOut' }}
+        className="flex items-center justify-center h-36 px-8 py-6"
+      >
+        <img
+          src={p.logo}
+          alt={p.name}
+          className="max-h-16 max-w-full w-auto object-contain"
+        />
+      </motion.div>
+
+      {/* Hover overlay */}
+      <motion.div
+        initial={false}
+        animate={{ opacity: hovered ? 1 : 0, y: hovered ? 0 : 12 }}
+        transition={{ duration: 0.32, ease: 'easeInOut' }}
+        className="absolute inset-0 flex flex-col items-center justify-center px-5 py-5 text-center"
+        style={{ background: 'var(--grow-navy)' }}
+      >
+        {/* Small logo pill on hover */}
+        <div
+          className="mb-3 rounded-lg px-3 py-1.5 flex items-center justify-center"
+          style={{ background: p.bg }}
+        >
+          <img
+            src={p.logo}
+            alt={p.name}
+            className="h-7 max-w-[90px] object-contain"
+          />
+        </div>
+        <p className="text-[11px] md:text-xs text-white/85 leading-relaxed">
+          {p.desc}
+        </p>
+      </motion.div>
+
+      {/* Bottom accent bar — slides in on hover */}
+      <motion.div
+        animate={{ scaleX: hovered ? 1 : 0 }}
+        transition={{ duration: 0.3, ease: 'easeOut' }}
+        className="absolute bottom-0 left-0 right-0 h-[3px] origin-left"
+        style={{ background: 'linear-gradient(to right, var(--grow-coral), var(--grow-gold))' }}
+      />
+    </motion.div>
+  );
+}
+
+// ─── Section ──────────────────────────────────────────────────────────────────
 export function Partners() {
   return (
-    <section id="partners" className="py-24 md:py-32 bg-secondary/40">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="partners" className="py-24 bg-background">
+      <div className="container mx-auto px-6 lg:px-8">
+
+        {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 18 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
           className="text-center mb-14 max-w-2xl mx-auto"
         >
-          <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Our Partners</span>
-          <h2 className="font-display text-4xl md:text-5xl font-black mt-3 mb-4 leading-tight">
-            Trusted by global leaders
+          <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-grow-coral/10 text-grow-coral text-[11px] font-bold tracking-[0.22em] uppercase mb-5">
+            In Partnership With
+          </span>
+          <h2 className="font-display text-4xl md:text-5xl font-bold leading-tight text-foreground">
+            Our Global{' '}
+            <span className="bg-gradient-to-r from-grow-coral to-grow-gold bg-clip-text text-transparent">
+              Partners
+            </span>
           </h2>
-          <p className="text-lg text-muted-foreground">
-            We partner with the world's most impactful organizations to multiply our reach.
+          <p className="mt-4 text-muted-foreground text-base md:text-lg leading-relaxed">
+            Backed by world-leading consultancies, law firms, universities and impact organisations.
+            Hover any logo to learn more.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-w-6xl mx-auto">
+        {/* Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
           {partners.map((p, i) => (
-            <motion.div
-              key={p.name}
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: i * 0.05 }}
-              className="group relative bg-card rounded-2xl border border-border p-6 aspect-[4/3] flex items-center justify-center text-center hover:border-primary/40 hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden"
-            >
-              {/* Logo placeholder */}
-              <div className="transition-all duration-300 group-hover:opacity-0 group-hover:scale-90">
-                <div className="font-display text-lg md:text-xl font-bold text-foreground/60 group-hover:text-foreground">
-                  {p.name}
-                </div>
-              </div>
-              {/* Hover description */}
-              <div className="absolute inset-0 bg-grow-navy text-white p-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div>
-                  <div className="font-display font-bold text-sm md:text-base mb-2 text-primary">{p.name}</div>
-                  <p className="text-xs md:text-sm text-white/80 leading-relaxed">{p.desc}</p>
-                </div>
-              </div>
-            </motion.div>
+            <PartnerCard key={p.name} p={p} i={i} />
           ))}
         </div>
+
+        {/* Footer line */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.5, duration: 0.7 }}
+          className="text-center mt-12 text-sm text-muted-foreground"
+        >
+          {partners.length} partner organisations across consulting, law, academia &amp; impact finance
+        </motion.p>
+
       </div>
     </section>
   );

@@ -102,7 +102,7 @@ export function WhoWeAre() {
                   <span className="text-xl">🌍</span>
                 </div>
                 <div>
-                  <div className="text-2xl font-display font-black text-foreground">15+</div>
+                  <div className="text-2xl font-display font-black text-foreground">13+</div>
                   <div className="text-xs text-muted-foreground">Countries reached</div>
                 </div>
               </div>
