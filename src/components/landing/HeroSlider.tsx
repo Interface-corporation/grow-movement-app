@@ -10,7 +10,6 @@ import slide3 from '@/assets/growImage/homeHero3.png';
 const slides = [
   {
     image: slide1,
-    eyebrow: 'For Entrepreneurs',
     title: 'Build, Grow, and Scale Your Business',
     subtitle: 'Connect with experienced global professionals and transform your business through structured, results-driven coaching.',
     primaryCta: { label: 'Apply as Entrepreneur', href: '/apply' },
@@ -18,7 +17,6 @@ const slides = [
   },
   {
     image: slide2,
-    eyebrow: 'A Global Movement',
     title: 'Where Vision Meets Opportunity',
     subtitle: 'Join a thriving community of entrepreneurs, coaches, and partners building impact across continents.',
     primaryCta: { label: 'Become a Volunteer Coach', href: '/apply/coach' },
@@ -26,7 +24,6 @@ const slides = [
   },
   {
     image: slide3,
-    eyebrow: 'Personalized Coaching',
     title: 'Expert Guidance, Real Results',
     subtitle: 'One-on-one mentorship with seasoned professionals who help you solve real business challenges.',
     primaryCta: { label: 'Partner With Us', href: '#partners' },
