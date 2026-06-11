@@ -38,7 +38,7 @@ export function HeroSlider() {
   const prev = useCallback(() => setIndex((i) => (i - 1 + slides.length) % slides.length), []);
 
   useEffect(() => {
-    const id = setInterval(next, 7000);
+    const id = setInterval(next, 9000);
     return () => clearInterval(id);
   }, [next]);
 
@@ -53,7 +53,7 @@ export function HeroSlider() {
           initial={{ opacity: 0, scale: 1.05 }}
           animate={{ opacity: 1, scale: 1.15 }}
           exit={{ opacity: 0, scale: 1.2 }}
-          transition={{ opacity: { duration: 1.2 }, scale: { duration: 7, ease: 'linear' } }}
+          transition={{ opacity: { duration: 1.2 }, scale: { duration: 9, ease: 'linear' } }}
           className="absolute inset-0"
         >
           <img
@@ -156,7 +156,7 @@ export function HeroSlider() {
                     className="absolute inset-0 bg-primary"
                     initial={{ width: '0%' }}
                     animate={{ width: '100%' }}
-                    transition={{ duration: 7, ease: 'linear' }}
+                    transition={{ duration: 9, ease: 'linear' }}
                   />
                 )}
               </button>
