@@ -63,16 +63,7 @@ export function ContactSection() {
                 </div>
                 <div>
                   <div className="text-sm font-semibold">Email us</div>
-                  <a href="mailto:info@growmovement.org" className="text-muted-foreground hover:text-primary transition-colors">info@growmovement.org</a>
-                </div>
-              </li>
-              <li className="flex items-start gap-4">
-                <div className="w-11 h-11 rounded-xl bg-accent/10 text-accent flex items-center justify-center shrink-0">
-                  <Phone className="h-5 w-5" />
-                </div>
-                <div>
-                  <div className="text-sm font-semibold">Call us</div>
-                  <span className="text-muted-foreground">+250 788 000 000</span>
+                  <a href="mailto:violet@growmovement.org" className="text-muted-foreground hover:text-primary transition-colors">violet@growmovement.org</a>
                 </div>
               </li>
               <li className="flex items-start gap-4">
@@ -80,8 +71,17 @@ export function ContactSection() {
                   <MapPin className="h-5 w-5" />
                 </div>
                 <div>
-                  <div className="text-sm font-semibold">Visit us</div>
-                  <span className="text-muted-foreground">KG 9 Avenue, Kigali, Rwanda</span>
+                  <div className="text-sm font-semibold">London office</div>
+                  <span className="text-muted-foreground">United Kingdom</span>
+                </div>
+              </li>
+              <li className="flex items-start gap-4">
+                <div className="w-11 h-11 rounded-xl bg-accent/10 text-accent flex items-center justify-center shrink-0">
+                  <MapPin className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="text-sm font-semibold">Kigali office</div>
+                  <span className="text-muted-foreground">Kigali, Rwanda</span>
                 </div>
               </li>
             </ul>
