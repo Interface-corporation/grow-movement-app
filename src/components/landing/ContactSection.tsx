@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useAutoSave } from '@/hooks/useAutoSave';
+import { supabase } from '@/integrations/supabase/client';
 
 const initial = { name: '', email: '', subject: '', message: '' };
 
@@ -20,12 +21,19 @@ export function ContactSection() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // Simulate send — wire this up to your backend or edge function later.
-    await new Promise((r) => setTimeout(r, 800));
-    toast({ title: 'Message sent!', description: "We'll be in touch within 1-2 business days." });
-    setForm(initial);
-    clearAutoSave();
-    setLoading(false);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-enquiry', {
+        body: { ...form, source: 'home-contact' },
+      });
+      if (error || (data as any)?.error) throw new Error((data as any)?.error || error?.message || 'Failed to send');
+      toast({ title: 'Message sent!', description: "We'll be in touch within 1-2 business days." });
+      setForm(initial);
+      clearAutoSave();
+    } catch (err: any) {
+      toast({ title: 'Could not send', description: err?.message || 'Please try again.', variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -55,16 +63,7 @@ export function ContactSection() {
                 </div>
                 <div>
                   <div className="text-sm font-semibold">Email us</div>
-                  <a href="mailto:info@growmovement.org" className="text-muted-foreground hover:text-primary transition-colors">info@growmovement.org</a>
-                </div>
-              </li>
-              <li className="flex items-start gap-4">
-                <div className="w-11 h-11 rounded-xl bg-accent/10 text-accent flex items-center justify-center shrink-0">
-                  <Phone className="h-5 w-5" />
-                </div>
-                <div>
-                  <div className="text-sm font-semibold">Call us</div>
-                  <span className="text-muted-foreground">+250 788 000 000</span>
+                  <a href="mailto:violet@growmovement.org" className="text-muted-foreground hover:text-primary transition-colors">violet@growmovement.org</a>
                 </div>
               </li>
               <li className="flex items-start gap-4">
@@ -72,8 +71,17 @@ export function ContactSection() {
                   <MapPin className="h-5 w-5" />
                 </div>
                 <div>
-                  <div className="text-sm font-semibold">Visit us</div>
-                  <span className="text-muted-foreground">KG 9 Avenue, Kigali, Rwanda</span>
+                  <div className="text-sm font-semibold">London office</div>
+                  <span className="text-muted-foreground">United Kingdom</span>
+                </div>
+              </li>
+              <li className="flex items-start gap-4">
+                <div className="w-11 h-11 rounded-xl bg-accent/10 text-accent flex items-center justify-center shrink-0">
+                  <MapPin className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="text-sm font-semibold">Kigali office</div>
+                  <span className="text-muted-foreground">Kigali, Rwanda</span>
                 </div>
               </li>
             </ul>

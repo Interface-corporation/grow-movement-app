@@ -1,1 +1,13 @@
 project_id = "ltndicrqlqaudtlvcklh"
+
+[functions.send-enquiry]
+verify_jwt = false
+
+[functions.cast-code-vote]
+verify_jwt = false
+
+[functions.request-vote-otp]
+verify_jwt = false
+
+[functions.verify-vote-otp]
+verify_jwt = false
