@@ -6,7 +6,7 @@ import {
   Users, ArrowRight, CheckCircle2, Vote, Loader2, RotateCcw,
   Briefcase, Building2, GraduationCap, Lightbulb, ChevronDown,
   ChevronRight, Facebook, Linkedin, Instagram, Twitter, Globe, Quote,
-  X, KeyRound, ChevronUp, Heart, TrendingUp, Handshake, Radio, Image as ImageIcon,
+  X, KeyRound, ChevronUp, Heart, TrendingUp, Handshake, Radio, Image as ImageIcon, Play,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -202,6 +202,11 @@ export default function SeedFund() {
 
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [detailsCand, setDetailsCand] = useState<Candidate | null>(null);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+
+  // Pagination for candidates
+  const [page, setPage] = useState(1);
+  const pageSize = 6;
 
   const [slideIdx, setSlideIdx] = useState(0);
 
