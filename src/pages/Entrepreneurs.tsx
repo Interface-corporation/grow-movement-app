@@ -1,11 +1,13 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Search, Filter, X, Loader2 } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Search, Filter, X, Loader2, Sparkles, Users, ChevronRight, ChevronLeft } from 'lucide-react';
 import { sectors, countries, stages } from '@/data/mockEntrepreneurs';
 import { EntrepreneurCard } from '@/components/EntrepreneurCard';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { getProfilePhoto } from '@/lib/avatars';
+import heroImg from '@/assets/growImage/growTeam.png';
 
 export default function Entrepreneurs() {
   const [search, setSearch] = useState('');
