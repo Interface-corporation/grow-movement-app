@@ -83,6 +83,15 @@ export default function Entrepreneurs() {
     return { priority: priorityCountries, extra: extraFromEntrepreneurs, remaining: [] as string[] };
   }, [entrepreneurCountries, showAllCountries]);
 
+  const [page, setPage] = useState(1);
+  const pageSize = 12;
+  const totalPages = Math.max(1, Math.ceil(filteredEntrepreneurs.length / pageSize));
+  const pagedList = useMemo(
+    () => filteredEntrepreneurs.slice((page - 1) * pageSize, page * pageSize),
+    [filteredEntrepreneurs, page]
+  );
+  useEffect(() => { setPage(1); }, [search, selectedSector, selectedCountry, selectedStage, selectedGender, selectedProgram]);
+
   const hasActiveFilters = selectedSector || selectedCountry || selectedStage || selectedGender || selectedProgram;
 
   const clearFilters = () => {
