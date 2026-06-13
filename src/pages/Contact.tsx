@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useAutoSave } from '@/hooks/useAutoSave';
+import { supabase } from '@/integrations/supabase/client';
 
 const initial = { name: '', email: '', organisation: '', subject: '', message: '' };
 
@@ -22,11 +23,19 @@ export default function Contact() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const mailto = `mailto:${EMAIL}?subject=${encodeURIComponent(form.subject || 'Enquiry from Grow Movement website')}&body=${encodeURIComponent(`Name: ${form.name}\nEmail: ${form.email}\nOrganisation: ${form.organisation}\n\n${form.message}`)}`;
-    window.location.href = mailto;
-    await new Promise(r => setTimeout(r, 600));
-    toast({ title: 'Opening your email client', description: "We'll be in touch within 1-2 business days." });
-    setForm(initial); clearAutoSave(); setLoading(false);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-enquiry', {
+        body: { ...form, source: 'contact-page' },
+      });
+      if (error || (data as any)?.error) throw new Error((data as any)?.error || error?.message || 'Failed to send');
+      toast({ title: 'Enquiry sent', description: "We'll respond within 1-2 business days." });
+      setForm(initial);
+      clearAutoSave();
+    } catch (err: any) {
+      toast({ title: 'Could not send', description: err?.message || 'Please try again.', variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
