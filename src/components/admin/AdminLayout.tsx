@@ -97,16 +97,21 @@ export default function AdminLayout() {
         }`}
       >
         <div className="flex items-center justify-between p-4 border-b border-border">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">G</span>
-            </div>
-            <span className="font-display text-lg font-bold text-foreground">Grow</span>
-          </Link>
-          <button className="lg:hidden" onClick={() => setSidebarOpen(false)}>
-            <X className="h-5 w-5" />
-          </button>
-        </div>
+  <Link to="/" className="flex items-center">
+    <img
+      src="/images/logo.png"
+      alt="Grow Movement"
+      className="h-12 w-auto object-contain"
+    />
+  </Link>
+
+  <button
+    className="lg:hidden"
+    onClick={() => setSidebarOpen(false)}
+  >
+    <X className="h-5 w-5" />
+  </button>
+</div>
 
         <nav className="p-3 space-y-1 flex-1 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 140px)' }}>
           {visibleLinks.map(link => (

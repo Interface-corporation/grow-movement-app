@@ -26,7 +26,7 @@ export function GrowFooter() {
     {
       title: 'Resources',
       links: [
-        { label: 'Blog', to: '/blog' },
+        // { label: 'Blog', to: '/blog' },
         { label: 'Success Stories', to: '/#stories' },
         { label: 'FAQ', to: '/#faq' },
         { label: 'Contact', to: '/contact' },
@@ -51,7 +51,7 @@ export function GrowFooter() {
               <img
                 src="/images/logo.png"
                 alt="Grow Movement"
-                className="h-12 w-auto object-contain bg-white/95 rounded-lg p-1.5"
+                className="h-20 w-auto object-contain bg-white/9 rounded-lg p-1.5"
                 loading="lazy"
               />
             </Link>
