@@ -18,13 +18,13 @@ export default function Home() {
       <HeroSlider />
       <StatsBar />
       <WhoWeAre />
+      <Partners />
       {/* <WhyChooseUs /> */}
       <HowItWorks />
-      <Pathways />
+      {/* <Pathways /> */}
       <PlatformPreview />
       <SuccessStories />
       <Testimonials />
-      <Partners />
       <StrongCTA />
       <FAQ />
       <ContactSection />

@@ -35,11 +35,10 @@ export function GrowFooter() {
   ];
 
   const socials = [
-    { Icon: Facebook, href: '#', label: 'Facebook' },
-    { Icon: Twitter, href: '#', label: 'Twitter' },
-    { Icon: Linkedin, href: '#', label: 'LinkedIn' },
-    { Icon: Instagram, href: '#', label: 'Instagram' },
-    { Icon: Youtube, href: '#', label: 'YouTube' },
+    { Icon: Facebook, href: 'https://www.facebook.com/growmovement.org/?utm_source=chatgpt.com', label: 'Facebook' },
+    { Icon: Linkedin, href: 'https://uk.linkedin.com/company/grow-movement?utm_source=chatgpt.com', label: 'LinkedIn' },
+    { Icon: Youtube, href: 'https://www.youtube.com/channel/UCHymltt9Z6uhxRbBCKdX8hA/featured', label: 'YouTube' },
+    { Icon: Linkedin, href: 'https://www.linkedin.com/in/violet-busingye-2019a325/', label: 'LinkedIn' },
   ];
 
   return (

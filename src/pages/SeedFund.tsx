@@ -773,6 +773,98 @@ Through a live online pitch competition, participants present their businesses t
           </div>
         </div>
       </section>
+      {/* ========= PARTNERS — sliding marquee ========= */}
+      <section className="py-24 overflow-hidden bg-background">
+        <div className="container mx-auto px-6 lg:px-8 text-center mb-12 max-w-3xl mx-auto">
+          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-grow-coral/10 text-grow-coral text-[11px] font-bold tracking-[0.25em] uppercase mb-4">
+             In Partnership With
+          </span>
+          <h2 className="font-display text-4xl md:text-5xl font-bold leading-tight">
+            Grow Women Seed Fund <span className="bg-gradient-to-r from-grow-coral to-grow-gold bg-clip-text text-transparent">Partners</span>
+          </h2>
+          <p className="mt-4 text-muted-foreground text-lg">Backed by leading global organisations, universities and impact funds.</p>
+        </div>
+        <div className="relative">
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-background to-transparent z-10" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-background to-transparent z-10" />
+          <motion.div
+  className="flex gap-8"
+  animate={{ x: [0, -1400] }}
+  transition={{
+    duration: 35,
+    repeat: Infinity,
+    ease: "linear",
+  }}
+>
+  {[...partners, ...partners, ...partners].map((p, i) => (
+    <div
+      key={i}
+      className="
+        shrink-0
+        w-72
+        bg-white
+        rounded-2xl
+        border
+        border-gray-200
+        shadow-sm
+        hover:shadow-xl
+        hover:-translate-y-1
+        transition-all
+        duration-300
+        p-6
+        flex
+        flex-col
+        items-center
+        text-center
+      "
+    >
+      {/* Logo Container */}
+      <div className="w-full h-28 flex items-center justify-center bg-white rounded-xl p-4 mb-5">
+        <img
+          src={p.logoUrl}
+          alt={`${p.name} logo`}
+          className="
+            max-h-20
+            max-w-full
+            object-contain
+            transition-transform
+            duration-300
+            hover:scale-105
+          "
+          onError={(ev) => {
+            const el = ev.currentTarget as HTMLImageElement;
+            el.style.display = "none";
+            el.parentElement!.innerHTML = `
+              <div class="flex flex-col items-center justify-center text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/>
+                  <circle cx="9" cy="9" r="2"/>
+                  <path d="M21 15l-5-5L5 21"/>
+                </svg>
+                <span class="text-xs mt-2">
+                  Logo unavailable
+                </span>
+              </div>
+            `;
+          }}
+        />
+      </div>
+
+      {/* Company Name */}
+      <h4 className="text-lg font-bold text-foreground">
+        {p.name}
+      </h4>
+
+      {/* Description */}
+      <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+        {p.desc}
+      </p>
+    </div>
+  ))}
+</motion.div>
+        </div>
+        
+      </section>
 
       {/* ========= WHY WOMEN ENTREPRENEURS? ========= */}
       <section className="py-24 bg-card">
@@ -880,7 +972,7 @@ Through a live online pitch competition, participants present their businesses t
         <div className="container mx-auto px-6 lg:px-8">
           <div className="text-center mb-14 max-w-3xl mx-auto">
             <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-grow-teal/10 text-grow-coral text-[11px] font-bold tracking-[0.25em] uppercase mb-4">
-               Seed Fund Alumni
+               Grow Women Seed Fund Alumni
             </span>
             <h2 className="font-display text-4xl md:text-5xl font-bold leading-tight">
               In their <span className="bg-gradient-to-r from-grow-coral to-grow-gold bg-clip-text text-transparent">own words</span>
@@ -1037,98 +1129,7 @@ Through a live online pitch competition, participants present their businesses t
           </div>
         </div>
       </section>
-{/* ========= PARTNERS — sliding marquee ========= */}
-      <section className="py-24 overflow-hidden bg-background">
-        <div className="container mx-auto px-6 lg:px-8 text-center mb-12 max-w-3xl mx-auto">
-          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-grow-coral/10 text-grow-coral text-[11px] font-bold tracking-[0.25em] uppercase mb-4">
-             In Partnership With
-          </span>
-          <h2 className="font-display text-4xl md:text-5xl font-bold leading-tight">
-            Grow Women Seed Fund <span className="bg-gradient-to-r from-grow-coral to-grow-gold bg-clip-text text-transparent">Partners</span>
-          </h2>
-          <p className="mt-4 text-muted-foreground text-lg">Backed by leading global organisations, universities and impact funds.</p>
-        </div>
-        <div className="relative">
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-background to-transparent z-10" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-background to-transparent z-10" />
-          <motion.div
-  className="flex gap-8"
-  animate={{ x: [0, -1400] }}
-  transition={{
-    duration: 35,
-    repeat: Infinity,
-    ease: "linear",
-  }}
->
-  {[...partners, ...partners, ...partners].map((p, i) => (
-    <div
-      key={i}
-      className="
-        shrink-0
-        w-72
-        bg-white
-        rounded-2xl
-        border
-        border-gray-200
-        shadow-sm
-        hover:shadow-xl
-        hover:-translate-y-1
-        transition-all
-        duration-300
-        p-6
-        flex
-        flex-col
-        items-center
-        text-center
-      "
-    >
-      {/* Logo Container */}
-      <div className="w-full h-28 flex items-center justify-center bg-white rounded-xl p-4 mb-5">
-        <img
-          src={p.logoUrl}
-          alt={`${p.name} logo`}
-          className="
-            max-h-20
-            max-w-full
-            object-contain
-            transition-transform
-            duration-300
-            hover:scale-105
-          "
-          onError={(ev) => {
-            const el = ev.currentTarget as HTMLImageElement;
-            el.style.display = "none";
-            el.parentElement!.innerHTML = `
-              <div class="flex flex-col items-center justify-center text-gray-400">
-                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                  <rect x="3" y="3" width="18" height="18" rx="2"/>
-                  <circle cx="9" cy="9" r="2"/>
-                  <path d="M21 15l-5-5L5 21"/>
-                </svg>
-                <span class="text-xs mt-2">
-                  Logo unavailable
-                </span>
-              </div>
-            `;
-          }}
-        />
-      </div>
 
-      {/* Company Name */}
-      <h4 className="text-lg font-bold text-foreground">
-        {p.name}
-      </h4>
-
-      {/* Description */}
-      <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
-        {p.desc}
-      </p>
-    </div>
-  ))}
-</motion.div>
-        </div>
-        
-      </section>
 
       
 
@@ -1266,7 +1267,7 @@ Through a live online pitch competition, participants present their businesses t
                   <div>
                     <Label className="text-sm flex items-center gap-1"><KeyRound className="h-3.5 w-3.5" /> Voting code *</Label>
                     <Input value={code} onChange={e => setCode(e.target.value.toUpperCase())}
-                      placeholder={authMethod === 'public_code' ? 'GROW2026' : 'XXXX-XXXX-XXXX'}
+                      placeholder={authMethod === 'public_code' ? 'eg:GROW2026' : 'eg:XXXX-XXXX-XXXX'}
                       className="font-mono tracking-wider" />
                   </div>
                 )}

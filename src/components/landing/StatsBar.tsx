@@ -57,7 +57,7 @@ export function StatsBar() {
         >
           <div className="text-center mb-8">
             <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Driving Real Impact</span>
-            <h2 className="font-display text-2xl md:text-3xl font-bold mt-2">Across Communities Worldwide</h2>
+            <h2 className="font-display text-2xl md:text-3xl font-bold mt-2">Your Impact. Our Footprint </h2>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
             {stats.map((s, i) => (

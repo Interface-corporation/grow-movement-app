@@ -76,12 +76,12 @@ export function HowItWorks() {
           transition={{ duration: 0.5, delay: 0.4 }}
           className="text-center mt-14"
         >
-          <Link to="/apply">
+          {/* <Link to="/apply">
             <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground px-10 py-6 text-base font-semibold group">
               Start Your Application
               <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Button>
-          </Link>
+          </Link> */}
         </motion.div>
       </div>
     </section>

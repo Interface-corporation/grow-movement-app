@@ -50,7 +50,7 @@ export default function Contact() {
     }}
   >
     <img
-      src="/images/growContact2.png"
+      src="/images/growTeam.png"
       alt="Grow Movement"
       className="w-full h-full object-cover"
     />
