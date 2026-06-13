@@ -747,12 +747,22 @@ Through a live online pitch competition, participants present their businesses t
                       </div>
 
                       <div className="grid grid-cols-2 gap-2 mt-1" onClick={(ev) => ev.stopPropagation()}>
-                        <Button className='shadow-lg' variant="outline" size="sm" onClick={() => openDetails(c)}>
-                          Preview <ChevronRight className="h-3.5 w-3.5" />
-                        </Button>
+                        {hasVideo ? (
+                          <Button
+                            variant="outline" size="sm"
+                            className="shadow-sm border-grow-coral/40 text-grow-coral hover:bg-grow-coral hover:text-white gap-1.5"
+                            onClick={() => setVideoUrl(en.video_url)}
+                          >
+                            <Play className="h-3.5 w-3.5 fill-current" /> Watch pitch
+                          </Button>
+                        ) : (
+                          <Button variant="outline" size="sm" className="shadow-sm" disabled>
+                            <Play className="h-3.5 w-3.5" /> No video
+                          </Button>
+                        )}
                         <Button size="sm" className="bg-grow-coral hover:bg-grow-teal text-white"
                           onClick={() => en.id && navigate(`/entrepreneurs/${en.id}`)}>
-                          View Full Details
+                          Read more <ChevronRight className="h-3.5 w-3.5" />
                         </Button>
                       </div>
                     </div>
@@ -760,9 +770,32 @@ Through a live online pitch competition, participants present their businesses t
                 );
               })}
             </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 mt-10">
+                <Button variant="outline" size="sm" disabled={page === 1}
+                  onClick={() => setPage(p => Math.max(1, p - 1))}>
+                  <ChevronRight className="h-4 w-4 rotate-180" /> Prev
+                </Button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                  <Button key={p} size="sm" variant={p === page ? 'default' : 'outline'}
+                    className={p === page ? 'bg-grow-coral hover:bg-grow-coral/90 text-white' : ''}
+                    onClick={() => setPage(p)}>
+                    {p}
+                  </Button>
+                ))}
+                <Button variant="outline" size="sm" disabled={page === totalPages}
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}>
+                  Next <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+            </>
           )}
         </div>
       </section>
+
 
       {/* ========= PROGRAMME IMPACT STATS (animated) ========= */}
       <section className="relative py-24 bg-gradient-to-br from-grow-navy via-grow-navy to-[#1a1430] text-white overflow-hidden">
