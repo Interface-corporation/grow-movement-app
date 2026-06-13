@@ -1,9 +1,8 @@
 import { HeroSlider } from '@/components/landing/HeroSlider';
 import { StatsBar } from '@/components/landing/StatsBar';
 import { WhoWeAre } from '@/components/landing/WhoWeAre';
-import { WhyChooseUs } from '@/components/landing/WhyChooseUs';
+import { PartnerWithUs } from '@/components/landing/PartnerWithUs';
 import { HowItWorks } from '@/components/landing/HowItWorks';
-import { Pathways } from '@/components/landing/Pathways';
 import { PlatformPreview } from '@/components/landing/PlatformPreview';
 import { SuccessStories } from '@/components/landing/SuccessStories';
 import { Testimonials } from '@/components/landing/Testimonials';
@@ -18,10 +17,9 @@ export default function Home() {
       <HeroSlider />
       <StatsBar />
       <WhoWeAre />
+      <PartnerWithUs />
       <Partners />
-      {/* <WhyChooseUs /> */}
       <HowItWorks />
-      {/* <Pathways /> */}
       <PlatformPreview />
       <SuccessStories />
       <Testimonials />

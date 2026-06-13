@@ -47,11 +47,13 @@ export function GrowFooter() {
         <div className="grid grid-cols-2 md:grid-cols-6 gap-8 mb-12">
           {/* Brand */}
           <div className="col-span-2 md:col-span-3">
-            <Link to="/" className="inline-flex items-center gap-2 mb-5">
-              <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
-                <span className="text-white font-bold">G</span>
-              </div>
-              <span className="font-display text-2xl font-bold text-white">Grow Movement</span>
+            <Link to="/" className="inline-flex items-center mb-5" aria-label="Grow Movement home">
+              <img
+                src="/images/logo.png"
+                alt="Grow Movement"
+                className="h-12 w-auto object-contain bg-white/95 rounded-lg p-1.5"
+                loading="lazy"
+              />
             </Link>
             <p className="text-white/60 max-w-md leading-relaxed mb-6">
               Empowering young entrepreneurs through capacity building, coaching,

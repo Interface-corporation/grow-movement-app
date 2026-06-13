@@ -6,7 +6,7 @@ import {
   Users, ArrowRight, CheckCircle2, Vote, Loader2, RotateCcw,
   Briefcase, Building2, GraduationCap, Lightbulb, ChevronDown,
   ChevronRight, Facebook, Linkedin, Instagram, Twitter, Globe, Quote,
-  X, KeyRound, ChevronUp, Heart, TrendingUp, Handshake, Radio, Image as ImageIcon,
+  X, KeyRound, ChevronUp, Heart, TrendingUp, Handshake, Radio, Image as ImageIcon, Play,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -202,6 +202,11 @@ export default function SeedFund() {
 
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [detailsCand, setDetailsCand] = useState<Candidate | null>(null);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+
+  // Pagination for candidates
+  const [page, setPage] = useState(1);
+  const pageSize = 6;
 
   const [slideIdx, setSlideIdx] = useState(0);
 
@@ -268,6 +273,27 @@ export default function SeedFund() {
   const maxSel = comp?.max_selections ?? 1;
   const exactReady = selectedIds.length === maxSel;
   const authMethod = comp?.auth_method || 'otp';
+  // Only the public_code voting flow is enabled at this stage. OTP & private code
+  // flows are temporarily disabled in the UI. Backend still supports them.
+  const votingEnabled = isActive && authMethod === 'public_code';
+
+  // Paginated candidates
+  const pagedCandidates = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return candidates.slice(start, start + pageSize);
+  }, [candidates, page]);
+  const totalPages = Math.max(1, Math.ceil(candidates.length / pageSize));
+
+  // Convert any video link to an embeddable iframe URL (YouTube / Vimeo / direct).
+  const toEmbedUrl = (raw?: string | null) => {
+    if (!raw) return null;
+    const url = raw.trim();
+    const yt = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+    if (yt) return `https://www.youtube-nocookie.com/embed/${yt[1]}?autoplay=1&rel=0`;
+    const vm = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+    if (vm) return `https://player.vimeo.com/video/${vm[1]}?autoplay=1`;
+    return url;
+  };
 
   const toggleSelect = (id: string) => {
     setSelectedIds(prev => {
@@ -281,6 +307,7 @@ export default function SeedFund() {
   };
 
   const openDetails = (c: Candidate) => { setDetailsCand(c); setDetailsOpen(true); };
+
 
   const startVote = () => {
     if (alreadyVoted) {
@@ -619,14 +646,16 @@ Through a live online pitch competition, participants present their businesses t
           ) : candidates.length === 0 ? (
             <div className="text-center text-muted-foreground py-12">Candidates will be announced shortly.</div>
           ) : (
+            <>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-32 lg:pb-12">
-              {candidates.map((c, i) => {
+              {pagedCandidates.map((c, i) => {
                 const en = c.entrepreneur || {};
                 const v = counts[c.id] || 0;
                 const pct = totalVotes ? Math.round((v / totalVotes) * 100) : 0;
                 const socials = parseSocials(en.social_media_links);
                 const isSelected = selectedIds.includes(c.id);
                 const atLimit = !isSelected && selectedIds.length >= maxSel;
+                const hasVideo = !!en.video_url;
                 return (
                   <motion.div
                     key={c.id}
@@ -718,12 +747,22 @@ Through a live online pitch competition, participants present their businesses t
                       </div>
 
                       <div className="grid grid-cols-2 gap-2 mt-1" onClick={(ev) => ev.stopPropagation()}>
-                        <Button className='shadow-lg' variant="outline" size="sm" onClick={() => openDetails(c)}>
-                          Preview <ChevronRight className="h-3.5 w-3.5" />
-                        </Button>
+                        {hasVideo ? (
+                          <Button
+                            variant="outline" size="sm"
+                            className="shadow-sm border-grow-coral/40 text-grow-coral hover:bg-grow-coral hover:text-white gap-1.5"
+                            onClick={() => setVideoUrl(en.video_url)}
+                          >
+                            <Play className="h-3.5 w-3.5 fill-current" /> Watch pitch
+                          </Button>
+                        ) : (
+                          <Button variant="outline" size="sm" className="shadow-sm" disabled>
+                            <Play className="h-3.5 w-3.5" /> No video
+                          </Button>
+                        )}
                         <Button size="sm" className="bg-grow-coral hover:bg-grow-teal text-white"
                           onClick={() => en.id && navigate(`/entrepreneurs/${en.id}`)}>
-                          View Full Details
+                          Read more <ChevronRight className="h-3.5 w-3.5" />
                         </Button>
                       </div>
                     </div>
@@ -731,9 +770,32 @@ Through a live online pitch competition, participants present their businesses t
                 );
               })}
             </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 mt-10">
+                <Button variant="outline" size="sm" disabled={page === 1}
+                  onClick={() => setPage(p => Math.max(1, p - 1))}>
+                  <ChevronRight className="h-4 w-4 rotate-180" /> Prev
+                </Button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                  <Button key={p} size="sm" variant={p === page ? 'default' : 'outline'}
+                    className={p === page ? 'bg-grow-coral hover:bg-grow-coral/90 text-white' : ''}
+                    onClick={() => setPage(p)}>
+                    {p}
+                  </Button>
+                ))}
+                <Button variant="outline" size="sm" disabled={page === totalPages}
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}>
+                  Next <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+            </>
           )}
         </div>
       </section>
+
 
       {/* ========= PROGRAMME IMPACT STATS (animated) ========= */}
       <section className="relative py-24 bg-gradient-to-br from-grow-navy via-grow-navy to-[#1a1430] text-white overflow-hidden">
@@ -1134,7 +1196,7 @@ Through a live online pitch competition, participants present their businesses t
       
 
       {/* ========= STICKY VOTING INDICATOR ========= */}
-      {isActive && !alreadyVoted && (
+      {votingEnabled && !alreadyVoted && (
         <>
           {/* Desktop floating panel */}
           <motion.aside
@@ -1367,6 +1429,27 @@ Through a live online pitch competition, participants present their businesses t
           )}
         </SheetContent>
       </Sheet>
+
+      {/* ========= PITCH VIDEO MODAL ========= */}
+      <Dialog open={!!videoUrl} onOpenChange={(o) => { if (!o) setVideoUrl(null); }}>
+        <DialogContent className="sm:max-w-3xl p-0 overflow-hidden bg-black border-0">
+          <DialogHeader className="px-5 pt-4">
+            <DialogTitle className="text-white">Pitch video</DialogTitle>
+            <DialogDescription className="text-white/60">Watch the entrepreneur introduce her business.</DialogDescription>
+          </DialogHeader>
+          <div className="relative w-full aspect-video bg-black">
+            {videoUrl && (
+              <iframe
+                src={toEmbedUrl(videoUrl) || undefined}
+                title="Pitch video"
+                className="absolute inset-0 w-full h-full"
+                allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+                allowFullScreen
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
