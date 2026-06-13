@@ -273,8 +273,27 @@ export default function SeedFund() {
   const maxSel = comp?.max_selections ?? 1;
   const exactReady = selectedIds.length === maxSel;
   const authMethod = comp?.auth_method || 'otp';
+  // Only the public_code voting flow is enabled at this stage. OTP & private code
+  // flows are temporarily disabled in the UI. Backend still supports them.
+  const votingEnabled = isActive && authMethod === 'public_code';
 
-  const toggleSelect = (id: string) => {
+  // Paginated candidates
+  const pagedCandidates = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return candidates.slice(start, start + pageSize);
+  }, [candidates, page]);
+  const totalPages = Math.max(1, Math.ceil(candidates.length / pageSize));
+
+  // Convert any video link to an embeddable iframe URL (YouTube / Vimeo / direct).
+  const toEmbedUrl = (raw?: string | null) => {
+    if (!raw) return null;
+    const url = raw.trim();
+    const yt = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+    if (yt) return `https://www.youtube-nocookie.com/embed/${yt[1]}?autoplay=1&rel=0`;
+    const vm = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+    if (vm) return `https://player.vimeo.com/video/${vm[1]}?autoplay=1`;
+    return url;
+  };
     setSelectedIds(prev => {
       if (prev.includes(id)) return prev.filter(x => x !== id);
       if (prev.length >= maxSel) {
