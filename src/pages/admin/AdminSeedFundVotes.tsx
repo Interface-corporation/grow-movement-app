@@ -288,7 +288,7 @@ export default function AdminSeedFundVotes() {
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="settings"><Settings className="h-3.5 w-3.5 mr-1" />Auth & Rules</TabsTrigger>
             <TabsTrigger value="candidates">Candidates ({candidates.length})</TabsTrigger>
-            <TabsTrigger value="codes">Promo Codes ({promoCodes.length})</TabsTrigger>
+            {/* <TabsTrigger value="codes">Promo Codes ({promoCodes.length})</TabsTrigger> */}
             <TabsTrigger value="audit">Audit Log ({audit.length})</TabsTrigger>
           </TabsList>
 
@@ -368,8 +368,8 @@ export default function AdminSeedFundVotes() {
                   className="grid sm:grid-cols-3 gap-3"
                 >
                   {[
-                    { v: 'otp', icon: Mail, label: 'Email OTP', desc: 'Voter enters email, receives a 6-digit code.' },
-                    { v: 'private_code', icon: KeyRound, label: 'Private codes', desc: 'Unique one-time codes distributed to each voter.' },
+                    // { v: 'otp', icon: Mail, label: 'Email OTP', desc: 'Voter enters email, receives a 6-digit code.' },
+                    // { v: 'private_code', icon: KeyRound, label: 'Private codes', desc: 'Unique one-time codes distributed to each voter.' },
                     { v: 'public_code', icon: Key, label: 'Public code', desc: 'A single shared code for all voters.' },
                   ].map(opt => (
                     <label key={opt.v} className={`cursor-pointer flex flex-col gap-2 p-4 rounded-xl border-2 transition-all ${

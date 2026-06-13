@@ -285,15 +285,49 @@ export default function SeedFund() {
   const totalPages = Math.max(1, Math.ceil(candidates.length / pageSize));
 
   // Convert any video link to an embeddable iframe URL (YouTube / Vimeo / direct).
-  const toEmbedUrl = (raw?: string | null) => {
-    if (!raw) return null;
-    const url = raw.trim();
-    const yt = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
-    if (yt) return `https://www.youtube-nocookie.com/embed/${yt[1]}?autoplay=1&rel=0`;
-    const vm = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
-    if (vm) return `https://player.vimeo.com/video/${vm[1]}?autoplay=1`;
-    return url;
-  };
+    // Convert video URLs to embeddable URLs
+const toEmbedUrl = (raw?: string | null) => {
+  if (!raw) return null;
+
+  const url = raw.trim();
+
+  // YouTube
+  const yt = url.match(
+    /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/
+  );
+
+  if (yt) {
+    return `https://www.youtube-nocookie.com/embed/${yt[1]}?autoplay=1&rel=0`;
+  }
+
+  // Vimeo
+  const vm = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+
+  if (vm) {
+    return `https://player.vimeo.com/video/${vm[1]}?autoplay=1`;
+  }
+
+  // Google Drive
+  const drivePatterns = [
+    /\/file\/d\/([^/]+)/,
+    /id=([^&]+)/,
+    /\/open\?id=([^&]+)/,
+    /\/uc\?id=([^&]+)/,
+  ];
+
+  for (const pattern of drivePatterns) {
+    const match = url.match(pattern);
+
+    if (match) {
+      const fileId = match[1];
+      return `https://drive.google.com/file/d/${fileId}/preview`;
+    }
+  }
+
+  // Fallback
+  return url;
+};
+ 
 
   const toggleSelect = (id: string) => {
     setSelectedIds(prev => {
@@ -837,7 +871,7 @@ Through a live online pitch competition, participants present their businesses t
       </section>
       {/* ========= PARTNERS — sliding marquee ========= */}
       <section className="py-24 overflow-hidden bg-background">
-        <div className="container mx-auto px-6 lg:px-8 text-center mb-12 max-w-3xl mx-auto">
+        <div className="container mx-auto px-6 lg:px-8 text-center mb-12 max-w-3xl ">
           <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-grow-coral/10 text-grow-coral text-[11px] font-bold tracking-[0.25em] uppercase mb-4">
              In Partnership With
           </span>
@@ -1367,7 +1401,7 @@ Through a live online pitch competition, participants present their businesses t
                 <div className="mx-auto w-16 h-16 rounded-full bg-grow-teal/20 flex items-center justify-center mb-4">
                   <CheckCircle2 className="h-10 w-10 text-grow-teal" />
                 </div>
-                <p className="font-semibold text-lg">Ballot recorded!</p>
+                <p className="font-semibold text-lg">Your Vote has been recorded successfully!</p>
                 <p className="text-sm text-muted-foreground">Thank you for taking part in {comp?.title}.</p>
                 {voteToken && (
                   <p className="text-[11px] text-muted-foreground mt-3 font-mono break-all">
@@ -1437,17 +1471,18 @@ Through a live online pitch competition, participants present their businesses t
             <DialogTitle className="text-white">Pitch video</DialogTitle>
             <DialogDescription className="text-white/60">Watch the entrepreneur introduce her business.</DialogDescription>
           </DialogHeader>
-          <div className="relative w-full aspect-video bg-black">
-            {videoUrl && (
-              <iframe
-                src={toEmbedUrl(videoUrl) || undefined}
-                title="Pitch video"
-                className="absolute inset-0 w-full h-full"
-                allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-                allowFullScreen
-              />
-            )}
-          </div>
+         <div className="relative w-full aspect-video bg-black">
+  {videoUrl && (
+    <iframe
+      src={toEmbedUrl(videoUrl) || undefined}
+      title="Pitch video"
+      className="absolute inset-0 w-full h-full"
+      allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+      allowFullScreen
+      referrerPolicy="strict-origin-when-cross-origin"
+    />
+  )}
+</div>
         </DialogContent>
       </Dialog>
     </div>

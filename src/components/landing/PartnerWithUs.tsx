@@ -8,7 +8,7 @@ const tracks = [
     icon: Building2,
     title: 'Companies & Firms',
     tag: 'Skills-based volunteering',
-    color: 'from-grow-coral to-grow-gold',
+    color: 'from-grow-coral to-grow-coral',
     bullet: 'Talent development · ESG · Employee engagement',
     text: 'Collaborate with us to transform employee expertise into leadership development and social impact. Grow Movement helps organisations engage employees through meaningful skills-based global volunteering that advances talent development, employee engagement, ESG, and social impact goals.',
     cta: 'Partner as a company',
@@ -18,7 +18,7 @@ const tracks = [
     icon: Briefcase,
     title: 'Professionals & Mentors',
     tag: 'Volunteer coaching',
-    color: 'from-grow-teal to-primary',
+    color: 'from-grow-coral to-grow-coral',
     bullet: 'Leadership · Coaching · Cross-cultural skills',
     text: 'Use your skills to create meaningful impact while developing your own leadership capabilities. Mentor ambitious entrepreneurs, build coaching and cross-cultural skills, expand your global perspective, and help businesses create jobs and economic opportunity.',
     cta: 'Become a mentor',
@@ -28,11 +28,21 @@ const tracks = [
     icon: GraduationCap,
     title: 'Universities & Students',
     tag: 'Experiential learning',
-    color: 'from-primary to-grow-coral',
+    color: 'from-grow-coral to-grow-coral',
     bullet: 'Consulting · Communication · Real-world projects',
     text: 'Apply classroom learning and frameworks to real-world challenges while developing leadership, consulting, cross-cultural, and communication skills. Students gain hands-on experience supporting entrepreneurs and social enterprises while building the capabilities needed to thrive in a global workforce.',
     cta: 'Partner with us',
     href: '/contact',
+  },
+  {
+    icon: GraduationCap,
+    title: 'Enterprenuers & Communities',
+    tag: 'Entrepreneurship support',
+    color: 'from-grow-coral to-grow-coral',
+    bullet: 'Consulting · Communication · Real-world projects',
+    text: ' Grow your business with one-to-one coaching from experienced professionals around the world. Through remote business mentoring and practical guidance, you will gain the knowledge, confidence, and networks needed to grow yourself, your team and the business.',
+    cta: 'Become an enterpreneur',
+    href: '/apply/entrepreneur',
   },
 ];
 
@@ -63,7 +73,7 @@ export function PartnerWithUs() {
           className="text-center max-w-3xl mx-auto mb-16"
         >
           <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-grow-coral/10 text-grow-coral text-[11px] font-bold tracking-[0.25em] uppercase">
-            <Sparkles className="h-3.5 w-3.5" /> Partner With Us
+             Partner With Us
           </span>
           <h2 className="font-display text-4xl md:text-6xl font-black mt-5 leading-[1.05]">
             How We Create <span className="bg-gradient-to-r from-grow-coral via-grow-gold to-primary bg-clip-text text-transparent">Impact Together</span>
@@ -76,7 +86,7 @@ export function PartnerWithUs() {
         </motion.div>
 
         {/* Cards */}
-        <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid md:grid-cols-4 gap-6 lg:gap-8">
           {tracks.map((t, i) => (
             <motion.div
               key={t.title}
@@ -88,20 +98,20 @@ export function PartnerWithUs() {
               className="group relative"
             >
               {/* Glow on hover */}
-              <div className={`absolute -inset-0.5 rounded-3xl bg-gradient-to-br ${t.color} opacity-0 group-hover:opacity-60 blur-xl transition-opacity duration-500`} />
+              <div className={`absolute -inset-0.5 rounded-3xl bg-gradient-to-brS ${t.color} opacity-0 group-hover:opacity-60 blur-smD transition-opacity duration-500`} />
 
               <div className="relative h-full bg-card border border-border rounded-3xl p-7 md:p-8 shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col overflow-hidden">
                 {/* Decorative corner gradient */}
-                <div className={`absolute -top-20 -right-20 w-48 h-48 rounded-full bg-gradient-to-br ${t.color} opacity-10 group-hover:opacity-20 blur-2xl transition-opacity duration-500`} />
+                <div className={`absolute -top-20 -right-20 w-48 h-48 rounded-full bg-gradient-to-br/20 ${t.color} opacity-10 group-hover:opacity-20 blur-2xl transition-opacity duration-500`} />
 
                 {/* Icon */}
-                <motion.div
+                {/* <motion.div
                   whileHover={{ rotate: -6, scale: 1.08 }}
                   transition={{ type: 'spring', stiffness: 300 }}
                   className={`relative w-16 h-16 rounded-2xl bg-gradient-to-br ${t.color} flex items-center justify-center shadow-lg mb-5`}
                 >
                   <t.icon className="h-8 w-8 text-white" strokeWidth={2.25} />
-                </motion.div>
+                </motion.div> */}
 
                 <span className="text-[10px] font-bold tracking-[0.22em] uppercase text-muted-foreground mb-2">
                   {t.tag}
@@ -114,8 +124,8 @@ export function PartnerWithUs() {
                   {t.text}
                 </p>
                 <div className="text-xs font-semibold text-foreground/70 mb-5 flex items-start gap-2">
-                  <span className={`mt-1.5 h-1.5 w-1.5 rounded-full bg-gradient-to-r ${t.color} shrink-0`} />
-                  <span>{t.bullet}</span>
+                  {/* <span className={`mt-1.5 h-1.5 w-1.5 rounded-full bg-gradient-to-r ${t.color} shrink-0`} /> */}
+                  {/* <span>{t.bullet}</span> */}
                 </div>
 
                 <Link to={t.href}>
@@ -133,7 +143,7 @@ export function PartnerWithUs() {
         </div>
 
         {/* Entrepreneurs & Communities — featured strip */}
-        <motion.div
+        {/* <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -172,7 +182,7 @@ export function PartnerWithUs() {
               </Button>
             </Link>
           </div>
-        </motion.div>
+        </motion.div> */}
       </div>
     </section>
   );

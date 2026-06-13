@@ -71,7 +71,7 @@ export default function ApplyChoose() {
     <div className="max-w-3xl">
 
       {/* Badge */}
-      <motion.div
+      {/* <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -81,7 +81,7 @@ export default function ApplyChoose() {
         <span className="text-sm font-semibold tracking-wide">
           Applications are now open
         </span>
-      </motion.div>
+      </motion.div> */}
 
       {/* Heading */}
       <motion.h1

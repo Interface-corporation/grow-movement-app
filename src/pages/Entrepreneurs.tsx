@@ -7,7 +7,7 @@ import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { getProfilePhoto } from '@/lib/avatars';
-import heroImg from '@/assets/growImage/growTeam.png';
+import heroImg from '@/assets/growImage/seedHero2.png';
 
 export default function Entrepreneurs() {
   const [search, setSearch] = useState('');
@@ -84,7 +84,7 @@ export default function Entrepreneurs() {
   }, [entrepreneurCountries, showAllCountries]);
 
   const [page, setPage] = useState(1);
-  const pageSize = 12;
+  const pageSize = 36;
   const totalPages = Math.max(1, Math.ceil(filteredEntrepreneurs.length / pageSize));
   const pagedList = useMemo(
     () => filteredEntrepreneurs.slice((page - 1) * pageSize, page * pageSize),
@@ -146,9 +146,9 @@ export default function Entrepreneurs() {
             className="max-w-3xl"
           >
             <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-grow-coral/90 text-white text-[11px] font-bold uppercase tracking-[0.18em] shadow-lg shadow-grow-coral/30">
-              <Sparkles className="h-3.5 w-3.5" /> Our Entrepreneurs
+              
             </span>
-            <h1 className="font-display text-4xl sm:text-5xl md:text-7xl font-black mt-6 leading-[1.05]">
+            <h1 className="font-display text-grow-cream text-4xl sm:text-5xl md:text-7xl font-black mt-6 leading-[1.05]">
               Meet the founders <br />
               <span className="bg-gradient-to-r from-grow-coral via-grow-gold to-white bg-clip-text text-transparent">
                 shaping tomorrow.

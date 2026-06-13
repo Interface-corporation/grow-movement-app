@@ -17,7 +17,7 @@ export function Navbar() {
     { to: '/seed-fund', label: 'Seed Fund' },
     { to: '/apply', label: 'Apply' },
     { to: '/contact', label: 'Contact' },
-    { to: '/admin', label: 'Login/Sign Up' },
+    { to: '/admin', label: 'Login' },
   ];
 
   const isActive = (path: string) =>
