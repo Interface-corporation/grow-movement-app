@@ -646,14 +646,16 @@ Through a live online pitch competition, participants present their businesses t
           ) : candidates.length === 0 ? (
             <div className="text-center text-muted-foreground py-12">Candidates will be announced shortly.</div>
           ) : (
+            <>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-32 lg:pb-12">
-              {candidates.map((c, i) => {
+              {pagedCandidates.map((c, i) => {
                 const en = c.entrepreneur || {};
                 const v = counts[c.id] || 0;
                 const pct = totalVotes ? Math.round((v / totalVotes) * 100) : 0;
                 const socials = parseSocials(en.social_media_links);
                 const isSelected = selectedIds.includes(c.id);
                 const atLimit = !isSelected && selectedIds.length >= maxSel;
+                const hasVideo = !!en.video_url;
                 return (
                   <motion.div
                     key={c.id}
