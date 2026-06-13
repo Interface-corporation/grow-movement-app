@@ -190,7 +190,7 @@ export function Partners() {
           transition={{ delay: 0.5, duration: 0.7 }}
           className="text-center mt-12 text-sm text-muted-foreground"
         >
-          {partners.length} partner organisations across consulting, law, academia &amp; impact finance
+          {/* {partners.length} partner organisations across consulting, law, academia &amp; impact finance */}
         </motion.p>
 
       </div>
