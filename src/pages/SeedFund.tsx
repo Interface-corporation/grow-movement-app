@@ -1196,7 +1196,7 @@ Through a live online pitch competition, participants present their businesses t
       
 
       {/* ========= STICKY VOTING INDICATOR ========= */}
-      {isActive && !alreadyVoted && (
+      {votingEnabled && !alreadyVoted && (
         <>
           {/* Desktop floating panel */}
           <motion.aside
