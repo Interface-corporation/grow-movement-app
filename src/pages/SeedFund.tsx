@@ -294,6 +294,8 @@ export default function SeedFund() {
     if (vm) return `https://player.vimeo.com/video/${vm[1]}?autoplay=1`;
     return url;
   };
+
+  const toggleSelect = (id: string) => {
     setSelectedIds(prev => {
       if (prev.includes(id)) return prev.filter(x => x !== id);
       if (prev.length >= maxSel) {
@@ -305,6 +307,7 @@ export default function SeedFund() {
   };
 
   const openDetails = (c: Candidate) => { setDetailsCand(c); setDetailsOpen(true); };
+
 
   const startVote = () => {
     if (alreadyVoted) {
