@@ -103,21 +103,84 @@ export default function Entrepreneurs() {
   }
 
   return (
-    <div className="pt-24 pb-16">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold mb-4">Our Entrepreneurs</h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Discover talented entrepreneurs in training and alumni ready for coaching, mentorship, or investment opportunities.
-          </p>
-          {items.length > 0 && (
-            <div className="mt-4 inline-flex items-center gap-2 bg-primary/10 text-primary rounded-full px-4 py-2 text-sm font-medium">
-              {items.length}/3 entrepreneurs selected
-            </div>
-          )}
-        </div>
+    <div className="bg-background">
+      {/* ============ CINEMATIC HERO ============ */}
+      <section className="relative min-h-[70vh] flex items-center overflow-hidden text-white">
+        <motion.div
+          initial={{ scale: 1.15, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 2, ease: 'easeOut' }}
+          className="absolute inset-0"
+        >
+          <motion.img
+            src={heroImg}
+            alt="Grow Movement entrepreneurs"
+            className="w-full h-full object-cover"
+            animate={{ scale: [1, 1.08, 1] }}
+            transition={{ duration: 22, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-grow-navy/95 via-grow-navy/75 to-grow-navy/40" />
+          <div className="absolute inset-0 bg-gradient-to-t from-grow-navy via-transparent to-transparent" />
+        </motion.div>
 
-        <div className="max-w-4xl mx-auto mb-10">
+        <motion.div
+          aria-hidden
+          className="absolute top-1/4 right-10 w-72 h-72 rounded-full blur-3xl opacity-40"
+          style={{ background: 'radial-gradient(circle, var(--grow-coral), transparent 70%)' }}
+          animate={{ y: [0, -25, 0], scale: [1, 1.1, 1] }}
+          transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        <motion.div
+          aria-hidden
+          className="absolute bottom-12 left-10 w-60 h-60 rounded-full blur-3xl opacity-30"
+          style={{ background: 'radial-gradient(circle, var(--grow-teal), transparent 70%)' }}
+          animate={{ y: [0, 25, 0] }}
+          transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+        />
+
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="max-w-3xl"
+          >
+            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-grow-coral/90 text-white text-[11px] font-bold uppercase tracking-[0.18em] shadow-lg shadow-grow-coral/30">
+              <Sparkles className="h-3.5 w-3.5" /> Our Entrepreneurs
+            </span>
+            <h1 className="font-display text-4xl sm:text-5xl md:text-7xl font-black mt-6 leading-[1.05]">
+              Meet the founders <br />
+              <span className="bg-gradient-to-r from-grow-coral via-grow-gold to-white bg-clip-text text-transparent">
+                shaping tomorrow.
+              </span>
+            </h1>
+            <p className="mt-6 text-lg md:text-xl text-white/85 max-w-2xl leading-relaxed">
+              Discover talented entrepreneurs in training and alumni from across Africa and Asia —
+              ready for coaching, mentorship, and investment opportunities.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center gap-6 text-white/80 text-sm">
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4 text-grow-gold" />
+                <span><strong className="text-white">{mappedEntrepreneurs.length}</strong> active profiles</span>
+              </div>
+              <div className="h-4 w-px bg-white/30" />
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-grow-coral" />
+                <span>13+ countries</span>
+              </div>
+              {items.length > 0 && (
+                <div className="inline-flex items-center gap-2 bg-grow-gold text-grow-navy rounded-full px-3 py-1.5 text-xs font-bold">
+                  {items.length}/3 selected for coaching
+                </div>
+              )}
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ============ FILTERS + GRID ============ */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="max-w-4xl mx-auto mb-8">
           <div className="flex gap-3 mb-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -191,15 +254,38 @@ export default function Entrepreneurs() {
         </div>
 
         <div className="mb-6 text-sm text-muted-foreground">
-          Showing {filteredEntrepreneurs.length} of {mappedEntrepreneurs.length} entrepreneurs
+          Showing {pagedList.length} of {filteredEntrepreneurs.length} entrepreneurs
+          {totalPages > 1 && <span className="ml-1">· page {page} of {totalPages}</span>}
         </div>
 
         {filteredEntrepreneurs.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredEntrepreneurs.map(entrepreneur => (
-              <EntrepreneurCard key={entrepreneur.id} entrepreneur={entrepreneur} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {pagedList.map(entrepreneur => (
+                <EntrepreneurCard key={entrepreneur.id} entrepreneur={entrepreneur} />
+              ))}
+            </div>
+
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 mt-12">
+                <Button variant="outline" size="sm" disabled={page === 1}
+                  onClick={() => { setPage(p => Math.max(1, p - 1)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+                  <ChevronLeft className="h-4 w-4" /> Prev
+                </Button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                  <Button key={p} size="sm" variant={p === page ? 'default' : 'outline'}
+                    className={p === page ? 'bg-primary text-primary-foreground' : ''}
+                    onClick={() => { setPage(p); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+                    {p}
+                  </Button>
+                ))}
+                <Button variant="outline" size="sm" disabled={page === totalPages}
+                  onClick={() => { setPage(p => Math.min(totalPages, p + 1)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+                  Next <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+          </>
         ) : (
           <div className="text-center py-20">
             <p className="text-xl text-muted-foreground mb-4">No entrepreneurs found</p>
