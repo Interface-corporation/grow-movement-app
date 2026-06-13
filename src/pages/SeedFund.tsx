@@ -1429,6 +1429,27 @@ Through a live online pitch competition, participants present their businesses t
           )}
         </SheetContent>
       </Sheet>
+
+      {/* ========= PITCH VIDEO MODAL ========= */}
+      <Dialog open={!!videoUrl} onOpenChange={(o) => { if (!o) setVideoUrl(null); }}>
+        <DialogContent className="sm:max-w-3xl p-0 overflow-hidden bg-black border-0">
+          <DialogHeader className="px-5 pt-4">
+            <DialogTitle className="text-white">Pitch video</DialogTitle>
+            <DialogDescription className="text-white/60">Watch the entrepreneur introduce her business.</DialogDescription>
+          </DialogHeader>
+          <div className="relative w-full aspect-video bg-black">
+            {videoUrl && (
+              <iframe
+                src={toEmbedUrl(videoUrl) || undefined}
+                title="Pitch video"
+                className="absolute inset-0 w-full h-full"
+                allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+                allowFullScreen
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
