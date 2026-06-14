@@ -174,7 +174,6 @@ export default function AdminSeedFundVotes() {
       return;
     }
     const codes: string[] = data.codes || [];
-    // Download CSV immediately
     const csv = 'Code\n' + codes.join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
@@ -229,7 +228,11 @@ export default function AdminSeedFundVotes() {
     }
   };
 
-  if (loading) return <div className="p-10 flex justify-center"><Loader2 className="animate-spin h-8 w-8 text-primary" /></div>;
+  if (loading) return (
+    <div className="p-10 flex justify-center">
+      <Loader2 className="animate-spin h-8 w-8 text-primary" />
+    </div>
+  );
 
   const authMethodLabel: Record<string, string> = {
     otp: 'Email OTP',
@@ -238,99 +241,179 @@ export default function AdminSeedFundVotes() {
   };
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <div className="p-3 sm:p-0 space-y-4 sm:space-y-6 w-full min-w-0">
+
+      {/* ── Page header ── */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-display font-bold">Seed Fund Voting</h1>
-          <p className="text-muted-foreground">Configure auth, manage candidates, monitor live results and audit log.</p>
+          <h1 className="text-2xl sm:text-3xl font-display font-bold">Seed Fund Voting</h1>
+          <p className="text-muted-foreground text-sm mt-0.5">
+            Configure auth, manage candidates, monitor live results and audit log.
+          </p>
         </div>
-        <div className="flex gap-2">
-          <Select value={active?.id || ''} onValueChange={(v) => { const c = comps.find(x => x.id === v); setActive(c); loadCompetition(v); }}>
-            <SelectTrigger className="w-[280px]"><SelectValue placeholder="Select a competition" /></SelectTrigger>
+        <div className="flex flex-col gap-2 xs:flex-row xs:flex-wrap">
+          <Select
+            value={active?.id || ''}
+            onValueChange={(v) => { const c = comps.find(x => x.id === v); setActive(c); loadCompetition(v); }}
+          >
+            <SelectTrigger className="w-full xs:w-[260px] sm:w-[280px]">
+              <SelectValue placeholder="Select a competition" />
+            </SelectTrigger>
             <SelectContent>
               {comps.map(c => (
-                <SelectItem key={c.id} value={c.id}>{c.title} {c.edition ? `· ${c.edition}` : ''} ({c.status})</SelectItem>
+                <SelectItem key={c.id} value={c.id}>
+                  {c.title} {c.edition ? `· ${c.edition}` : ''} ({c.status})
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
-          <Button onClick={() => setNewOpen(true)}><Plus /> New</Button>
+          <Button onClick={() => setNewOpen(true)} className="w-full xs:w-auto">
+            <Plus className="h-4 w-4 mr-1" /> New
+          </Button>
         </div>
       </div>
 
+      {/* ── Competition banner ── */}
       {active && (
-        <div className="flex flex-wrap items-center gap-3 bg-card border border-border rounded-xl p-4">
-          <div className="flex-1 min-w-[240px]">
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center bg-card border border-border rounded-xl p-4">
+          <div className="flex-1 min-w-0 sm:min-w-[240px]">
             <div className="text-xs uppercase text-muted-foreground tracking-widest">Selected competition</div>
-            <div className="font-semibold text-lg">{active.title} {active.edition && `· ${active.edition}`}</div>
-            <div className="text-xs text-muted-foreground mt-1 flex flex-wrap gap-3">
-              {active.event_date && <span className="flex items-center gap-1"><Calendar className="h-3 w-3" />{new Date(active.event_date).toLocaleDateString()}</span>}
-              <span className="flex items-center gap-1"><ShieldCheck className="h-3 w-3" />{authMethodLabel[active.auth_method] || active.auth_method}</span>
+            <div className="font-semibold text-base sm:text-lg truncate">
+              {active.title} {active.edition && `· ${active.edition}`}
+            </div>
+            <div className="text-xs text-muted-foreground mt-1 flex flex-wrap gap-2 sm:gap-3">
+              {active.event_date && (
+                <span className="flex items-center gap-1">
+                  <Calendar className="h-3 w-3 shrink-0" />
+                  {new Date(active.event_date).toLocaleDateString()}
+                </span>
+              )}
+              <span className="flex items-center gap-1">
+                <ShieldCheck className="h-3 w-3 shrink-0" />
+                {authMethodLabel[active.auth_method] || active.auth_method}
+              </span>
               <span>Max selections: <strong>{active.max_selections}</strong></span>
             </div>
           </div>
-          <span className={`text-xs font-semibold px-3 py-1 rounded-full ${
-            active.status === 'active' ? 'bg-green-100 text-green-800' :
-            active.status === 'ended' ? 'bg-grow-gold/20 text-grow-gold' : 'bg-muted text-muted-foreground'
-          }`}>{active.status.toUpperCase()}</span>
-          {active.status !== 'active' && <Button size="sm" onClick={() => setStatus('active')} className="bg-grow-teal hover:bg-grow-teal/90"><Play /> Start</Button>}
-          {active.status === 'active' && <Button size="sm" variant="destructive" onClick={() => setStatus('ended')}><Square /> End</Button>}
-          {active.status === 'ended' && <Button size="sm" variant="outline" onClick={promoteToAlumni}><Crown /> Promote to Alumni</Button>}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className={`text-xs font-semibold px-3 py-1 rounded-full ${
+              active.status === 'active' ? 'bg-green-100 text-green-800' :
+              active.status === 'ended'  ? 'bg-grow-gold/20 text-grow-gold' :
+                                           'bg-muted text-muted-foreground'
+            }`}>
+              {active.status.toUpperCase()}
+            </span>
+            {active.status !== 'active' && (
+              <Button size="sm" onClick={() => setStatus('active')} className="bg-grow-teal hover:bg-grow-teal/90">
+                <Play className="h-3.5 w-3.5 mr-1" /> Start
+              </Button>
+            )}
+            {active.status === 'active' && (
+              <Button size="sm" variant="destructive" onClick={() => setStatus('ended')}>
+                <Square className="h-3.5 w-3.5 mr-1" /> End
+              </Button>
+            )}
+            {active.status === 'ended' && (
+              <Button size="sm" variant="outline" onClick={promoteToAlumni}>
+                <Crown className="h-3.5 w-3.5 mr-1" /> Promote to Alumni
+              </Button>
+            )}
+          </div>
         </div>
       )}
 
+      {/* ── No competition empty state ── */}
       {!active ? (
-        <div className="bg-card border border-border rounded-xl p-12 text-center text-muted-foreground">
+        <div className="bg-card border border-border rounded-xl p-8 sm:p-12 text-center text-muted-foreground text-sm">
           No competition yet. Click <strong>New</strong> to create one.
         </div>
       ) : (
-        <Tabs defaultValue="overview">
-          <TabsList className="flex-wrap h-auto">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="settings"><Settings className="h-3.5 w-3.5 mr-1" />Auth & Rules</TabsTrigger>
-            <TabsTrigger value="candidates">Candidates ({candidates.length})</TabsTrigger>
-            {/* <TabsTrigger value="codes">Promo Codes ({promoCodes.length})</TabsTrigger> */}
-            <TabsTrigger value="audit">Audit Log ({audit.length})</TabsTrigger>
+        <Tabs defaultValue="overview" className="w-full">
+
+          {/* Tab list — scrollable on mobile */}
+          <TabsList className="flex flex-wrap h-auto gap-1 w-full overflow-x-auto sm:overflow-visible">
+            <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
+            <TabsTrigger value="settings" className="text-xs sm:text-sm">
+              <Settings className="h-3.5 w-3.5 mr-1" />Auth &amp; Rules
+            </TabsTrigger>
+            <TabsTrigger value="candidates" className="text-xs sm:text-sm">
+              Candidates ({candidates.length})
+            </TabsTrigger>
+            <TabsTrigger value="audit" className="text-xs sm:text-sm">
+              Audit Log ({audit.length})
+            </TabsTrigger>
           </TabsList>
 
-          {/* ============ OVERVIEW ============ */}
-          <TabsContent value="overview" className="space-y-6 mt-4">
-            <div className="grid sm:grid-cols-4 gap-4">
-              <Stat icon={Users} label="Candidates" value={candidates.length} />
-              <Stat icon={Vote} label="Total Votes" value={totalVotes} sub={`${totalBallots} ballot${totalBallots === 1 ? '' : 's'}`} />
-              <Stat icon={ShieldCheck} label="Auth Method" value={authMethodLabel[active.auth_method]?.split(' ')[0] || ''} sub={`Max ${active.max_selections} pick${active.max_selections === 1 ? '' : 's'}`} />
-              <Stat icon={Trophy} label="Leader" value={winner?.entrepreneur?.name?.split(' ')[0] || '—'} sub={winner ? `${winner.v} votes` : ''} />
+          {/* ════════════ OVERVIEW ════════════ */}
+          <TabsContent value="overview" className="space-y-4 sm:space-y-6 mt-4">
+
+            {/* Stat cards — 2-col on mobile, 4-col on sm+ */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+              <Stat icon={Users}      label="Candidates"   value={candidates.length} />
+              <Stat icon={Vote}       label="Total Votes"  value={totalVotes}
+                sub={`${totalBallots} ballot${totalBallots === 1 ? '' : 's'}`} />
+              <Stat icon={ShieldCheck} label="Auth Method"
+                value={authMethodLabel[active.auth_method]?.split(' ')[0] || ''}
+                sub={`Max ${active.max_selections} pick${active.max_selections === 1 ? '' : 's'}`} />
+              <Stat icon={Trophy} label="Leader"
+                value={winner?.entrepreneur?.name?.split(' ')[0] || '—'}
+                sub={winner ? `${winner.v} votes` : ''} />
             </div>
 
+            {/* Export buttons */}
             <div className="flex flex-wrap gap-2">
-              <Button onClick={() => exportResults('xlsx')} variant="outline"><FileSpreadsheet className="h-4 w-4 mr-1" /> Export Excel</Button>
-              <Button onClick={() => exportResults('csv')} variant="outline"><Download className="h-4 w-4 mr-1" /> Export CSV</Button>
-              <Button onClick={() => loadCompetition(active.id)} variant="ghost"><RefreshCw className="h-4 w-4 mr-1" /> Refresh</Button>
+              <Button onClick={() => exportResults('xlsx')} variant="outline" size="sm" className="text-xs sm:text-sm">
+                <FileSpreadsheet className="h-4 w-4 mr-1" /> Export Excel
+              </Button>
+              <Button onClick={() => exportResults('csv')} variant="outline" size="sm" className="text-xs sm:text-sm">
+                <Download className="h-4 w-4 mr-1" /> Export CSV
+              </Button>
+              <Button onClick={() => loadCompetition(active.id)} variant="ghost" size="sm" className="text-xs sm:text-sm">
+                <RefreshCw className="h-4 w-4 mr-1" /> Refresh
+              </Button>
             </div>
 
-            <div className="grid lg:grid-cols-2 gap-4">
+            {/* Charts — stacked on mobile, side-by-side on lg */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <Card>
-                <CardHeader><CardTitle>Votes per candidate</CardTitle></CardHeader>
-                <CardContent style={{ height: 320 }}>
-                  <ResponsiveContainer>
-                    <BarChart data={chartData}>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm sm:text-base">Votes per candidate</CardTitle>
+                </CardHeader>
+                <CardContent style={{ height: 260 }} className="sm:h-80 px-2 sm:px-6">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chartData} margin={{ left: -10, right: 8, top: 4, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                      <XAxis dataKey="name" />
-                      <YAxis allowDecimals={false} />
+                      <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                      <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
                       <Tooltip />
                       <Bar dataKey="votes" fill="#FC5647" radius={[8, 8, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
+
               <Card>
-                <CardHeader><CardTitle>Share of votes</CardTitle></CardHeader>
-                <CardContent style={{ height: 320 }}>
-                  <ResponsiveContainer>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm sm:text-base">Share of votes</CardTitle>
+                </CardHeader>
+                <CardContent style={{ height: 260 }} className="sm:h-80 px-2 sm:px-6">
+                  <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
-                      <Pie data={chartData} dataKey="votes" nameKey="name" outerRadius={110} label>
-                        {chartData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                      <Pie
+                        data={chartData}
+                        dataKey="votes"
+                        nameKey="name"
+                        outerRadius="45%"
+                        label={({ name, percent }) =>
+                          `${name} ${(percent * 100).toFixed(0)}%`
+                        }
+                        labelLine={false}
+                      >
+                        {chartData.map((_, i) => (
+                          <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                        ))}
                       </Pie>
-                      <Legend />
+                      <Legend wrapperStyle={{ fontSize: 11 }} />
                       <Tooltip />
                     </PieChart>
                   </ResponsiveContainer>
@@ -338,18 +421,32 @@ export default function AdminSeedFundVotes() {
               </Card>
             </div>
 
+            {/* Leaderboard */}
             <Card>
-              <CardHeader><CardTitle>Live Leaderboard</CardTitle></CardHeader>
-              <CardContent>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm sm:text-base">Live Leaderboard</CardTitle>
+              </CardHeader>
+              <CardContent className="px-3 sm:px-6">
                 <div className="space-y-2">
                   {ranked.map((c, i) => (
-                    <div key={c.id} className="flex items-center gap-3 p-3 bg-background rounded-lg border border-border">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${i === 0 ? 'bg-grow-gold text-grow-navy' : 'bg-muted text-foreground'}`}>{i + 1}</div>
-                      <div className="flex-1">
-                        <div className="font-semibold">{c.entrepreneur?.name}</div>
-                        <div className="text-xs text-muted-foreground">{c.entrepreneur?.business_name} · {c.entrepreneur?.country}</div>
+                    <div
+                      key={c.id}
+                      className="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 bg-background rounded-lg border border-border"
+                    >
+                      <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full shrink-0 flex items-center justify-center font-bold text-xs sm:text-sm ${
+                        i === 0 ? 'bg-grow-gold text-grow-navy' : 'bg-muted text-foreground'
+                      }`}>
+                        {i + 1}
                       </div>
-                      <div className="font-bold text-grow-coral">{c.v} votes</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-sm truncate">{c.entrepreneur?.name}</div>
+                        <div className="text-xs text-muted-foreground truncate">
+                          {c.entrepreneur?.business_name} · {c.entrepreneur?.country}
+                        </div>
+                      </div>
+                      <div className="font-bold text-grow-coral text-sm whitespace-nowrap">
+                        {c.v} votes
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -357,50 +454,66 @@ export default function AdminSeedFundVotes() {
             </Card>
           </TabsContent>
 
-          {/* ============ SETTINGS ============ */}
-          <TabsContent value="settings" className="space-y-6 mt-4">
+          {/* ════════════ SETTINGS ════════════ */}
+          <TabsContent value="settings" className="space-y-4 sm:space-y-6 mt-4">
             <Card>
-              <CardHeader><CardTitle>Voter authentication</CardTitle></CardHeader>
-              <CardContent className="space-y-5">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm sm:text-base">Voter authentication</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4 sm:space-y-5">
                 <RadioGroup
                   value={active.auth_method}
                   onValueChange={(v) => updateActive({ auth_method: v })}
-                  className="grid sm:grid-cols-3 gap-3"
+                  className="grid grid-cols-1 sm:grid-cols-3 gap-3"
                 >
                   {[
-                    // { v: 'otp', icon: Mail, label: 'Email OTP', desc: 'Voter enters email, receives a 6-digit code.' },
-                    // { v: 'private_code', icon: KeyRound, label: 'Private codes', desc: 'Unique one-time codes distributed to each voter.' },
                     { v: 'public_code', icon: Key, label: 'Public code', desc: 'A single shared code for all voters.' },
                   ].map(opt => (
-                    <label key={opt.v} className={`cursor-pointer flex flex-col gap-2 p-4 rounded-xl border-2 transition-all ${
-                      active.auth_method === opt.v ? 'border-grow-coral bg-grow-coral/5' : 'border-border hover:border-grow-coral/40'
-                    }`}>
+                    <label
+                      key={opt.v}
+                      className={`cursor-pointer flex flex-col gap-2 p-3 sm:p-4 rounded-xl border-2 transition-all ${
+                        active.auth_method === opt.v
+                          ? 'border-grow-coral bg-grow-coral/5'
+                          : 'border-border hover:border-grow-coral/40'
+                      }`}
+                    >
                       <div className="flex items-center gap-2">
                         <RadioGroupItem value={opt.v} id={opt.v} />
-                        <opt.icon className="h-4 w-4 text-grow-coral" />
-                        <span className="font-semibold">{opt.label}</span>
+                        <opt.icon className="h-4 w-4 text-grow-coral shrink-0" />
+                        <span className="font-semibold text-sm">{opt.label}</span>
                       </div>
                       <p className="text-xs text-muted-foreground pl-6">{opt.desc}</p>
                     </label>
                   ))}
                 </RadioGroup>
 
-                <div className="grid sm:grid-cols-2 gap-4 pt-4 border-t border-border">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-border">
                   <div>
                     <Label className="text-sm">Max selections per voter</Label>
-                    <Input type="number" min={1} max={20} value={active.max_selections}
-                      onChange={e => updateActive({ max_selections: Math.max(1, Math.min(20, Number(e.target.value) || 1)) })}
+                    <Input
+                      type="number" min={1} max={20}
+                      value={active.max_selections}
+                      onChange={e => updateActive({
+                        max_selections: Math.max(1, Math.min(20, Number(e.target.value) || 1)),
+                      })}
+                      className="mt-1"
                     />
-                    <p className="text-xs text-muted-foreground mt-1">Voters must select exactly this many candidates. Each selection counts as 1 vote.</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Voters must select exactly this many candidates. Each selection counts as 1 vote.
+                    </p>
                   </div>
                   {active.auth_method === 'public_code' && (
                     <div>
                       <Label className="text-sm">Shared public code</Label>
-                      <Input value={active.public_code || ''}
+                      <Input
+                        value={active.public_code || ''}
                         onChange={e => updateActive({ public_code: e.target.value.toUpperCase() })}
                         placeholder="e.g. GROW2026"
+                        className="mt-1"
                       />
-                      <p className="text-xs text-muted-foreground mt-1">Share this code with everyone you want to allow to vote.</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Share this code with everyone you want to allow to vote.
+                      </p>
                     </div>
                   )}
                 </div>
@@ -408,94 +521,84 @@ export default function AdminSeedFundVotes() {
             </Card>
           </TabsContent>
 
-          {/* ============ CANDIDATES ============ */}
+          {/* ════════════ CANDIDATES ════════════ */}
           <TabsContent value="candidates" className="space-y-4 mt-4">
             <div className="flex justify-end">
-              <Button onClick={() => setAddCandOpen(true)}><Plus /> Add candidate</Button>
+              <Button onClick={() => setAddCandOpen(true)}>
+                <Plus className="h-4 w-4 mr-1" /> Add candidate
+              </Button>
             </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+            {/* 1 col mobile → 2 col sm → 3 col lg */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {candidates.map(c => (
                 <Card key={c.id}>
-                  <CardContent className="p-4 flex gap-3 items-start">
-                    <div className="flex-1">
-                      <div className="font-bold">{c.entrepreneur?.name}</div>
-                      <div className="text-sm text-muted-foreground">{c.entrepreneur?.business_name}</div>
-                      <div className="text-xs text-muted-foreground mt-1">{c.entrepreneur?.country} · {c.entrepreneur?.sector}</div>
-                      {c.raising_for && <p className="text-xs mt-2 text-foreground/80">Raising: {c.raising_for}</p>}
-                      <div className="text-sm mt-2 font-semibold text-grow-coral">{counts[c.id] || 0} votes</div>
+                  <CardContent className="p-3 sm:p-4 flex gap-3 items-start">
+                    <div className="flex-1 min-w-0">
+                      <div className="font-bold text-sm truncate">{c.entrepreneur?.name}</div>
+                      <div className="text-sm text-muted-foreground truncate">
+                        {c.entrepreneur?.business_name}
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-1">
+                        {c.entrepreneur?.country} · {c.entrepreneur?.sector}
+                      </div>
+                      {c.raising_for && (
+                        <p className="text-xs mt-2 text-foreground/80">Raising: {c.raising_for}</p>
+                      )}
+                      <div className="text-sm mt-2 font-semibold text-grow-coral">
+                        {counts[c.id] || 0} votes
+                      </div>
                     </div>
-                    <Button variant="ghost" size="icon" onClick={() => removeCandidate(c.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                  </CardContent>
-                </Card>
-              ))}
-              {candidates.length === 0 && <div className="col-span-full text-muted-foreground text-center py-8">No candidates yet.</div>}
-            </div>
-          </TabsContent>
-
-          {/* ============ PROMO CODES ============ */}
-          <TabsContent value="codes" className="space-y-4 mt-4">
-            {active.auth_method !== 'private_code' ? (
-              <Card><CardContent className="p-8 text-center text-muted-foreground">
-                Promo codes are used only when the auth method is <strong>Private codes</strong>.
-                Switch to that method in <em>Auth & Rules</em> to manage them.
-              </CardContent></Card>
-            ) : (
-              <>
-                <Card>
-                  <CardHeader><CardTitle>Generate one-time codes</CardTitle></CardHeader>
-                  <CardContent className="flex flex-wrap items-end gap-3">
-                    <div className="flex-1 min-w-[160px]">
-                      <Label>How many?</Label>
-                      <Input type="number" min={1} max={5000} value={generateCount}
-                        onChange={e => setGenerateCount(Math.max(1, Math.min(5000, Number(e.target.value) || 1)))} />
-                    </div>
-                    <Button onClick={generateCodes} disabled={generating}>
-                      {generating ? <Loader2 className="animate-spin" /> : <KeyRound />} Generate & download CSV
+                    <Button
+                      variant="ghost" size="icon"
+                      className="shrink-0"
+                      onClick={() => removeCandidate(c.id)}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </CardContent>
                 </Card>
-
-                <div className="bg-card border border-border rounded-xl overflow-hidden">
-                  <table className="w-full text-sm">
-                    <thead className="bg-muted text-left">
-                      <tr><th className="p-3">Code</th><th className="p-3">Used by</th><th className="p-3">Used at</th></tr>
-                    </thead>
-                    <tbody>
-                      {promoCodes.slice(0, 200).map(pc => (
-                        <tr key={pc.id} className="border-t border-border">
-                          <td className="p-3 font-mono">{pc.code}</td>
-                          <td className="p-3">{pc.used_by_email || <span className="text-muted-foreground italic">—</span>}</td>
-                          <td className="p-3 text-muted-foreground">{pc.used_at ? new Date(pc.used_at).toLocaleString() : '—'}</td>
-                        </tr>
-                      ))}
-                      {promoCodes.length === 0 && <tr><td colSpan={3} className="p-6 text-center text-muted-foreground">No codes generated yet.</td></tr>}
-                    </tbody>
-                  </table>
-                  {promoCodes.length > 200 && <div className="p-3 text-xs text-muted-foreground text-center">Showing first 200 — export Excel to see all.</div>}
+              ))}
+              {candidates.length === 0 && (
+                <div className="col-span-full text-muted-foreground text-center py-8 text-sm">
+                  No candidates yet.
                 </div>
-              </>
-            )}
+              )}
+            </div>
           </TabsContent>
 
-          {/* ============ AUDIT LOG ============ */}
+          {/* ════════════ AUDIT LOG ════════════ */}
           <TabsContent value="audit" className="space-y-3 mt-4">
-            <div className="flex items-center gap-2">
+
+            {/* Search toolbar */}
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input value={filter} onChange={e => setFilter(e.target.value)} placeholder="Filter by email, name or token" className="pl-9" />
+                <Input
+                  value={filter}
+                  onChange={e => setFilter(e.target.value)}
+                  placeholder="Filter by email, name or token"
+                  className="pl-9"
+                />
               </div>
-              <Filter className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">{filteredAudit.length} / {audit.length}</span>
+              <div className="flex items-center gap-2 self-end sm:self-auto">
+                <Filter className="h-4 w-4 text-muted-foreground shrink-0" />
+                <span className="text-sm text-muted-foreground whitespace-nowrap">
+                  {filteredAudit.length} / {audit.length}
+                </span>
+              </div>
             </div>
-            <div className="bg-card border border-border rounded-xl overflow-hidden">
-              <table className="w-full text-sm">
+
+            {/* Table — horizontally scrollable on mobile */}
+            <div className="bg-card border border-border rounded-xl overflow-hidden overflow-x-auto">
+              <table className="w-full text-sm min-w-[560px]">
                 <thead className="bg-muted text-left">
                   <tr>
-                    <th className="p-3">When</th>
-                    <th className="p-3">Voter</th>
-                    <th className="p-3">Method</th>
-                    <th className="p-3">Selections</th>
-                    <th className="p-3">Token</th>
+                    <th className="p-3 text-xs font-semibold whitespace-nowrap">When</th>
+                    <th className="p-3 text-xs font-semibold">Voter</th>
+                    <th className="p-3 text-xs font-semibold">Method</th>
+                    <th className="p-3 text-xs font-semibold">Selections</th>
+                    <th className="p-3 text-xs font-semibold">Token</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -504,18 +607,34 @@ export default function AdminSeedFundVotes() {
                       candidates.find(c => c.id === cid)?.entrepreneur?.name).filter(Boolean);
                     return (
                       <tr key={a.id} className="border-t border-border align-top">
-                        <td className="p-3 text-xs text-muted-foreground whitespace-nowrap">{new Date(a.submitted_at).toLocaleString()}</td>
-                        <td className="p-3">
-                          <div className="font-medium">{a.voter_name || '—'}</div>
-                          <div className="text-xs font-mono text-muted-foreground">{a.voter_email}</div>
+                        <td className="p-3 text-xs text-muted-foreground whitespace-nowrap">
+                          {new Date(a.submitted_at).toLocaleString()}
                         </td>
-                        <td className="p-3"><span className="text-xs px-2 py-0.5 rounded-full bg-muted">{a.auth_method}</span></td>
+                        <td className="p-3">
+                          <div className="font-medium text-sm">{a.voter_name || '—'}</div>
+                          <div className="text-xs font-mono text-muted-foreground break-all">
+                            {a.voter_email}
+                          </div>
+                        </td>
+                        <td className="p-3">
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-muted whitespace-nowrap">
+                            {a.auth_method}
+                          </span>
+                        </td>
                         <td className="p-3 text-xs">{selectedNames.join(', ') || '—'}</td>
-                        <td className="p-3 text-xs font-mono text-muted-foreground">{(a.vote_token || '').slice(0, 8)}…</td>
+                        <td className="p-3 text-xs font-mono text-muted-foreground whitespace-nowrap">
+                          {(a.vote_token || '').slice(0, 8)}…
+                        </td>
                       </tr>
                     );
                   })}
-                  {filteredAudit.length === 0 && <tr><td colSpan={5} className="p-6 text-center text-muted-foreground">No ballots yet.</td></tr>}
+                  {filteredAudit.length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="p-6 text-center text-muted-foreground text-sm">
+                        No ballots yet.
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -523,34 +642,71 @@ export default function AdminSeedFundVotes() {
         </Tabs>
       )}
 
-      {/* Create competition modal */}
+      {/* ════════════ CREATE COMPETITION MODAL ════════════ */}
       <Dialog open={newOpen} onOpenChange={setNewOpen}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>New competition</DialogTitle><DialogDescription>Create a new seed fund edition.</DialogDescription></DialogHeader>
-          <div className="space-y-3">
-            <div><Label>Title</Label><Input value={newTitle} onChange={e => setNewTitle(e.target.value)} /></div>
-            <div><Label>Edition</Label><Input value={newEdition} onChange={e => setNewEdition(e.target.value)} placeholder="2026" /></div>
-            <div><Label>Event date</Label><Input type="date" value={newDate} onChange={e => setNewDate(e.target.value)} /></div>
-            <div className="flex justify-end gap-2"><Button variant="ghost" onClick={() => setNewOpen(false)}>Cancel</Button><Button onClick={createComp}>Create</Button></div>
+        <DialogContent className="w-[calc(100vw-2rem)] max-w-md sm:max-w-lg rounded-xl">
+          <DialogHeader>
+            <DialogTitle>New competition</DialogTitle>
+            <DialogDescription>Create a new seed fund edition.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 mt-2">
+            <div>
+              <Label>Title</Label>
+              <Input value={newTitle} onChange={e => setNewTitle(e.target.value)} className="mt-1" />
+            </div>
+            <div>
+              <Label>Edition</Label>
+              <Input value={newEdition} onChange={e => setNewEdition(e.target.value)} placeholder="2026" className="mt-1" />
+            </div>
+            <div>
+              <Label>Event date</Label>
+              <Input type="date" value={newDate} onChange={e => setNewDate(e.target.value)} className="mt-1" />
+            </div>
+            <div className="flex justify-end gap-2 pt-1">
+              <Button variant="ghost" onClick={() => setNewOpen(false)}>Cancel</Button>
+              <Button onClick={createComp}>Create</Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* Add candidate modal */}
+      {/* ════════════ ADD CANDIDATE MODAL ════════════ */}
       <Dialog open={addCandOpen} onOpenChange={setAddCandOpen}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Add candidate</DialogTitle><DialogDescription>Pick an entrepreneur. They will be marked "Seed Fund Candidate".</DialogDescription></DialogHeader>
-          <div className="space-y-3">
+        <DialogContent className="w-[calc(100vw-2rem)] max-w-md sm:max-w-lg rounded-xl">
+          <DialogHeader>
+            <DialogTitle>Add candidate</DialogTitle>
+            <DialogDescription>
+              Pick an entrepreneur. They will be marked "Seed Fund Candidate".
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 mt-2">
             <Select value={pickEntId} onValueChange={setPickEntId}>
-              <SelectTrigger><SelectValue placeholder="Choose entrepreneur" /></SelectTrigger>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Choose entrepreneur" />
+              </SelectTrigger>
               <SelectContent className="max-h-72">
-                {entrepreneurs.filter(e => !candidates.some(c => c.entrepreneur?.id === e.id)).map(e => (
-                  <SelectItem key={e.id} value={e.id}>{e.name} — {e.business_name} ({e.country})</SelectItem>
-                ))}
+                {entrepreneurs
+                  .filter(e => !candidates.some(c => c.entrepreneur?.id === e.id))
+                  .map(e => (
+                    <SelectItem key={e.id} value={e.id}>
+                      {e.name} — {e.business_name} ({e.country})
+                    </SelectItem>
+                  ))}
               </SelectContent>
             </Select>
-            <div><Label>Raising money for</Label><Input value={raising} onChange={e => setRaising(e.target.value)} placeholder="e.g. Expand production capacity" /></div>
-            <div className="flex justify-end gap-2"><Button variant="ghost" onClick={() => setAddCandOpen(false)}>Cancel</Button><Button onClick={addCandidate} disabled={!pickEntId}>Add</Button></div>
+            <div>
+              <Label>Raising money for</Label>
+              <Input
+                value={raising}
+                onChange={e => setRaising(e.target.value)}
+                placeholder="e.g. Expand production capacity"
+                className="mt-1"
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-1">
+              <Button variant="ghost" onClick={() => setAddCandOpen(false)}>Cancel</Button>
+              <Button onClick={addCandidate} disabled={!pickEntId}>Add</Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
@@ -558,15 +714,22 @@ export default function AdminSeedFundVotes() {
   );
 }
 
+// ── Stat card component (unchanged logic, responsive sizing) ──
 function Stat({ icon: Icon, label, value, sub }: any) {
   return (
-    <Card><CardContent className="p-5 flex items-center gap-4">
-      <div className="w-12 h-12 rounded-xl bg-grow-coral/10 flex items-center justify-center"><Icon className="h-6 w-6 text-grow-coral" /></div>
-      <div className="min-w-0">
-        <div className="text-xs uppercase text-muted-foreground tracking-widest">{label}</div>
-        <div className="text-2xl font-bold truncate">{value}</div>
-        {sub && <div className="text-xs text-muted-foreground">{sub}</div>}
-      </div>
-    </CardContent></Card>
+    <Card>
+      <CardContent className="p-3 sm:p-5 flex items-center gap-3 sm:gap-4">
+        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-grow-coral/10 flex items-center justify-center shrink-0">
+          <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-grow-coral" />
+        </div>
+        <div className="min-w-0">
+          <div className="text-[10px] sm:text-xs uppercase text-muted-foreground tracking-widest">
+            {label}
+          </div>
+          <div className="text-lg sm:text-2xl font-bold truncate">{value}</div>
+          {sub && <div className="text-[10px] sm:text-xs text-muted-foreground">{sub}</div>}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
