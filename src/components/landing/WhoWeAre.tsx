@@ -1,9 +1,15 @@
 import { motion } from 'framer-motion';
-import { Play, Target, Eye } from 'lucide-react';
+import { Play, Target, Eye, ChevronDown, ChevronUp } from 'lucide-react';
 import { useState } from 'react';
+
+const INTRO = `Grow Movement brings together entrepreneurs, professionals, companies, universities, and partners worldwide to build stronger businesses and unlock economic potential in emerging economies.`;
+const EXTRA = `Through structured coaching and mentoring programs, we connect experienced professionals with ambitious entrepreneurs, helping businesses grow, create jobs, attract investment, strengthen local economies, and create greater stability for families and communities.
+
+At the same time, we help organisations advance their social impact, employee engagement, leadership development, and corporate responsibility goals through meaningful experiential learning opportunities that build leadership capabilities, cross-cultural skills, and global experience while creating measurable impact.`;
 
 export function WhoWeAre() {
   const [playing, setPlaying] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   return (
     <section id="about" className="py-24 md:py-32 bg-background">
@@ -20,13 +26,16 @@ export function WhoWeAre() {
             <h2 className="font-display text-4xl md:text-5xl font-black mt-3 mb-6 leading-[1.1]">
               Building impact through  <span className="text-primary">human connection</span>
             </h2>
-            <p className="text-lg text-muted-foreground leading-relaxed mb-10">
-            "Grow Movement brings together entrepreneurs, professionals, companies, universities, and partners worldwide to build stronger businesses and unlock economic potential in emerging economies.
-
-Through structured coaching and mentoring programs, we connect experienced professionals with ambitious entrepreneurs, helping businesses grow, create jobs, attract investment, strengthen local economies, and create greater stability for families and communities.
-
-At the same time, we help organisations advance their social impact, employee engagement, leadership development, and corporate responsibility goals through meaningful experiential learning opportunities that build leadership capabilities, cross-cultural skills, and global experience while creating measurable impact."
-</p>
+            <div className="text-lg text-muted-foreground leading-relaxed mb-4 whitespace-pre-line">
+              {INTRO}
+              {expanded && `\n\n${EXTRA}`}
+            </div>
+            <button
+              onClick={() => setExpanded(v => !v)}
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary/80 transition-colors mb-10"
+            >
+              {expanded ? <>Read less <ChevronUp className="h-4 w-4" /></> : <>Read more <ChevronDown className="h-4 w-4" /></>}
+            </button>
 
             <div className="space-y-6">
               <div className="flex gap-4">

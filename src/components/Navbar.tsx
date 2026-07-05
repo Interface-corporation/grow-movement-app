@@ -1,12 +1,14 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { Menu, X, LayoutDashboard, Vote } from 'lucide-react';
+import { Menu, X, LayoutDashboard, Vote, Sparkles } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user } = useAuth();
+  const { items } = useCart();
   const location = useLocation();
 
   useEffect(() => { setMobileOpen(false); }, [location.pathname]);
@@ -15,6 +17,7 @@ export function Navbar() {
     { to: '/', label: 'Home' },
     { to: '/entrepreneurs', label: 'Entrepreneurs' },
     { to: '/seed-fund', label: 'Seed Fund' },
+    { to: '/blog', label: 'Blog' },
     { to: '/apply', label: 'Apply' },
     { to: '/contact', label: 'Contact' },
     { to: '/admin', label: 'Login' },
@@ -22,6 +25,8 @@ export function Navbar() {
 
   const isActive = (path: string) =>
     location.pathname === path || (path !== '/' && location.pathname.startsWith(path));
+
+  const cartCount = items.length;
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-card border-b border-border shadow-sm">
@@ -59,6 +64,20 @@ export function Navbar() {
           </nav>
 
           <div className="flex items-center gap-2">
+            {/* Selection / coaching request bag — uses Sparkles (non e-commerce) */}
+            <Link
+              to="/cart"
+              aria-label={`Your entrepreneur selection (${cartCount})`}
+              className="relative p-2 rounded-lg text-foreground/85 hover:text-primary hover:bg-primary/5 transition-colors"
+            >
+              <Sparkles className="h-5 w-5" />
+              {cartCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-grow-coral text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-card">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
+
             {user ? (
               <Link to="/admin" className="hidden md:block">
                 <Button size="sm" variant="outline" className="gap-2">

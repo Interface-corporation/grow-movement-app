@@ -330,19 +330,21 @@ export default function AdminSeedFundVotes() {
       ) : (
         <Tabs defaultValue="overview" className="w-full">
 
-          {/* Tab list — scrollable on mobile */}
-          <TabsList className="flex flex-wrap h-auto gap-1 w-full overflow-x-auto sm:overflow-visible">
-            <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
-            <TabsTrigger value="settings" className="text-xs sm:text-sm">
-              <Settings className="h-3.5 w-3.5 mr-1" />Auth &amp; Rules
-            </TabsTrigger>
-            <TabsTrigger value="candidates" className="text-xs sm:text-sm">
-              Candidates ({candidates.length})
-            </TabsTrigger>
-            <TabsTrigger value="audit" className="text-xs sm:text-sm">
-              Audit Log ({audit.length})
-            </TabsTrigger>
-          </TabsList>
+          {/* Tab list — horizontally scrollable on mobile, no wrap */}
+          <div className="w-full overflow-x-auto -mx-3 sm:mx-0 px-3 sm:px-0 pb-1">
+            <TabsList className="inline-flex flex-nowrap h-auto gap-1 w-max min-w-full">
+              <TabsTrigger value="overview" className="text-xs sm:text-sm whitespace-nowrap">Overview</TabsTrigger>
+              <TabsTrigger value="settings" className="text-xs sm:text-sm whitespace-nowrap">
+                <Settings className="h-3.5 w-3.5 mr-1" />Auth &amp; Rules
+              </TabsTrigger>
+              <TabsTrigger value="candidates" className="text-xs sm:text-sm whitespace-nowrap">
+                Candidates ({candidates.length})
+              </TabsTrigger>
+              <TabsTrigger value="audit" className="text-xs sm:text-sm whitespace-nowrap">
+                Audit Log ({audit.length})
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           {/* ════════════ OVERVIEW ════════════ */}
           <TabsContent value="overview" className="space-y-4 sm:space-y-6 mt-4">
@@ -589,8 +591,31 @@ export default function AdminSeedFundVotes() {
               </div>
             </div>
 
-            {/* Table — horizontally scrollable on mobile */}
-            <div className="bg-card border border-border rounded-xl overflow-hidden overflow-x-auto">
+            {/* Mobile: card list */}
+            <div className="sm:hidden space-y-2">
+              {filteredAudit.map(a => {
+                const selectedNames = (a.candidate_ids || []).map((cid: string) =>
+                  candidates.find(c => c.id === cid)?.entrepreneur?.name).filter(Boolean);
+                return (
+                  <div key={a.id} className="bg-card border border-border rounded-xl p-3 text-xs space-y-1.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-medium text-sm">{a.voter_name || '—'}</span>
+                      <span className="px-2 py-0.5 rounded-full bg-muted text-[10px] whitespace-nowrap">{a.auth_method}</span>
+                    </div>
+                    <div className="font-mono text-muted-foreground break-all">{a.voter_email}</div>
+                    <div className="text-muted-foreground">{new Date(a.submitted_at).toLocaleString()}</div>
+                    <div><span className="font-semibold">Picks:</span> {selectedNames.join(', ') || '—'}</div>
+                    <div className="font-mono text-muted-foreground">Token: {(a.vote_token || '').slice(0, 8)}…</div>
+                  </div>
+                );
+              })}
+              {filteredAudit.length === 0 && (
+                <div className="text-center text-muted-foreground text-sm py-8">No ballots yet.</div>
+              )}
+            </div>
+
+            {/* Tablet+ : table — horizontally scrollable if needed */}
+            <div className="hidden sm:block bg-card border border-border rounded-xl overflow-hidden overflow-x-auto">
               <table className="w-full text-sm min-w-[560px]">
                 <thead className="bg-muted text-left">
                   <tr>

@@ -697,7 +697,7 @@ Through a live online pitch competition, participants present their businesses t
                     viewport={{ once: true }} transition={{ duration: 0.45, delay: i * 0.06 }}
                     onClick={() => en.id && navigate(`/entrepreneurs/${en.id}`)}
                     role="link" tabIndex={0}
-                    onKeyDown={(ev) => { if ((ev.key === 'Enter' || ev.key === ' ') && en.id) { ev.preventDefault(); navigate(`/entrepreneurs/${en.id}`); } }}
+                    onKeyDown={(ev) => { if ((ev.key === 'Enter' || ev.key === ' ') && en.id) { ev.preventDefault(); navigate(`/entrepreneurs/${en.id}`, { state: { from: 'seed-fund' } }); } }}
                     className={`group relative bg-background rounded-2xl overflow-hidden border-2 transition-all flex flex-col cursor-pointer ${
                       isSelected ? 'border-grow-coral shadow-2xl shadow-grow-coral/20 ring-4 ring-grow-coral/10'
                                   : 'border-border hover:border-grow-coral/40 hover:shadow-xl hover:-translate-y-0.5'
@@ -741,13 +741,16 @@ Through a live online pitch competition, participants present their businesses t
 
                     <div className="px-4 pb-4 flex flex-col flex-1 gap-2.5 text-xs">
                       {(en.business_description || en.products_services) && (
-                        <div><span className="font-semibold text-foreground">Business: </span><span className="text-muted-foreground">{String(en.business_description || en.products_services).slice(0, 110)}{(en.business_description || en.products_services).length > 110 ? '…' : ''}</span></div>
-                      )}
-                      {en.impact && (
-                        <div><span className="font-semibold text-foreground">Impact: </span><span className="text-muted-foreground">{String(en.impact).slice(0, 90)}{en.impact.length > 90 ? '…' : ''}</span></div>
+                        <p className="text-muted-foreground leading-relaxed line-clamp-3">
+                          {String(en.business_description || en.products_services).slice(0, 160)}
+                          {(en.business_description || en.products_services).length > 160 ? '…' : ''}
+                        </p>
                       )}
                       {c.raising_for && (
-                        <div><span className="font-semibold text-foreground">Grant use: </span><span className="text-muted-foreground">{c.raising_for}</span></div>
+                        <div className="flex items-start gap-1.5 text-[11px] px-2.5 py-1.5 rounded-lg bg-grow-gold/10 border border-grow-gold/30">
+                          <Sparkles className="h-3 w-3 text-grow-gold mt-0.5 shrink-0" />
+                          <span className="text-foreground/80"><span className="font-semibold text-grow-gold">Grant use:</span> {c.raising_for}</span>
+                        </div>
                       )}
 
                       {socials.length > 0 && (
@@ -795,7 +798,7 @@ Through a live online pitch competition, participants present their businesses t
                           </Button>
                         )}
                         <Button size="sm" className="bg-grow-coral hover:bg-grow-teal text-white"
-                          onClick={() => en.id && navigate(`/entrepreneurs/${en.id}`)}>
+                          onClick={() => en.id && navigate(`/entrepreneurs/${en.id}`, { state: { from: 'seed-fund' } })}>
                           Read more <ChevronRight className="h-3.5 w-3.5" />
                         </Button>
                       </div>

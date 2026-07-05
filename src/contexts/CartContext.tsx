@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Entrepreneur } from '@/data/mockEntrepreneurs';
 
 interface CartItem {
@@ -20,13 +20,22 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 const MAX_CART_SIZE = 3;
 
+const STORAGE_KEY = 'grow.cart.v1';
+
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
+  const [items, setItems] = useState<CartItem[]>(() => {
+    if (typeof window === 'undefined') return [];
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; }
+  });
+
+  useEffect(() => {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); } catch { /* ignore */ }
+  }, [items]);
 
   const addToCart = (entrepreneur: Entrepreneur): boolean => {
     if (items.length >= MAX_CART_SIZE) return false;
     if (items.some(item => item.entrepreneur.id === entrepreneur.id)) return false;
-    
+
     const nextPriority = items.length + 1;
     setItems(prev => [...prev, { entrepreneur, priority: nextPriority }]);
     return true;
