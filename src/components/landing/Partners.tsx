@@ -145,7 +145,6 @@ export function Partners() {
           </h2>
           <p className="mt-4 text-muted-foreground text-base md:text-lg leading-relaxed">
             Backed by world-leading consultancies, law firms, universities and impact organisations.
-            Hover any logo to learn more.
           </p>
         </motion.div>
 
