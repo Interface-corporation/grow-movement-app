@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion';
-import { useState } from 'react';
 
 import bcg        from '@/assets/partners/bcg.png';
 import booth      from '@/assets/partners/booth.png';
@@ -85,60 +84,35 @@ const partners = [
 
 // ─── Single card ──────────────────────────────────────────────────────────────
 function PartnerCard({ p, i }: { p: typeof partners[0]; i: number }) {
-  const [hovered, setHovered] = useState(false);
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.45, delay: i * 0.06 }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      className="relative rounded-2xl border border-border overflow-hidden cursor-default"
+      whileHover={{ y: -6, scale: 1.03 }}
+      className="group relative rounded-2xl border border-border overflow-hidden cursor-default shadow-sm hover:shadow-xl transition-shadow"
       style={{ background: p.bg }}
+      title={p.name}
     >
-      {/* Logo face */}
-      <motion.div
-        animate={{ opacity: hovered ? 0 : 1, scale: hovered ? 0.92 : 1 }}
-        transition={{ duration: 0.32, ease: 'easeInOut' }}
-        className="flex items-center justify-center h-36 px-8 py-6"
-      >
-        <img
+      <div className="flex items-center justify-center h-36 px-8 py-6">
+        <motion.img
           src={p.logo}
           alt={p.name}
-          className="max-h-16 max-w-full w-auto object-contain"
+          className="max-h-20 max-w-full w-auto object-contain"
+          whileHover={{ scale: 1.08, rotate: -1 }}
+          transition={{ type: 'spring', stiffness: 260, damping: 18 }}
         />
-      </motion.div>
+      </div>
 
-      {/* Hover overlay */}
-      <motion.div
-        initial={false}
-        animate={{ opacity: hovered ? 1 : 0, y: hovered ? 0 : 12 }}
-        transition={{ duration: 0.32, ease: 'easeInOut' }}
-        className="absolute inset-0 flex flex-col items-center justify-center px-5 py-5 text-center"
-        style={{ background: 'var(--grow-navy)' }}
-      >
-        {/* Small logo pill on hover */}
-        <div
-          className="mb-3 rounded-lg px-3 py-1.5 flex items-center justify-center"
-          style={{ background: p.bg }}
-        >
-          <img
-            src={p.logo}
-            alt={p.name}
-            className="h-7 max-w-[90px] object-contain"
-          />
-        </div>
-        <p className="text-[11px] md:text-xs text-white/85 leading-relaxed">
-          {p.desc}
-        </p>
-      </motion.div>
+      {/* Shimmer on hover */}
+      <div className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/25 to-transparent" />
 
-      {/* Bottom accent bar — slides in on hover */}
+      {/* Bottom accent bar */}
       <motion.div
-        animate={{ scaleX: hovered ? 1 : 0 }}
-        transition={{ duration: 0.3, ease: 'easeOut' }}
+        initial={{ scaleX: 0 }}
+        whileHover={{ scaleX: 1 }}
+        transition={{ duration: 0.35, ease: 'easeOut' }}
         className="absolute bottom-0 left-0 right-0 h-[3px] origin-left"
         style={{ background: 'linear-gradient(to right, var(--grow-coral), var(--grow-gold))' }}
       />
