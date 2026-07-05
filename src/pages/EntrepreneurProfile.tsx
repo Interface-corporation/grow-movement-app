@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, MapPin, Calendar, Users, Plus, Check, Briefcase, Loader2, Globe, FileText, Play, ExternalLink } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useCart } from '@/contexts/CartContext';
@@ -8,6 +8,11 @@ import { getProfilePhoto, getVideoEmbedUrl } from '@/lib/avatars';
 
 export default function EntrepreneurProfile() {
   const { id } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const cameFromSeed = (location.state as any)?.from === 'seed-fund';
+  const backHref = cameFromSeed ? '/seed-fund' : '/entrepreneurs';
+  const backLabel = cameFromSeed ? 'Back to Voter Page' : 'Back to Directory';
   const { addToCart, isInCart, removeFromCart, isFull } = useCart();
   const [ent, setEnt] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -26,7 +31,7 @@ export default function EntrepreneurProfile() {
     <div className="pt-24 pb-16 text-center">
       <div className="container mx-auto px-4">
         <h1 className="text-2xl font-bold mb-4">Entrepreneur Not Found</h1>
-        <Link to="/entrepreneurs"><Button variant="outline">Back to Directory</Button></Link>
+        <Link to={backHref}><Button variant="outline">{backLabel}</Button></Link>
       </div>
     </div>
   );
@@ -67,9 +72,9 @@ export default function EntrepreneurProfile() {
   return (
     <div className="pt-24 pb-16">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
-        <Link to="/entrepreneurs" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8">
-          <ArrowLeft className="h-4 w-4" /> Back to Directory
-        </Link>
+        <button onClick={() => navigate(backHref)} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8">
+          <ArrowLeft className="h-4 w-4" /> {backLabel}
+        </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Sidebar */}
