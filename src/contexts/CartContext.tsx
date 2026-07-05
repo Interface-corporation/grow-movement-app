@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Entrepreneur } from '@/data/mockEntrepreneurs';
 
 interface CartItem {
@@ -28,10 +28,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
     try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; }
   });
 
-  // Persist
-  if (typeof window !== 'undefined') {
+  useEffect(() => {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); } catch { /* ignore */ }
-  }
+  }, [items]);
 
   const addToCart = (entrepreneur: Entrepreneur): boolean => {
     if (items.length >= MAX_CART_SIZE) return false;
