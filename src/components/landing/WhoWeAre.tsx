@@ -100,9 +100,19 @@ export function WhoWeAre() {
   whileInView={{ opacity: 1, x: 0 }}
   viewport={{ once: true }}
   transition={{ duration: 0.7 }}
-  className="relative"
+  className="relative group"
 >
-  <div className="relative aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl bg-black">
+  {/* Futuristic glow border */}
+  <div aria-hidden className="absolute -inset-1 rounded-[2rem] bg-gradient-to-tr from-primary via-grow-gold to-accent opacity-40 blur-2xl group-hover:opacity-70 transition-opacity duration-700" />
+  {/* Floating accent dot */}
+  <motion.div
+    aria-hidden
+    animate={{ y: [0, -14, 0] }}
+    transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+    className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-gradient-to-br from-grow-gold to-primary shadow-xl shadow-primary/40 z-10"
+  />
+  <div className="relative aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl bg-black ring-1 ring-white/10">
+
 
     {/* Only show iframe after clicking Play */}
     {playing && (
