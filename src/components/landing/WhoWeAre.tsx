@@ -12,8 +12,24 @@ export function WhoWeAre() {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <section id="about" className="py-24 md:py-32 bg-background">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="about" className="relative py-24 md:py-32 bg-background overflow-hidden">
+      {/* Ambient futuristic backdrop */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-0">
+        <div className="absolute -top-32 -left-24 h-[28rem] w-[28rem] rounded-full bg-primary/10 blur-3xl animate-pulse" style={{ animationDuration: '9s' }} />
+        <div className="absolute -bottom-40 -right-24 h-[32rem] w-[32rem] rounded-full bg-accent/10 blur-3xl animate-pulse" style={{ animationDuration: '11s' }} />
+        <div
+          className="absolute inset-0 opacity-[0.35]"
+          style={{
+            backgroundImage:
+              'radial-gradient(circle at 1px 1px, hsl(var(--foreground) / 0.06) 1px, transparent 0)',
+            backgroundSize: '28px 28px',
+            maskImage: 'radial-gradient(ellipse at center, black 40%, transparent 75%)',
+            WebkitMaskImage: 'radial-gradient(ellipse at center, black 40%, transparent 75%)',
+          }}
+        />
+      </div>
+
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center max-w-6xl mx-auto">
           {/* Left: text */}
           <motion.div
@@ -22,9 +38,25 @@ export function WhoWeAre() {
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
           >
-            <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Who We Are</span>
+            <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-primary">
+              <span className="h-px w-8 bg-primary/60" />
+              Who We Are
+            </span>
             <h2 className="font-display text-4xl md:text-5xl font-black mt-3 mb-6 leading-[1.1]">
-              Building impact through  <span className="text-primary">human connection</span>
+              Building impact through{' '}
+              <span className="relative inline-block">
+                <span className="bg-gradient-to-r from-primary via-grow-gold to-accent bg-clip-text text-transparent">
+                  human connection
+                </span>
+                <motion.span
+                  aria-hidden
+                  initial={{ scaleX: 0 }}
+                  whileInView={{ scaleX: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.9, delay: 0.35, ease: 'easeOut' }}
+                  className="absolute -bottom-1 left-0 h-[3px] w-full origin-left rounded-full bg-gradient-to-r from-primary to-accent"
+                />
+              </span>
             </h2>
             <div className="text-lg text-muted-foreground leading-relaxed mb-4 whitespace-pre-line">
               {INTRO}
@@ -68,9 +100,19 @@ export function WhoWeAre() {
   whileInView={{ opacity: 1, x: 0 }}
   viewport={{ once: true }}
   transition={{ duration: 0.7 }}
-  className="relative"
+  className="relative group"
 >
-  <div className="relative aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl bg-black">
+  {/* Futuristic glow border */}
+  <div aria-hidden className="absolute -inset-1 rounded-[2rem] bg-gradient-to-tr from-primary via-grow-gold to-accent opacity-40 blur-2xl group-hover:opacity-70 transition-opacity duration-700" />
+  {/* Floating accent dot */}
+  <motion.div
+    aria-hidden
+    animate={{ y: [0, -14, 0] }}
+    transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+    className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-gradient-to-br from-grow-gold to-primary shadow-xl shadow-primary/40 z-10"
+  />
+  <div className="relative aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl bg-black ring-1 ring-white/10">
+
 
     {/* Only show iframe after clicking Play */}
     {playing && (
