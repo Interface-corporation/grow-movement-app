@@ -241,22 +241,22 @@ export default function AdminSeedFundVotes() {
   };
 
   return (
-    <div className="p-3 sm:p-0 space-y-4 sm:space-y-6 w-full min-w-0">
+    <div className="px-3 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6 w-full min-w-0 max-w-full overflow-x-hidden">
 
       {/* ── Page header ── */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-display font-bold">Seed Fund Voting</h1>
-          <p className="text-muted-foreground text-sm mt-0.5">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between text-center lg:text-left">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-display font-bold">Seed Fund Voting</h1>
+          <p className="text-muted-foreground text-xs sm:text-sm mt-0.5">
             Configure auth, manage candidates, monitor live results and audit log.
           </p>
         </div>
-        <div className="flex flex-col gap-2 xs:flex-row xs:flex-wrap">
+        <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
           <Select
             value={active?.id || ''}
             onValueChange={(v) => { const c = comps.find(x => x.id === v); setActive(c); loadCompetition(v); }}
           >
-            <SelectTrigger className="w-full xs:w-[260px] sm:w-[280px]">
+            <SelectTrigger className="w-full sm:flex-1 lg:w-[280px] lg:flex-none">
               <SelectValue placeholder="Select a competition" />
             </SelectTrigger>
             <SelectContent>
@@ -267,7 +267,7 @@ export default function AdminSeedFundVotes() {
               ))}
             </SelectContent>
           </Select>
-          <Button onClick={() => setNewOpen(true)} className="w-full xs:w-auto">
+          <Button onClick={() => setNewOpen(true)} className="w-full sm:w-auto shrink-0">
             <Plus className="h-4 w-4 mr-1" /> New
           </Button>
         </div>
