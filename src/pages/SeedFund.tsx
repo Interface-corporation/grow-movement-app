@@ -681,127 +681,177 @@ Through a live online pitch competition, participants present their businesses t
             <div className="text-center text-muted-foreground py-12">Candidates will be announced shortly.</div>
           ) : (
             <>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-32 lg:pb-12">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-7 pb-32 lg:pb-12">
               {pagedCandidates.map((c, i) => {
                 const en = c.entrepreneur || {};
-                const v = counts[c.id] || 0;
-                const pct = totalVotes ? Math.round((v / totalVotes) * 100) : 0;
                 const socials = parseSocials(en.social_media_links);
                 const isSelected = selectedIds.includes(c.id);
                 const atLimit = !isSelected && selectedIds.length >= maxSel;
                 const hasVideo = !!en.video_url;
+                const mission =
+                  (en.business_description || en.products_services || en.about_entrepreneur || '')
+                    .toString()
+                    .trim();
+                const sectors = String(en.sector || '')
+                  .split(/[,/·|]/)
+                  .map((s) => s.trim())
+                  .filter(Boolean)
+                  .slice(0, 3);
+
                 return (
                   <motion.div
                     key={c.id}
                     initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }} transition={{ duration: 0.45, delay: i * 0.06 }}
-                    onClick={() => en.id && navigate(`/entrepreneurs/${en.id}`)}
+                    viewport={{ once: true }} transition={{ duration: 0.45, delay: i * 0.05 }}
+                    onClick={() => en.id && navigate(`/entrepreneurs/${en.id}`, { state: { from: 'seed-fund' } })}
                     role="link" tabIndex={0}
                     onKeyDown={(ev) => { if ((ev.key === 'Enter' || ev.key === ' ') && en.id) { ev.preventDefault(); navigate(`/entrepreneurs/${en.id}`, { state: { from: 'seed-fund' } }); } }}
-                    className={`group relative bg-background rounded-2xl overflow-hidden border-2 transition-all flex flex-col cursor-pointer ${
-                      isSelected ? 'border-grow-coral shadow-2xl shadow-grow-coral/20 ring-4 ring-grow-coral/10'
-                                  : 'border-border hover:border-grow-coral/40 hover:shadow-xl hover:-translate-y-0.5'
+                    whileHover={{ y: -6 }}
+                    className={`group relative bg-card rounded-3xl overflow-hidden border transition-all duration-300 flex flex-col cursor-pointer h-full ${
+                      isSelected
+                        ? 'border-grow-coral shadow-2xl shadow-grow-coral/20 ring-2 ring-grow-coral/20'
+                        : 'border-border/60 shadow-sm hover:shadow-2xl hover:border-grow-coral/40'
                     }`}
+                    style={{ boxShadow: isSelected ? undefined : '0 1px 2px rgba(16,24,40,.04), 0 8px 24px -12px rgba(16,24,40,.08)' }}
                   >
-                    {/* Top: select bar */}
+                    {/* Select toggle bar */}
                     <button
                       type="button"
                       onClick={(ev) => { ev.stopPropagation(); toggleSelect(c.id); }}
                       disabled={atLimit}
-                      className={`flex items-center justify-between gap-2 px-4 py-2.5 text-sm font-semibold transition-colors ${
-                        isSelected ? 'bg-grow-coral text-white' :
-                        atLimit ? 'bg-muted text-muted-foreground cursor-not-allowed' :
-                        'bg-background text-foreground hover:bg-grow-coral/5 border-b border-border'
+                      className={`flex items-center justify-between gap-2 px-5 py-2.5 text-xs font-semibold tracking-wide uppercase transition-colors ${
+                        isSelected
+                          ? 'bg-grow-coral text-white'
+                          : atLimit
+                          ? 'bg-muted text-muted-foreground cursor-not-allowed'
+                          : 'bg-background/60 text-foreground/80 hover:bg-grow-coral/5 border-b border-border/60'
                       }`}
                     >
                       <span className="flex items-center gap-2">
-                        <Checkbox checked={isSelected} className={isSelected ? 'border-white data-[state=checked]:bg-white data-[state=checked]:text-grow-coral' : ''} />
+                        <Checkbox
+                          checked={isSelected}
+                          className={isSelected ? 'border-white data-[state=checked]:bg-white data-[state=checked]:text-grow-coral' : ''}
+                        />
                         {isSelected ? 'Selected' : atLimit ? `Limit reached (${maxSel})` : 'Select for Final Pitch'}
                       </span>
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${isSelected ? 'bg-white/20 text-white' : 'bg-grow-gold/15 text-grow-gold'}`}>Top Candidate</span>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${isSelected ? 'bg-white/20 text-white' : 'bg-grow-gold/15 text-grow-gold'}`}>
+                        Top Candidate
+                      </span>
                     </button>
 
-                    <div className="p-4 flex gap-3">
-                      <img
-                        src={getProfilePhoto(en.photo_url, en.gender)}
-                        alt={en.name}
-                        className="w-24 h-30 rounded-xl object-cover flex-shrink-0 shadow-sm"
-                        loading="lazy"
-                      />
-                      <div className="min-w-0 flex-1">
-                        <h3 className="font-display text-lg font-bold leading-tight truncate">{en.name}</h3>
-                        {en.business_name && <p className="text-xs font-semibold text-foreground/85 truncate">{en.business_name}</p>}
-                        <div className="flex items-center gap-1 text-[11px] text-muted-foreground mt-0.5 truncate"><MapPin className="h-3 w-3" /> {en.country}</div>
-                        {en.sector && <div className="text-[11px] font-medium text-grow-teal mt-1 truncate">{en.sector}</div>}
-                        {en.about_entrepreneur && (
-                          <p className="text-[11px] text-muted-foreground mt-1.5 line-clamp-2 leading-snug">{en.about_entrepreneur}</p>
+                    {/* Portrait */}
+                    <div className="relative px-5 pt-5">
+                      <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-muted shadow-md ring-1 ring-black/5">
+                        <img
+                          src={getProfilePhoto(en.photo_url, en.gender)}
+                          alt={en.name}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/40 to-transparent" />
+                        {hasVideo && (
+                          <div className="absolute top-3 right-3 flex items-center gap-1 bg-black/60 backdrop-blur-sm text-white text-[10px] font-semibold px-2 py-1 rounded-full">
+                            <Play className="h-2.5 w-2.5 fill-current" /> Pitch
+                          </div>
                         )}
                       </div>
                     </div>
 
-                    <div className="px-4 pb-4 flex flex-col flex-1 gap-2.5 text-xs">
-                      {(en.business_description || en.products_services) && (
-                        <p className="text-muted-foreground leading-relaxed line-clamp-3">
-                          {String(en.business_description || en.products_services).slice(0, 160)}
-                          {(en.business_description || en.products_services).length > 160 ? '…' : ''}
+                    {/* Identity */}
+                    <div className="px-5 pt-4">
+                      <div className="flex items-start gap-2">
+                        <h3 className="font-display text-[1.15rem] font-bold leading-tight tracking-tight text-foreground truncate flex-1">
+                          {en.name}
+                        </h3>
+                        <span className="text-lg leading-none pt-0.5" aria-label={en.country || 'country'} title={en.country || ''}>
+                          {countryFlag(en.country)}
+                        </span>
+                      </div>
+                      {en.business_name && (
+                        <p className="text-sm font-medium text-muted-foreground truncate mt-0.5">
+                          {en.business_name}
                         </p>
                       )}
-                      {c.raising_for && (
-                        <div className="flex items-start gap-1.5 text-[11px] px-2.5 py-1.5 rounded-lg bg-grow-gold/10 border border-grow-gold/30">
-                          {/* <Sparkles className="h-3 w-3 text-grow-gold mt-0.5 shrink-0" /> */}
-                          <span className="text-foreground/80"><span className="font-semibold text-grow-gold">Grant use:</span> {c.raising_for}</span>
-                        </div>
-                      )}
-
-                      {socials.length > 0 && (
-                        <div className="flex gap-1.5 mt-1">
-                          {socials.slice(0, 4).map((url, idx) => {
-                            const I = socialIcon(url);
-                            return (
-                              <a key={idx} href={url} target="_blank" rel="noreferrer"
-                                className="w-6 h-6 rounded-full bg-muted hover:bg-grow-coral hover:text-white flex items-center justify-center transition-colors"
-                                aria-label="Social link" onClick={(e) => e.stopPropagation()}
-                              >
-                                <I className="h-3 w-3" />
-                              </a>
-                            );
-                          })}
-                        </div>
-                      )}
-
-                      <div className="mt-auto pt-2">
-                        {/* <div className="flex items-center justify-between text-[11px] text-muted-foreground mb-1">
-                          <span>{v} {v === 1 ? 'vote' : 'votes'}</span>
-                          <span>{pct}%</span>
-                        </div> */}
-                        {/* <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-                          <motion.div
-                            className="h-full bg-gradient-to-r from-grow-coral to-grow-gold"
-                            initial={{ width: 0 }} whileInView={{ width: `${pct}%` }}
-                            viewport={{ once: true }} transition={{ duration: 0.9, ease: 'easeOut' }}
-                          />
-                        </div> */}
+                      <div className="flex items-center gap-1 text-[11px] text-muted-foreground mt-1.5">
+                        <MapPin className="h-3 w-3" /> {en.country || '—'}
                       </div>
+                    </div>
 
-                      <div className="grid grid-cols-2 gap-2 mt-1" onClick={(ev) => ev.stopPropagation()}>
-                        {hasVideo ? (
-                          <Button
-                            variant="outline" size="sm"
-                            className="shadow-sm border-grow-coral/40 text-grow-coral hover:bg-grow-coral hover:text-white gap-1.5"
-                            onClick={() => setVideoUrl(en.video_url)}
+                    {/* Sector badges */}
+                    {sectors.length > 0 && (
+                      <div className="px-5 pt-3 flex flex-wrap gap-1.5">
+                        {sectors.map((s, si) => (
+                          <span
+                            key={si}
+                            className="text-[10.5px] font-semibold px-2.5 py-1 rounded-full bg-grow-teal/10 text-grow-teal border border-grow-teal/20"
                           >
-                            <Play className="h-3.5 w-3.5 fill-current" /> Watch pitch
-                          </Button>
-                        ) : (
-                          <Button variant="outline" size="sm" className="shadow-sm" disabled>
-                            <Play className="h-3.5 w-3.5" /> No video
-                          </Button>
-                        )}
-                        <Button size="sm" className="bg-grow-coral hover:bg-grow-teal text-white"
-                          onClick={() => en.id && navigate(`/entrepreneurs/${en.id}`, { state: { from: 'seed-fund' } })}>
-                          Read more <ChevronRight className="h-3.5 w-3.5" />
-                        </Button>
+                            {s}
+                          </span>
+                        ))}
                       </div>
+                    )}
+
+                    {/* Mission — concise, 2 lines */}
+                    <div className="px-5 pt-3 flex-1">
+                      {mission && (
+                        <p className="text-[13px] leading-relaxed text-muted-foreground line-clamp-2">
+                          {mission}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Grant use — highlighted container */}
+                    {c.raising_for && (
+                      <div className="px-5 pt-3">
+                        <div className="rounded-xl bg-gradient-to-br from-grow-gold/10 via-grow-gold/5 to-transparent border border-grow-gold/25 px-3 py-2.5">
+                          <div className="text-[10px] font-bold uppercase tracking-wider text-grow-gold mb-0.5">
+                            Grant will fund
+                          </div>
+                          <div className="text-[12.5px] leading-snug text-foreground/85 line-clamp-2">
+                            {c.raising_for}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Socials */}
+                    {socials.length > 0 && (
+                      <div className="px-5 pt-3 flex gap-1.5">
+                        {socials.slice(0, 4).map((url, idx) => {
+                          const I = socialIcon(url);
+                          return (
+                            <a
+                              key={idx} href={url} target="_blank" rel="noreferrer"
+                              className="w-7 h-7 rounded-full bg-muted hover:bg-grow-coral hover:text-white flex items-center justify-center transition-colors"
+                              aria-label="Social link" onClick={(e) => e.stopPropagation()}
+                            >
+                              <I className="h-3 w-3" />
+                            </a>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* Footer — two equal-width buttons */}
+                    <div
+                      className="mt-4 grid grid-cols-2 gap-2 px-5 pb-5 pt-4 border-t border-border/50 bg-gradient-to-b from-transparent to-muted/30"
+                      onClick={(ev) => ev.stopPropagation()}
+                    >
+                      <Button
+                        variant="outline" size="sm"
+                        disabled={!hasVideo}
+                        className="w-full border-grow-coral/40 text-grow-coral hover:bg-grow-coral hover:text-white gap-1.5 disabled:opacity-50"
+                        onClick={() => hasVideo && setVideoUrl(en.video_url)}
+                      >
+                        <Play className="h-3.5 w-3.5 fill-current" /> Watch Pitch
+                      </Button>
+                      <Button
+                        size="sm"
+                        className="w-full bg-grow-coral hover:bg-grow-teal text-white gap-1.5 transition-colors"
+                        onClick={() => en.id && navigate(`/entrepreneurs/${en.id}`, { state: { from: 'seed-fund' } })}
+                      >
+                        View Profile <ChevronRight className="h-3.5 w-3.5" />
+                      </Button>
                     </div>
                   </motion.div>
                 );
