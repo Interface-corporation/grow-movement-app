@@ -349,8 +349,8 @@ export default function AdminSeedFundVotes() {
           {/* ════════════ OVERVIEW ════════════ */}
           <TabsContent value="overview" className="space-y-4 sm:space-y-6 mt-4">
 
-            {/* Stat cards — 2-col on mobile, 4-col on sm+ */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+            {/* Stat cards — 1 col mobile → 2 col sm → 4 col lg */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
               <Stat icon={Users}      label="Candidates"   value={candidates.length} />
               <Stat icon={Vote}       label="Total Votes"  value={totalVotes}
                 sub={`${totalBallots} ballot${totalBallots === 1 ? '' : 's'}`} />
