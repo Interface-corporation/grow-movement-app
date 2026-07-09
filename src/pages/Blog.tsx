@@ -45,7 +45,7 @@ export default function Blog() {
     new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 
   return (
-    <div className="pt-20 pb-20 bg-background">
+    <div className="pt-16 pb-20 bg-background">
       {/* ── HERO / NEWS FEED ── */}
       <section className="relative bg-grow-navy text-white overflow-hidden">
         <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_20%_20%,hsl(var(--primary)/.3),transparent_60%),radial-gradient(circle_at_80%_60%,hsl(var(--accent)/.25),transparent_60%)]" />
@@ -53,8 +53,8 @@ export default function Blog() {
           <div className="flex items-center gap-2 text-xs font-bold tracking-[0.28em] uppercase text-grow-gold mb-4">
             <Newspaper className="h-4 w-4" /> Grow Newsroom
           </div>
-          <h1 className="font-display text-4xl md:text-6xl font-black leading-[1.05] max-w-3xl">
-            Stories that <span className="text-grow-coral">move</span> the movement.
+          <h1 className="font-display text-4xl md:text-6xl font-black text-grow-cream   leading-[1.05] max-w-3xl">
+            Stories that <span className="text-grow-coral">move the movement.</span> 
           </h1>
           <p className="mt-4 text-white/80 text-lg max-w-2xl">
             Field dispatches, founder wins, coach reflections and program news — updated as it happens.

@@ -95,7 +95,7 @@ export default function BlogPost() {
         {post.cover_image_url && (
           <>
             <div
-              className="absolute inset-0 bg-cover bg-center scale-110 blur-2xl opacity-30"
+              className="absolute inset-0 bg-cover bg-center scale-110 blur-sm opacity-30"
               style={{ backgroundImage: `url(${post.cover_image_url})` }}
             />
             <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/80 to-background" />

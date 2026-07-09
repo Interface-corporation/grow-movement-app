@@ -99,7 +99,7 @@ function PartnerCard({ p, i }: { p: typeof partners[0]; i: number }) {
         <motion.img
           src={p.logo}
           alt={p.name}
-          className="max-h-20 max-w-full w-auto object-contain"
+          className="max-h-30 max-w-full w-auto object-contain"
           whileHover={{ scale: 1.08, rotate: -1 }}
           transition={{ type: 'spring', stiffness: 260, damping: 18 }}
         />
