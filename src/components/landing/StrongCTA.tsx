@@ -1,12 +1,12 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Rocket, GraduationCap, Building2, Heart, ArrowRight } from 'lucide-react';
+import { Rocket, GraduationCap, Building2, Heart, ArrowRight, Newspaper } from 'lucide-react';
 
 const ctas = [
   { icon: Rocket, label: 'Apply as Entrepreneur', href: '/apply', color: 'bg-primary' },
   { icon: GraduationCap, label: 'Apply to Volunteer', href: '/apply/coach', color: 'bg-accent' },
   { icon: Building2, label: 'Apply as Partner', href: '#contact', color: 'bg-grow-gold' },
-  // { icon: Heart, label: 'Donate to the Movement', href: '/donate', color: 'bg-grow-sage' },
+  { icon: Newspaper, label: 'Blog News', href: '/blog', color: 'bg-grow-sage' },
 ];
 
 export function StrongCTA() {

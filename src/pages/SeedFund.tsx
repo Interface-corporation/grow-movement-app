@@ -611,7 +611,7 @@ const toEmbedUrl = (raw?: string | null) => {
               className="absolute top-1/2 right-4 -translate-y-1/2 bg-grow-coral text-white rounded-2xl p-5 shadow-2xl max-w-[180px]"
               animate={{ y: [0, -8, 0] }} transition={{ duration: 4, repeat: Infinity }}
             >
-              <div className="font-display text-3xl font-bold">£30K+</div>
+              <div className="font-display text-3xl font-bold">£23K+</div>
               <div className="text-xs opacity-90">in seed grants awarded across editions</div>
             </motion.div>
           </motion.div>
@@ -725,7 +725,7 @@ Through a live online pitch competition, participants present their businesses t
                       <img
                         src={getProfilePhoto(en.photo_url, en.gender)}
                         alt={en.name}
-                        className="w-24 h-28 rounded-xl object-cover flex-shrink-0 shadow-sm"
+                        className="w-24 h-30 rounded-xl object-cover flex-shrink-0 shadow-sm"
                         loading="lazy"
                       />
                       <div className="min-w-0 flex-1">
@@ -748,7 +748,7 @@ Through a live online pitch competition, participants present their businesses t
                       )}
                       {c.raising_for && (
                         <div className="flex items-start gap-1.5 text-[11px] px-2.5 py-1.5 rounded-lg bg-grow-gold/10 border border-grow-gold/30">
-                          <Sparkles className="h-3 w-3 text-grow-gold mt-0.5 shrink-0" />
+                          {/* <Sparkles className="h-3 w-3 text-grow-gold mt-0.5 shrink-0" /> */}
                           <span className="text-foreground/80"><span className="font-semibold text-grow-gold">Grant use:</span> {c.raising_for}</span>
                         </div>
                       )}
@@ -770,17 +770,17 @@ Through a live online pitch competition, participants present their businesses t
                       )}
 
                       <div className="mt-auto pt-2">
-                        <div className="flex items-center justify-between text-[11px] text-muted-foreground mb-1">
+                        {/* <div className="flex items-center justify-between text-[11px] text-muted-foreground mb-1">
                           <span>{v} {v === 1 ? 'vote' : 'votes'}</span>
                           <span>{pct}%</span>
-                        </div>
-                        <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                        </div> */}
+                        {/* <div className="h-1.5 rounded-full bg-muted overflow-hidden">
                           <motion.div
                             className="h-full bg-gradient-to-r from-grow-coral to-grow-gold"
                             initial={{ width: 0 }} whileInView={{ width: `${pct}%` }}
                             viewport={{ once: true }} transition={{ duration: 0.9, ease: 'easeOut' }}
                           />
-                        </div>
+                        </div> */}
                       </div>
 
                       <div className="grid grid-cols-2 gap-2 mt-1" onClick={(ev) => ev.stopPropagation()}>
@@ -918,7 +918,7 @@ Through a live online pitch competition, participants present their businesses t
       "
     >
       {/* Logo Container */}
-      <div className="w-full h-28 flex items-center justify-center bg-white rounded-xl p-4 mb-5">
+      <div className="w-full h-58 flex items-center justify-center bg-white rounded-xl p-4 mb-5">
         <img
           src={p.logoUrl}
           alt={`${p.name} logo`}
@@ -950,14 +950,14 @@ Through a live online pitch competition, participants present their businesses t
       </div>
 
       {/* Company Name */}
-      <h4 className="text-lg font-bold text-foreground">
+      {/* <h4 className="text-lg font-bold text-foreground">
         {p.name}
-      </h4>
+      </h4> */}
 
       {/* Description */}
-      <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+      {/* <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
         {p.desc}
-      </p>
+      </p> */}
     </div>
   ))}
 </motion.div>

@@ -26,7 +26,7 @@ export function GrowFooter() {
     {
       title: 'Resources',
       links: [
-        // { label: 'Blog', to: '/blog' },
+        { label: 'Blog', to: '/blog' },
         { label: 'Success Stories', to: '/#stories' },
         { label: 'FAQ', to: '/#faq' },
         { label: 'Contact', to: '/contact' },
