@@ -381,12 +381,12 @@ export default function AdminSeedFundVotes() {
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm sm:text-base">Votes per candidate</CardTitle>
                 </CardHeader>
-                <CardContent style={{ height: 260 }} className="sm:h-80 px-2 sm:px-6">
+                <CardContent style={{ height: 300 }} className="sm:h-80 px-1 sm:px-6">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData} margin={{ left: -10, right: 8, top: 4, bottom: 0 }}>
+                    <BarChart data={chartData} margin={{ left: -12, right: 8, top: 4, bottom: 40 }}>
                       <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                      <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                      <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+                      <XAxis dataKey="name" tick={{ fontSize: 10 }} interval={0} angle={-35} textAnchor="end" height={60} />
+                      <YAxis allowDecimals={false} tick={{ fontSize: 10 }} width={28} />
                       <Tooltip />
                       <Bar dataKey="votes" fill="#FC5647" radius={[8, 8, 0, 0]} />
                     </BarChart>
