@@ -17,6 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { toast } from '@/hooks/use-toast';
 import { getProfilePhoto } from '@/lib/avatars';
+import { countryFlag } from '@/lib/countryFlag';
 import heroImg from '@/assets/growImage/seedFundHero.png';
 import seedAbout1 from '@/assets/growImage/seedAbout1.png';
 import seedAbout2 from '@/assets/growImage/seedAbout2.png';
