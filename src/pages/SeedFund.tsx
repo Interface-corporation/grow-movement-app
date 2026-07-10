@@ -764,23 +764,22 @@ Through a live online pitch competition, participants present their businesses t
                         <h3 className="font-display text-[1.15rem] font-bold leading-tight tracking-tight text-foreground truncate flex-1">
                           {en.name}
                         </h3>
-                        <span className="text-lg leading-none pt-0.5" aria-label={en.country || 'country'} title={en.country || ''}>
+                        {/* <span className="text-lg leading-none pt-0.5" aria-label={en.country || 'country'} title={en.country || ''}>
                           {countryFlag(en.country)}
-                        </span>
+                        </span> */}
+                       
+                        
                       </div>
                       {en.business_name && (
                         <p className="text-sm font-medium text-muted-foreground truncate mt-0.5">
                           {en.business_name}
                         </p>
                       )}
-                      <div className="flex items-center gap-1 text-[11px] text-muted-foreground mt-1.5">
-                        <MapPin className="h-3 w-3" /> {en.country || '—'}
-                      </div>
+                      
                     </div>
-
                     {/* Sector badges */}
-                    {sectors.length > 0 && (
-                      <div className="px-5 pt-3 flex flex-wrap gap-1.5">
+                     <div className="flex px-3 items-start gap-2"> {sectors.length > 0 && (
+                      <div className="px-1 pt-2 flex flex-wrap gap-1.5">
                         {sectors.map((s, si) => (
                           <span
                             key={si}
@@ -791,33 +790,12 @@ Through a live online pitch competition, participants present their businesses t
                         ))}
                       </div>
                     )}
-
-                    {/* Mission — concise, 2 lines */}
-                    <div className="px-5 pt-3 flex-1">
-                      {mission && (
-                        <p className="text-[13px] leading-relaxed text-muted-foreground line-clamp-2">
-                          {mission}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Grant use — highlighted container */}
-                    {c.raising_for && (
-                      <div className="px-5 pt-3">
-                        <div className="rounded-xl bg-gradient-to-br from-grow-gold/10 via-grow-gold/5 to-transparent border border-grow-gold/25 px-3 py-2.5">
-                          <div className="text-[10px] font-bold uppercase tracking-wider text-grow-gold mb-0.5">
-                            Grant will fund
-                          </div>
-                          <div className="text-[12.5px] leading-snug text-foreground/85 line-clamp-2">
-                            {c.raising_for}
-                          </div>
-                        </div>
+                        <div className="flex pt-2 items-center gap-1 text-[11px] text-muted-foreground mt-1.5">
+                        <MapPin className="h-3 w-3" /> {en.country || '—'}
                       </div>
-                    )}
-
-                    {/* Socials */}
+                      {/* Socials */}
                     {socials.length > 0 && (
-                      <div className="px-5 pt-3 flex gap-1.5">
+                      <div className="px-5 pt-2  flex gap-1.5">
                         {socials.slice(0, 4).map((url, idx) => {
                           const I = socialIcon(url);
                           return (
@@ -831,7 +809,36 @@ Through a live online pitch competition, participants present their businesses t
                           );
                         })}
                       </div>
+                    )}</div>
+                    
+
+
+                    
+
+                    {/* Mission — concise, 2 lines */}
+                    <div className="px-5 pt-3 flex-1">
+                      {mission && (
+                        <p className="text-[13px] leading-relaxed text-muted-foreground line-clamp-2">
+                          {mission}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Grant use — highlighted container */}
+                    {c.raising_for && (
+                      <div className="px-3 pt-1">
+                        <div className="rounded-xl bg-gradient-to-br from-grow-gold/10 via-grow-gold/5 to-transparent border border-grow-gold/25 px-3 py-2.5">
+                          <div className="text-[10px] font-bold uppercase tracking-wider text-grow-gold mb-0.5">
+                            Grant use 
+                          </div>
+                          <div className="text-[12.5px] leading-snug text-foreground/85 line-clamp-2">
+                            {c.raising_for}
+                          </div>
+                        </div>
+                      </div>
                     )}
+                     
+                
 
                     {/* Footer — two equal-width buttons */}
                     <div

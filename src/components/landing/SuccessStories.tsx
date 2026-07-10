@@ -56,7 +56,21 @@ export function SuccessStories() {
         >
           <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Success Stories</span>
           <h2 className="font-display text-4xl md:text-5xl font-black mt-3 mb-4 leading-tight">
-            Real stories, real growth
+            Real stories, <span
+  className="
+    inline-block
+    
+    bg-gradient-to-r
+    from-grow-coral
+    via-orange-400
+    to-grow-gold
+    bg-clip-text
+    text-transparent
+    animate-gradient
+  "
+>
+  real growth
+</span>
           </h2>
           <p className="text-lg text-white/70">
             Meet the entrepreneurs who turned vision into thriving businesses.

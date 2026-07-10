@@ -25,7 +25,21 @@ export function FAQ() {
           >
             <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary">FAQ</span>
             <h2 className="font-display text-4xl md:text-5xl font-black mt-3 mb-4 leading-tight">
-              Questions, answered
+              Questions, <span
+  className="
+    inline-block
+    bg-[length:200%_200%]
+    bg-gradient-to-r
+    from-grow-coral
+    via-orange-400
+    to-grow-gold
+    bg-clip-text
+    text-transparent
+    animate-gradient
+  "
+>
+  answered
+</span>
             </h2>
             <p className="text-lg text-muted-foreground">
               Everything you need to know before joining the movement.
