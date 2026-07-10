@@ -50,7 +50,22 @@ export function ContactSection() {
           >
             <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Contact</span>
             <h2 className="font-display text-4xl md:text-5xl font-black mt-3 mb-5 leading-tight">
-              Have questions? Let's talk.
+              Have questions? 
+              <span
+  className="
+    inline-block
+    bg-[length:200%_200%]
+    bg-gradient-to-r
+    from-grow-coral
+    via-orange-400
+    to-grow-gold
+    bg-clip-text
+    text-transparent
+    animate-gradient
+  "
+>
+  Let's talk.
+</span>
             </h2>
             <p className="text-lg text-muted-foreground leading-relaxed mb-10">
               Whether you're an entrepreneur, coach, or partner — we'd love to hear from you.

@@ -33,7 +33,21 @@ export function Testimonials() {
         >
           <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Testimonials</span>
           <h2 className="font-display text-4xl md:text-5xl font-black mt-3 mb-4 leading-tight">
-            Loved by our community
+            Loved by <span
+  className="
+    inline-block
+    bg-[length:200%_200%]
+    bg-gradient-to-r
+    from-grow-coral
+    via-orange-400
+    to-grow-gold
+    bg-clip-text
+    text-transparent
+    animate-gradient
+  "
+>
+ our community
+</span> 
           </h2>
           <p className="text-lg text-muted-foreground">
             Hear from the entrepreneurs, coaches, and investors who make this movement.

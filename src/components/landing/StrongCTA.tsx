@@ -38,7 +38,21 @@ export function StrongCTA() {
           <div className="relative text-center max-w-3xl mx-auto mb-12">
             <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Join the Movement</span>
             <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-black mt-3 mb-5 leading-[1.05]">
-              Start your growth journey today
+              Start your growth <span
+  className="
+   
+   
+    bg-gradient-to-r
+    from-grow-coral
+    via-orange-400
+    to-grow-gold
+    bg-clip-text
+    text-transparent
+    animate-gradient
+  "
+>
+  journey today
+</span> 
             </h2>
             <p className="text-lg md:text-xl text-white/70 leading-relaxed">
               Join a global community dedicated to building sustainable businesses and creating measurable impact.

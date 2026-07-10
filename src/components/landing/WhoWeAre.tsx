@@ -45,16 +45,28 @@ export function WhoWeAre() {
             <h2 className="font-display text-4xl md:text-5xl font-black mt-3 mb-6 leading-[1.1]">
               Building impact through{' '}
               <span className="relative inline-block">
-                <span className="bg-gradient-to-r from-primary via-grow-gold to-accent bg-clip-text text-transparent">
-                  human connection
-                </span>
+               <span
+  className="
+    inline-block
+    bg-[length:200%_200%]
+    bg-gradient-to-r
+    from-grow-coral
+    via-orange-400
+    to-grow-gold
+    bg-clip-text
+    text-transparent
+    animate-gradient
+  "
+>
+  human connection
+</span>
                 <motion.span
                   aria-hidden
                   initial={{ scaleX: 0 }}
                   whileInView={{ scaleX: 1 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.9, delay: 0.35, ease: 'easeOut' }}
-                  className="absolute -bottom-1 left-0 h-[3px] w-full origin-left rounded-full bg-gradient-to-r from-primary to-accent"
+                  className="absolute -bottom-1 left-0 h-[3px] w-full origin-left rounded-full bg-gradient-to-r from-primary to-gold"
                 />
               </span>
             </h2>
