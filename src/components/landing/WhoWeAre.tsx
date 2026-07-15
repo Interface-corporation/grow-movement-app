@@ -12,7 +12,7 @@ export function WhoWeAre() {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <section id="about" className="relative py-24 md:py-32 bg-background overflow-hidden">
+    <section id="about" className="relative py-16 md:py-20 bg-background overflow-hidden">
       {/* Ambient futuristic backdrop */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-0">
         <div className="absolute -top-32 -left-24 h-[28rem] w-[28rem] rounded-full bg-primary/10 blur-3xl animate-pulse" style={{ animationDuration: '9s' }} />

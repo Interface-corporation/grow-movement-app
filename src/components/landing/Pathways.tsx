@@ -34,7 +34,7 @@ const pathways = [
 
 export function Pathways() {
   return (
-    <section className="py-24 md:py-32 bg-secondary/40">
+    <section className="py-16 md:py-20 bg-secondary/40">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

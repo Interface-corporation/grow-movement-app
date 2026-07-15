@@ -11,7 +11,7 @@ const ctas = [
 
 export function StrongCTA() {
   return (
-    <section className="py-24 md:py-32 bg-background relative overflow-hidden">
+    <section className="py-16 md:py-20 bg-background relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
         <motion.div

@@ -42,7 +42,7 @@ export function SuccessStories() {
   const story = stories[index];
 
   return (
-    <section id="stories" className="py-24 md:py-32 bg-grow-navy text-white relative overflow-hidden">
+    <section id="stories" className="py-16 md:py-20 bg-grow-navy text-white relative overflow-hidden">
       <div className="absolute top-1/2 left-0 w-96 h-96 bg-primary/20 rounded-full blur-3xl -translate-y-1/2" />
       <div className="absolute top-1/2 right-0 w-96 h-96 bg-accent/20 rounded-full blur-3xl -translate-y-1/2" />
 
