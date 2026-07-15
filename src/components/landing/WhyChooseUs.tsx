@@ -34,14 +34,14 @@ const features = [
 
 export function WhyChooseUs() {
   return (
-    <section className="py-24 md:py-32 bg-secondary/40">
+    <section className="py-16 md:py-20 bg-secondary/40">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16 max-w-2xl mx-auto"
+          className="text-center mb-12 max-w-2xl mx-auto"
         >
           <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Why Choose Us</span>
           <h2 className="font-display text-4xl md:text-5xl font-black mt-3 mb-4 leading-tight">
@@ -52,7 +52,7 @@ export function WhyChooseUs() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
           {features.map((f, i) => (
             <motion.div
               key={f.title}

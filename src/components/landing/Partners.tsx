@@ -123,7 +123,7 @@ function PartnerCard({ p, i }: { p: typeof partners[0]; i: number }) {
 // ─── Section ──────────────────────────────────────────────────────────────────
 export function Partners() {
   return (
-    <section id="partners" className="py-24 bg-background">
+    <section id="partners" className="py-16 md:py-20 bg-background">
       <div className="container mx-auto px-6 lg:px-8">
 
         {/* Header */}

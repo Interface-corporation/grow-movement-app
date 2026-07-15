@@ -11,7 +11,7 @@ const ctas = [
 
 export function StrongCTA() {
   return (
-    <section className="py-24 md:py-32 bg-background relative overflow-hidden">
+    <section className="py-16 md:py-20 bg-background relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
         <motion.div
@@ -19,7 +19,7 @@ export function StrongCTA() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7 }}
-          className="relative bg-grow-navy text-white rounded-[2rem] md:rounded-[2.5rem] overflow-hidden p-8 md:p-16 lg:p-20 max-w-7xl mx-auto"
+          className="relative bg-grow-navy text-white rounded-[2rem] md:rounded-[2.5rem] overflow-hidden p-8 md:p-16 lg:p-20 max-w-6xl mx-auto"
         >
           {/* Decorative blobs */}
           <motion.div

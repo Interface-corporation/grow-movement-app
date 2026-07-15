@@ -42,7 +42,7 @@ export function SuccessStories() {
   const story = stories[index];
 
   return (
-    <section id="stories" className="py-24 md:py-32 bg-grow-navy text-white relative overflow-hidden">
+    <section id="stories" className="py-16 md:py-20 bg-grow-navy text-white relative overflow-hidden">
       <div className="absolute top-1/2 left-0 w-96 h-96 bg-primary/20 rounded-full blur-3xl -translate-y-1/2" />
       <div className="absolute top-1/2 right-0 w-96 h-96 bg-accent/20 rounded-full blur-3xl -translate-y-1/2" />
 
@@ -52,7 +52,7 @@ export function SuccessStories() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16 max-w-2xl mx-auto"
+          className="text-center mb-12 max-w-2xl mx-auto"
         >
           <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Success Stories</span>
           <h2 className="font-display text-4xl md:text-5xl font-black mt-3 mb-4 leading-tight">

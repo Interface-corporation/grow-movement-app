@@ -15,7 +15,7 @@ const steps = [
 
 export function HowItWorks() {
   return (
-    <section id="how-it-works" className="py-24 md:py-32 bg-background relative overflow-hidden">
+    <section id="how-it-works" className="py-16 md:py-20 bg-background relative overflow-hidden">
       <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
 
@@ -25,7 +25,7 @@ export function HowItWorks() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16 max-w-2xl mx-auto"
+          className="text-center mb-12 max-w-2xl mx-auto"
         >
           <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary">How It Works</span>
           <h2 className="font-display text-4xl md:text-5xl font-black mt-3 mb-4 leading-tight">
@@ -51,7 +51,7 @@ export function HowItWorks() {
         </motion.div>
 
         {/* Connector path on large screens */}
-        <div className="relative max-w-7xl mx-auto">
+        <div className="relative max-w-6xl mx-auto">
           <div className="hidden lg:block absolute top-12 left-0 right-0 h-0.5">
             <svg className="w-full h-2" preserveAspectRatio="none" viewBox="0 0 100 2">
               <line x1="0" y1="1" x2="100" y2="1" strokeDasharray="2 2" stroke="hsl(var(--border))" strokeWidth="0.5" />
