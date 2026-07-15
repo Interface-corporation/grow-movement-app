@@ -25,7 +25,7 @@ export function HowItWorks() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16 max-w-2xl mx-auto"
+          className="text-center mb-12 max-w-2xl mx-auto"
         >
           <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary">How It Works</span>
           <h2 className="font-display text-4xl md:text-5xl font-black mt-3 mb-4 leading-tight">
