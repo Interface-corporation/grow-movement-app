@@ -210,9 +210,10 @@ export default function AdminLayout() {
           </div>
         </header>
 
-        <main className="flex-1 p-4 lg:p-6">
+        <main className="flex-1 p-4 lg:p-6 min-w-0 w-full max-w-full overflow-x-hidden">
           <Outlet />
         </main>
+
       </div>
     </div>
   );
