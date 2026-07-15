@@ -149,7 +149,7 @@ export function Partners() {
         </motion.div>
 
         {/* Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 max-w-6xl mx-auto">
           {partners.map((p, i) => (
             <PartnerCard key={p.name} p={p} i={i} />
           ))}
