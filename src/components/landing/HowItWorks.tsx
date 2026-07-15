@@ -51,7 +51,7 @@ export function HowItWorks() {
         </motion.div>
 
         {/* Connector path on large screens */}
-        <div className="relative max-w-7xl mx-auto">
+        <div className="relative max-w-6xl mx-auto">
           <div className="hidden lg:block absolute top-12 left-0 right-0 h-0.5">
             <svg className="w-full h-2" preserveAspectRatio="none" viewBox="0 0 100 2">
               <line x1="0" y1="1" x2="100" y2="1" strokeDasharray="2 2" stroke="hsl(var(--border))" strokeWidth="0.5" />

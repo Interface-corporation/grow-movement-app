@@ -19,7 +19,7 @@ export function StrongCTA() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7 }}
-          className="relative bg-grow-navy text-white rounded-[2rem] md:rounded-[2.5rem] overflow-hidden p-8 md:p-16 lg:p-20 max-w-7xl mx-auto"
+          className="relative bg-grow-navy text-white rounded-[2rem] md:rounded-[2.5rem] overflow-hidden p-8 md:p-16 lg:p-20 max-w-6xl mx-auto"
         >
           {/* Decorative blobs */}
           <motion.div

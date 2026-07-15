@@ -48,7 +48,7 @@ const tracks = [
 
 export function PartnerWithUs() {
   return (
-    <section id="partners" className="relative py-16 md:py-20 overflow-hidden bg-gradient-to-b from-background via-secondary/30 to-background">
+    <section id="partner-with-us" className="relative py-16 md:py-20 overflow-hidden bg-gradient-to-b from-background via-secondary/30 to-background">
       {/* ambient shapes */}
       <motion.div
         aria-hidden
