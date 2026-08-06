@@ -161,7 +161,7 @@ export default function Auth() {
     );
   }
 
-  if (user && !isRecovery) return <Navigate to="/admin" replace />;
+  if (user && !isRecovery) return <Navigate to={nextPath || '/admin'} replace />;
 
   // Password recovery flow
   if (isRecovery) {
