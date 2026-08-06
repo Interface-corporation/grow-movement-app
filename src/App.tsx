@@ -38,7 +38,9 @@ import CoachMatchingRequests from '@/pages/admin/CoachMatchingRequests';
 import ProgramAdminDashboard from '@/pages/admin/ProgramAdminDashboard';
 import BlogPost from '@/pages/BlogPost';
 import Blog from '@/pages/Blog';
+import OAuthConsent from '@/pages/OAuthConsent';
 import NotFound from '@/pages/NotFound';
+
 import { useAuth } from '@/contexts/AuthContext';
 
 const PublicLayout = ({ children }: { children: React.ReactNode }) => (
@@ -76,6 +78,11 @@ export default function App() {
             <Route path="/blog" element={<PublicLayout><Blog /></PublicLayout>} />
             {/* Auth */}
             <Route path="/auth" element={<Auth />} />
+
+            {/* OAuth 2.1 consent screen (MCP / agent integrations) */}
+            <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
+
+
 
             {/* Admin Dashboard */}
             <Route path="/admin" element={<AdminLayout />}>

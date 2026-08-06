@@ -139,6 +139,11 @@ export default function Auth() {
 
   const isRecovery = searchParams.get('type') === 'recovery';
 
+  // Preserve a same-origin relative return path (used by the OAuth consent flow)
+  const rawNext = searchParams.get('next');
+  const nextPath = rawNext && rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : null;
+
+
   // Handle email confirmation callback
   useEffect(() => {
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
@@ -156,7 +161,7 @@ export default function Auth() {
     );
   }
 
-  if (user && !isRecovery) return <Navigate to="/admin" replace />;
+  if (user && !isRecovery) return <Navigate to={nextPath || '/admin'} replace />;
 
   // Password recovery flow
   if (isRecovery) {

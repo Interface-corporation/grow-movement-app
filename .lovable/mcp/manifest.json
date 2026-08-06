@@ -1,0 +1,200 @@
+{
+  "version": 1,
+  "sdk_version": "0.26.1",
+  "path": "/functions/v1/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://ltndicrqlqaudtlvcklh.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "grow-movement-app",
+      "version": "0.1.0",
+      "title": "Grow Movement App"
+    },
+    "tools": [
+      {
+        "name": "list_entrepreneurs",
+        "title": "List entrepreneurs",
+        "description": "List entrepreneurs in the Grow Movement platform, optionally filtered by country, sector, status or a free-text search on name/business.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "search": {
+              "description": "Free-text match on entrepreneur or business name.",
+              "type": "string"
+            },
+            "country": {
+              "description": "Filter by country.",
+              "type": "string"
+            },
+            "sector": {
+              "description": "Filter by sector.",
+              "type": "string"
+            },
+            "status": {
+              "description": "Filter by status, e.g. Active or Seed Fund Candidate.",
+              "type": "string"
+            },
+            "limit": {
+              "description": "Max rows to return (default 25, max 100).",
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_entrepreneur",
+        "title": "Get entrepreneur",
+        "description": "Get the full profile of one entrepreneur by id, including business details, challenges, funding needs and impact.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "Entrepreneur id (uuid)."
+            }
+          },
+          "required": [
+            "id"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_programs",
+        "title": "List programs",
+        "description": "List Grow Movement coaching programs with their status and description.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "status": {
+              "description": "Filter by program status.",
+              "type": "string"
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_projects",
+        "title": "List projects",
+        "description": "List coaching projects, optionally filtered by program, status, coach or entrepreneur. Use this to see active engagements.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "program_id": {
+              "description": "Filter by program id (uuid).",
+              "type": "string"
+            },
+            "status": {
+              "description": "Filter by project status.",
+              "type": "string"
+            },
+            "coach_id": {
+              "description": "Filter by coach id (uuid).",
+              "type": "string"
+            },
+            "entrepreneur_id": {
+              "description": "Filter by entrepreneur id (uuid).",
+              "type": "string"
+            },
+            "limit": {
+              "description": "Max rows to return (default 25, max 100).",
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_matching_requests",
+        "title": "List matching requests",
+        "description": "List incoming coach/entrepreneur matching requests submitted through the website, newest first.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "status": {
+              "description": "Filter by request status.",
+              "type": "string"
+            },
+            "limit": {
+              "description": "Max rows to return (default 25, max 100).",
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "add_project_note",
+        "title": "Add project note",
+        "description": "Add a progress/tracking note to a coaching project. The note is recorded against the signed-in user.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "project_id": {
+              "type": "string",
+              "description": "Project id (uuid) to attach the note to."
+            },
+            "note": {
+              "type": "string",
+              "description": "The note text."
+            }
+          },
+          "required": [
+            "project_id",
+            "note"
+          ]
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
