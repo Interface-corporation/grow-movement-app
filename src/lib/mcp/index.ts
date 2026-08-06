@@ -8,7 +8,7 @@ import addProjectNoteTool from "./tools/add-project-note";
 
 // The OAuth issuer must be the direct Supabase host, built from the project ref
 // (inlined at build time by Vite, so this stays import-safe).
-const projectRef = import.meta.env.VITE_SUPABASE_PROJECT_ID ?? "project-ref-unset";
+const projectRef = import.meta.env.VITE_SUPABASE_PROJECT_ID ?? "ltndicrqlqaudtlvcklh";
 
 export default defineMcp({
   name: "grow-movement-app",
