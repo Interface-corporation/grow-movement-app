@@ -79,6 +79,11 @@ export default function App() {
             {/* Auth */}
             <Route path="/auth" element={<Auth />} />
 
+            {/* OAuth 2.1 consent screen (MCP / agent integrations) */}
+            <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
+
+
+
             {/* Admin Dashboard */}
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<RoleDashboardHome />} />
