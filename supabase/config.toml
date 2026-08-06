@@ -1,5 +1,10 @@
 project_id = "ltndicrqlqaudtlvcklh"
 
+[functions.mcp]
+verify_jwt = false
+
+
+
 [functions.send-enquiry]
 verify_jwt = false
 
