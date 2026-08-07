@@ -218,14 +218,23 @@ export default function SeedFund() {
 
   useEffect(() => { (async () => {
     setLoading(true);
-    const { data: comps } = await (supabase as any)
+    // Prefer the competition explicitly published by an admin.
+    const { data: published } = await (supabase as any)
       .from('seed_fund_competitions')
       .select('*')
-      .in('status', ['active', 'ended'])
-      .order('event_date', { ascending: false, nullsFirst: false })
-      .order('created_at', { ascending: false })
+      .eq('is_published', true)
       .limit(1);
-    const c = comps?.[0] || null;
+    let c = published?.[0] || null;
+    if (!c) {
+      const { data: comps } = await (supabase as any)
+        .from('seed_fund_competitions')
+        .select('*')
+        .in('status', ['active', 'ended'])
+        .order('event_date', { ascending: false, nullsFirst: false })
+        .order('created_at', { ascending: false })
+        .limit(1);
+      c = comps?.[0] || null;
+    }
     setComp(c as any);
     if (c) {
       try {
