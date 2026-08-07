@@ -120,7 +120,56 @@ export default function AdminSeedFundVotes() {
     if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
     toast({ title: 'Competition created' });
     setNewOpen(false); setActive(data); await reload();
+
+  // ---- Edit / delete / publish ----
+  const openEdit = (c: any) => {
+    setEditForm({
+      title: c.title || '',
+      edition: c.edition || '',
+      description: c.description || '',
+      event_date: c.event_date ? new Date(c.event_date).toISOString().slice(0, 10) : '',
+    });
+    setEditTarget(c);
+    setEditOpen(true);
   };
+
+  const saveEdit = async () => {
+    if (!editTarget || !editForm.title.trim()) return;
+    setSavingEdit(true);
+    const { data, error } = await sb.from('seed_fund_competitions').update({
+      title: editForm.title.trim(),
+      edition: editForm.edition.trim() || null,
+      description: editForm.description.trim() || null,
+      event_date: editForm.event_date ? new Date(editForm.event_date).toISOString() : null,
+    }).eq('id', editTarget.id).select().single();
+    setSavingEdit(false);
+    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+    setComps(prev => prev.map(c => c.id === data.id ? data : c));
+    if (active?.id === data.id) setActive(data);
+    setEditOpen(false); setEditTarget(null);
+    toast({ title: 'Competition updated' });
+  };
+
+  const deleteComp = async (c: any) => {
+    if (!confirm(`Delete "${c.title}"? All its candidates, votes and codes will be removed. This cannot be undone.`)) return;
+    const { error } = await sb.from('seed_fund_competitions').delete().eq('id', c.id);
+    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+    toast({ title: 'Competition deleted' });
+    if (active?.id === c.id) setActive(null);
+    await reload();
+  };
+
+  const setPublished = async (c: any, publish: boolean) => {
+    const { error } = await sb.rpc('publish_seed_fund_competition', {
+      _competition_id: publish ? c.id : null,
+    });
+    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+    setComps(prev => prev.map(x => ({ ...x, is_published: publish && x.id === c.id })));
+    if (active) setActive((a: any) => ({ ...a, is_published: publish && a.id === c.id }));
+    toast({ title: publish ? 'Published on the home page' : 'Unpublished' });
+    await reload();
+  };
+
 
   const updateActive = async (patch: any) => {
     if (!active) return;
