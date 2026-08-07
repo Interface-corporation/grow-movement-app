@@ -3,12 +3,37 @@ import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Users, UserPlus, FolderKanban, Handshake, Loader2, Plus, Search, X, Pencil, Trash2, MessageSquare, ChevronDown, ChevronUp, Send, RotateCcw } from 'lucide-react';
+import { ArrowLeft, Users, UserPlus, FolderKanban, Handshake, Loader2, Plus, Search, X, Pencil, Trash2, MessageSquare, ChevronDown, ChevronUp, Send, RotateCcw, Award, PlayCircle, Quote } from 'lucide-react';
 import { toast } from 'sonner';
 import { logActivity } from '@/lib/activityLog';
 import { useAutoSave } from '@/hooks/useAutoSave';
+import { toEmbedUrl, isDirectVideoFile } from '@/lib/videoEmbed';
 
 const emptyProjectForm = { name: '', description: '', status: 'Active', entrepreneur_id: '', coach_id: '' };
+const emptyImpactForm = { title: '', entrepreneur_review: '', coach_review: '', video_url: '' };
+
+/** Review block with a Read more / Show less toggle. */
+function ReviewBlock({ label, author, text, accent }: { label: string; author: string; text: string; accent: string }) {
+  const [open, setOpen] = useState(false);
+  const long = text.length > 220;
+  return (
+    <div className="rounded-xl border border-border bg-secondary/30 p-4">
+      <div className="flex items-center gap-2 mb-2">
+        <Quote className={`h-4 w-4 ${accent}`} />
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</p>
+          <p className="text-sm font-medium">{author}</p>
+        </div>
+      </div>
+      <p className={`text-sm text-muted-foreground whitespace-pre-line ${!open && long ? 'line-clamp-3' : ''}`}>{text}</p>
+      {long && (
+        <button onClick={() => setOpen(o => !o)} className="mt-2 text-xs font-semibold text-primary hover:underline">
+          {open ? 'Show less' : 'Read more'}
+        </button>
+      )}
+    </div>
+  );
+}
 
 export default function AdminProgramDetail() {
   const { id } = useParams<{ id: string }>();
