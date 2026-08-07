@@ -3,12 +3,37 @@ import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Users, UserPlus, FolderKanban, Handshake, Loader2, Plus, Search, X, Pencil, Trash2, MessageSquare, ChevronDown, ChevronUp, Send, RotateCcw } from 'lucide-react';
+import { ArrowLeft, Users, UserPlus, FolderKanban, Handshake, Loader2, Plus, Search, X, Pencil, Trash2, MessageSquare, ChevronDown, ChevronUp, Send, RotateCcw, Award, PlayCircle, Quote } from 'lucide-react';
 import { toast } from 'sonner';
 import { logActivity } from '@/lib/activityLog';
 import { useAutoSave } from '@/hooks/useAutoSave';
+import { toEmbedUrl, isDirectVideoFile } from '@/lib/videoEmbed';
 
 const emptyProjectForm = { name: '', description: '', status: 'Active', entrepreneur_id: '', coach_id: '' };
+const emptyImpactForm = { title: '', entrepreneur_review: '', coach_review: '', video_url: '' };
+
+/** Review block with a Read more / Show less toggle. */
+function ReviewBlock({ label, author, text, accent }: { label: string; author: string; text: string; accent: string }) {
+  const [open, setOpen] = useState(false);
+  const long = text.length > 220;
+  return (
+    <div className="rounded-xl border border-border bg-secondary/30 p-4">
+      <div className="flex items-center gap-2 mb-2">
+        <Quote className={`h-4 w-4 ${accent}`} />
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</p>
+          <p className="text-sm font-medium">{author}</p>
+        </div>
+      </div>
+      <p className={`text-sm text-muted-foreground whitespace-pre-line ${!open && long ? 'line-clamp-3' : ''}`}>{text}</p>
+      {long && (
+        <button onClick={() => setOpen(o => !o)} className="mt-2 text-xs font-semibold text-primary hover:underline">
+          {open ? 'Show less' : 'Read more'}
+        </button>
+      )}
+    </div>
+  );
+}
 
 export default function AdminProgramDetail() {
   const { id } = useParams<{ id: string }>();
@@ -31,6 +56,16 @@ export default function AdminProgramDetail() {
   const { clearAutoSave } = useAutoSave('program_project_form', projectForm, setProjectForm, showProjectForm);
 
   const [selectedProject, setSelectedProject] = useState<any>(null);
+
+  // Impact case studies
+  const [impactCases, setImpactCases] = useState<any[]>([]);
+  const [showImpactForm, setShowImpactForm] = useState(false);
+  const [editingImpact, setEditingImpact] = useState<string | null>(null);
+  const [impactForm, setImpactForm] = useState(emptyImpactForm);
+  const [savingImpact, setSavingImpact] = useState(false);
+  const { clearAutoSave: clearImpactAutoSave } = useAutoSave('project_impact_form', impactForm, setImpactForm, showImpactForm && !editingImpact);
+
+
 
   // Sessions state (same as AdminProjects)
   const [sessions, setSessions] = useState<any[]>([]);
@@ -154,10 +189,61 @@ export default function AdminProgramDetail() {
     await fetchComments(sessionId);
   };
 
+  // ── Impact case studies ──
+  const fetchImpactCases = async (projectId: string) => {
+    const { data } = await (supabase as any)
+      .from('project_impact_cases')
+      .select('*')
+      .eq('project_id', projectId)
+      .order('created_at', { ascending: false });
+    setImpactCases(data || []);
+  };
+
+  const handleSaveImpact = async () => {
+    if (!selectedProject) return;
+    if (!impactForm.entrepreneur_review.trim() && !impactForm.coach_review.trim() && !impactForm.video_url.trim()) {
+      toast.error('Add at least one review or a video link');
+      return;
+    }
+    setSavingImpact(true);
+    const payload = {
+      title: impactForm.title.trim() || null,
+      entrepreneur_review: impactForm.entrepreneur_review.trim() || null,
+      coach_review: impactForm.coach_review.trim() || null,
+      video_url: impactForm.video_url.trim() || null,
+    };
+    let error: any = null;
+    if (editingImpact) {
+      ({ error } = await (supabase as any).from('project_impact_cases').update(payload).eq('id', editingImpact));
+    } else {
+      ({ error } = await (supabase as any).from('project_impact_cases').insert({
+        ...payload, project_id: selectedProject.id, created_by: user?.id,
+      }));
+    }
+    setSavingImpact(false);
+    if (error) { toast.error('Failed to save impact case: ' + error.message); return; }
+    toast.success(editingImpact ? 'Impact case study updated' : 'Impact case study added');
+    clearImpactAutoSave();
+    setImpactForm(emptyImpactForm);
+    setEditingImpact(null);
+    setShowImpactForm(false);
+    await fetchImpactCases(selectedProject.id);
+  };
+
+  const handleDeleteImpact = async (caseId: string) => {
+    if (!confirm('Delete this impact case study?')) return;
+    await (supabase as any).from('project_impact_cases').delete().eq('id', caseId);
+    toast.success('Impact case study deleted');
+    if (selectedProject) await fetchImpactCases(selectedProject.id);
+  };
+
   const handleOpenProject = async (project: any) => {
     setSelectedProject(project);
     setExpandedSession(null);
-    await fetchSessions(project.id);
+    setShowImpactForm(false);
+    setEditingImpact(null);
+    setImpactCases([]);
+    await Promise.all([fetchSessions(project.id), fetchImpactCases(project.id)]);
   };
 
   // Match status controls
@@ -493,6 +579,133 @@ export default function AdminProgramDetail() {
                   <p className="mt-1">{selectedProject.description}</p>
                 </div>
               )}
+
+              {/* ── Impact Case Studies ── */}
+              <div className="border-t border-border pt-4">
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+                  <h4 className="font-bold flex items-center gap-2">
+                    <Award className="h-4 w-4 text-primary" /> Impact Case Studies ({impactCases.length})
+                  </h4>
+                  {canCreate && (
+                    <Button size="sm" onClick={() => {
+                      setImpactForm(emptyImpactForm); setEditingImpact(null); setShowImpactForm(true);
+                    }}>
+                      <Plus className="h-3.5 w-3.5 mr-1" /> Impact Case Study
+                    </Button>
+                  )}
+                </div>
+
+                {showImpactForm && (
+                  <div className="bg-secondary/30 rounded-xl p-4 mb-4 space-y-3">
+                    <h5 className="text-sm font-semibold">{editingImpact ? 'Edit' : 'New'} Impact Case Study</h5>
+                    <div>
+                      <label className="block text-xs font-medium mb-1">Title</label>
+                      <input value={impactForm.title} onChange={e => setImpactForm({ ...impactForm, title: e.target.value })}
+                        placeholder="e.g. Revenue tripled after 6 coaching sessions"
+                        className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium mb-1">Entrepreneur's Review</label>
+                      <textarea value={impactForm.entrepreneur_review} onChange={e => setImpactForm({ ...impactForm, entrepreneur_review: e.target.value })}
+                        placeholder="What the entrepreneur says about the coaching journey..."
+                        className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm resize-none" rows={4} />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium mb-1">Coach's Review</label>
+                      <textarea value={impactForm.coach_review} onChange={e => setImpactForm({ ...impactForm, coach_review: e.target.value })}
+                        placeholder="What the coach observed and achieved with the entrepreneur..."
+                        className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm resize-none" rows={4} />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium mb-1">Video Testimonial Link</label>
+                      <input value={impactForm.video_url} onChange={e => setImpactForm({ ...impactForm, video_url: e.target.value })}
+                        placeholder="YouTube, Vimeo or Google Drive link"
+                        className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm" />
+                      <p className="text-[11px] text-muted-foreground mt-1">Paste any share link — it is converted into an embedded player automatically.</p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <Button size="sm" onClick={handleSaveImpact} disabled={savingImpact}>
+                        {savingImpact ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : null}
+                        {editingImpact ? 'Update' : 'Save'} Case Study
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => { setShowImpactForm(false); setEditingImpact(null); }}>Cancel</Button>
+                      {!editingImpact && (
+                        <Button size="sm" variant="outline" title="Clear form"
+                          onClick={() => { setImpactForm(emptyImpactForm); clearImpactAutoSave(); toast.info('Form cleared'); }}>
+                          <RotateCcw className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-4">
+                  {impactCases.map(ic => {
+                    const embed = toEmbedUrl(ic.video_url);
+                    return (
+                      <div key={ic.id} className="border border-border rounded-2xl p-4 space-y-4">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0">
+                            <p className="font-semibold text-sm">{ic.title || 'Impact Case Study'}</p>
+                            <p className="text-xs text-muted-foreground">{new Date(ic.created_at).toLocaleDateString()}</p>
+                          </div>
+                          {canCreate && (
+                            <div className="flex gap-1 shrink-0">
+                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => {
+                                setImpactForm({
+                                  title: ic.title || '',
+                                  entrepreneur_review: ic.entrepreneur_review || '',
+                                  coach_review: ic.coach_review || '',
+                                  video_url: ic.video_url || '',
+                                });
+                                setEditingImpact(ic.id); setShowImpactForm(true);
+                              }}><Pencil className="h-3 w-3" /></Button>
+                              <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteImpact(ic.id)}>
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Video testimonial */}
+                        {embed && (
+                          <div className="rounded-xl overflow-hidden bg-black aspect-video">
+                            {isDirectVideoFile(embed)
+                              ? <video src={embed} controls className="w-full h-full" />
+                              : <iframe src={embed} title={ic.title || 'Testimonial'} className="w-full h-full"
+                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"
+                                  allowFullScreen />}
+                          </div>
+                        )}
+                        {ic.video_url && !embed && (
+                          <a href={ic.video_url} target="_blank" rel="noreferrer"
+                            className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
+                            <PlayCircle className="h-3.5 w-3.5" /> Open video link
+                          </a>
+                        )}
+
+                        {/* Reviews */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {ic.entrepreneur_review && (
+                            <ReviewBlock label="Entrepreneur's review" author={getEntName(selectedProject.entrepreneur_id)}
+                              text={ic.entrepreneur_review} accent="text-primary" />
+                          )}
+                          {ic.coach_review && (
+                            <ReviewBlock label="Coach's review" author={getCoachName(selectedProject.coach_id)}
+                              text={ic.coach_review} accent="text-accent" />
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {impactCases.length === 0 && !showImpactForm && (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      No impact case study yet. Add reviews and a video testimonial to document this project's impact.
+                    </p>
+                  )}
+                </div>
+              </div>
+
 
               {/* Sessions */}
               <div className="border-t border-border pt-4">

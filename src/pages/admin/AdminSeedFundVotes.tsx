@@ -16,7 +16,7 @@ import {
 import { toast } from '@/hooks/use-toast';
 import {
   Trophy, Play, Square, Plus, Trash2, Users, Vote, Crown, Filter, Search, Loader2, Calendar,
-  Settings, Mail, Key, KeyRound, Download, FileSpreadsheet, ShieldCheck, RefreshCw,
+  Settings, Mail, Key, KeyRound, Download, FileSpreadsheet, ShieldCheck, RefreshCw, Pencil, Globe, EyeOff,
 } from 'lucide-react';
 
 const sb = supabase as any;
@@ -37,6 +37,11 @@ export default function AdminSeedFundVotes() {
   const [newTitle, setNewTitle] = useState('Grow Women Seed Fund');
   const [newEdition, setNewEdition] = useState(new Date().getFullYear().toString());
   const [newDate, setNewDate] = useState('');
+
+  const [editOpen, setEditOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState<any>(null);
+  const [editForm, setEditForm] = useState({ title: '', edition: '', description: '', event_date: '' });
+  const [savingEdit, setSavingEdit] = useState(false);
 
   const [addCandOpen, setAddCandOpen] = useState(false);
   const [pickEntId, setPickEntId] = useState('');
@@ -121,6 +126,56 @@ export default function AdminSeedFundVotes() {
     toast({ title: 'Competition created' });
     setNewOpen(false); setActive(data); await reload();
   };
+
+  // ---- Edit / delete / publish ----
+  const openEdit = (c: any) => {
+    setEditForm({
+      title: c.title || '',
+      edition: c.edition || '',
+      description: c.description || '',
+      event_date: c.event_date ? new Date(c.event_date).toISOString().slice(0, 10) : '',
+    });
+    setEditTarget(c);
+    setEditOpen(true);
+  };
+
+  const saveEdit = async () => {
+    if (!editTarget || !editForm.title.trim()) return;
+    setSavingEdit(true);
+    const { data, error } = await sb.from('seed_fund_competitions').update({
+      title: editForm.title.trim(),
+      edition: editForm.edition.trim() || null,
+      description: editForm.description.trim() || null,
+      event_date: editForm.event_date ? new Date(editForm.event_date).toISOString() : null,
+    }).eq('id', editTarget.id).select().single();
+    setSavingEdit(false);
+    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+    setComps(prev => prev.map(c => c.id === data.id ? data : c));
+    if (active?.id === data.id) setActive(data);
+    setEditOpen(false); setEditTarget(null);
+    toast({ title: 'Competition updated' });
+  };
+
+  const deleteComp = async (c: any) => {
+    if (!confirm(`Delete "${c.title}"? All its candidates, votes and codes will be removed. This cannot be undone.`)) return;
+    const { error } = await sb.from('seed_fund_competitions').delete().eq('id', c.id);
+    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+    toast({ title: 'Competition deleted' });
+    if (active?.id === c.id) setActive(null);
+    await reload();
+  };
+
+  const setPublished = async (c: any, publish: boolean) => {
+    const { error } = await sb.rpc('publish_seed_fund_competition', {
+      _competition_id: publish ? c.id : null,
+    });
+    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
+    setComps(prev => prev.map(x => ({ ...x, is_published: publish && x.id === c.id })));
+    if (active) setActive((a: any) => ({ ...a, is_published: publish && a.id === c.id }));
+    toast({ title: publish ? 'Published on the home page' : 'Unpublished' });
+    await reload();
+  };
+
 
   const updateActive = async (patch: any) => {
     if (!active) return;
@@ -318,9 +373,100 @@ export default function AdminSeedFundVotes() {
                 <Crown className="h-3.5 w-3.5 mr-1" /> Promote to Alumni
               </Button>
             )}
+            <Button size="sm" variant={active.is_published ? 'secondary' : 'outline'}
+              onClick={() => setPublished(active, !active.is_published)}>
+              {active.is_published ? <><EyeOff className="h-3.5 w-3.5 mr-1" /> Unpublish</> : <><Globe className="h-3.5 w-3.5 mr-1" /> Publish on home page</>}
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => openEdit(active)}>
+              <Pencil className="h-3.5 w-3.5 mr-1" /> Edit
+            </Button>
+            <Button size="sm" variant="ghost" className="text-destructive" onClick={() => deleteComp(active)}>
+              <Trash2 className="h-3.5 w-3.5 mr-1" /> Delete
+            </Button>
           </div>
         </div>
       )}
+
+      {/* ── All competitions manager ── */}
+      {comps.length > 0 && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm sm:text-base flex items-center gap-2">
+              <Trophy className="h-4 w-4 text-primary" /> All competitions ({comps.length})
+            </CardTitle>
+            <p className="text-xs text-muted-foreground">
+              Toggle which competition is published on the public Seed Fund page. Only one can be live at a time.
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {comps.map(c => (
+              <div key={c.id}
+                className={`flex flex-col sm:flex-row sm:items-center gap-2 rounded-xl border p-3 ${
+                  c.is_published ? 'border-primary/50 bg-primary/5' : 'border-border bg-secondary/20'}`}>
+                <button className="flex-1 min-w-0 text-left" onClick={() => { setActive(c); loadCompetition(c.id); }}>
+                  <p className="text-sm font-semibold truncate">
+                    {c.title} {c.edition ? `· ${c.edition}` : ''}
+                    {c.is_published && <span className="ml-2 text-[10px] font-bold uppercase text-primary">Live</span>}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {c.status}
+                    {c.event_date ? ` · ${new Date(c.event_date).toLocaleDateString()}` : ''}
+                  </p>
+                </button>
+                <div className="flex flex-wrap items-center gap-2 shrink-0">
+                  <Button size="sm" variant={c.is_published ? 'secondary' : 'outline'}
+                    onClick={() => setPublished(c, !c.is_published)}>
+                    {c.is_published ? <><EyeOff className="h-3.5 w-3.5 mr-1" /> Unpublish</> : <><Globe className="h-3.5 w-3.5 mr-1" /> Publish</>}
+                  </Button>
+                  <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => openEdit(c)}>
+                    <Pencil className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={() => deleteComp(c)}>
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* ── Edit competition dialog ── */}
+      <Dialog open={editOpen} onOpenChange={(o) => { setEditOpen(o); if (!o) setEditTarget(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit competition</DialogTitle>
+            <DialogDescription>Update the details of this Seed Fund competition.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="edit-title">Title</Label>
+              <Input id="edit-title" value={editForm.title} onChange={e => setEditForm({ ...editForm, title: e.target.value })} />
+            </div>
+            <div>
+              <Label htmlFor="edit-edition">Edition</Label>
+              <Input id="edit-edition" value={editForm.edition} onChange={e => setEditForm({ ...editForm, edition: e.target.value })} />
+            </div>
+            <div>
+              <Label htmlFor="edit-date">Event date</Label>
+              <Input id="edit-date" type="date" value={editForm.event_date} onChange={e => setEditForm({ ...editForm, event_date: e.target.value })} />
+            </div>
+            <div>
+              <Label htmlFor="edit-desc">Description</Label>
+              <textarea id="edit-desc" rows={3} value={editForm.description}
+                onChange={e => setEditForm({ ...editForm, description: e.target.value })}
+                className="w-full px-3 py-2 rounded-md border border-input bg-background text-sm resize-none" />
+            </div>
+            <div className="flex gap-2 pt-2">
+              <Button onClick={saveEdit} disabled={savingEdit || !editForm.title.trim()}>
+                {savingEdit && <Loader2 className="h-4 w-4 mr-1 animate-spin" />} Save changes
+              </Button>
+              <Button variant="outline" onClick={() => setEditOpen(false)}>Cancel</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
 
       {/* ── No competition empty state ── */}
       {!active ? (
