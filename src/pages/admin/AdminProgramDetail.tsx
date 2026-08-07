@@ -57,6 +57,16 @@ export default function AdminProgramDetail() {
 
   const [selectedProject, setSelectedProject] = useState<any>(null);
 
+  // Impact case studies
+  const [impactCases, setImpactCases] = useState<any[]>([]);
+  const [showImpactForm, setShowImpactForm] = useState(false);
+  const [editingImpact, setEditingImpact] = useState<string | null>(null);
+  const [impactForm, setImpactForm] = useState(emptyImpactForm);
+  const [savingImpact, setSavingImpact] = useState(false);
+  const { clearAutoSave: clearImpactAutoSave } = useAutoSave('project_impact_form', impactForm, setImpactForm, showImpactForm && !editingImpact);
+
+
+
   // Sessions state (same as AdminProjects)
   const [sessions, setSessions] = useState<any[]>([]);
   const [showSessionForm, setShowSessionForm] = useState(false);
