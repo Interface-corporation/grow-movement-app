@@ -373,9 +373,100 @@ export default function AdminSeedFundVotes() {
                 <Crown className="h-3.5 w-3.5 mr-1" /> Promote to Alumni
               </Button>
             )}
+            <Button size="sm" variant={active.is_published ? 'secondary' : 'outline'}
+              onClick={() => setPublished(active, !active.is_published)}>
+              {active.is_published ? <><EyeOff className="h-3.5 w-3.5 mr-1" /> Unpublish</> : <><Globe className="h-3.5 w-3.5 mr-1" /> Publish on home page</>}
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => openEdit(active)}>
+              <Pencil className="h-3.5 w-3.5 mr-1" /> Edit
+            </Button>
+            <Button size="sm" variant="ghost" className="text-destructive" onClick={() => deleteComp(active)}>
+              <Trash2 className="h-3.5 w-3.5 mr-1" /> Delete
+            </Button>
           </div>
         </div>
       )}
+
+      {/* ── All competitions manager ── */}
+      {comps.length > 0 && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm sm:text-base flex items-center gap-2">
+              <Trophy className="h-4 w-4 text-primary" /> All competitions ({comps.length})
+            </CardTitle>
+            <p className="text-xs text-muted-foreground">
+              Toggle which competition is published on the public Seed Fund page. Only one can be live at a time.
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {comps.map(c => (
+              <div key={c.id}
+                className={`flex flex-col sm:flex-row sm:items-center gap-2 rounded-xl border p-3 ${
+                  c.is_published ? 'border-primary/50 bg-primary/5' : 'border-border bg-secondary/20'}`}>
+                <button className="flex-1 min-w-0 text-left" onClick={() => { setActive(c); loadCompetition(c.id); }}>
+                  <p className="text-sm font-semibold truncate">
+                    {c.title} {c.edition ? `· ${c.edition}` : ''}
+                    {c.is_published && <span className="ml-2 text-[10px] font-bold uppercase text-primary">Live</span>}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {c.status}
+                    {c.event_date ? ` · ${new Date(c.event_date).toLocaleDateString()}` : ''}
+                  </p>
+                </button>
+                <div className="flex flex-wrap items-center gap-2 shrink-0">
+                  <Button size="sm" variant={c.is_published ? 'secondary' : 'outline'}
+                    onClick={() => setPublished(c, !c.is_published)}>
+                    {c.is_published ? <><EyeOff className="h-3.5 w-3.5 mr-1" /> Unpublish</> : <><Globe className="h-3.5 w-3.5 mr-1" /> Publish</>}
+                  </Button>
+                  <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => openEdit(c)}>
+                    <Pencil className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={() => deleteComp(c)}>
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* ── Edit competition dialog ── */}
+      <Dialog open={editOpen} onOpenChange={(o) => { setEditOpen(o); if (!o) setEditTarget(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit competition</DialogTitle>
+            <DialogDescription>Update the details of this Seed Fund competition.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="edit-title">Title</Label>
+              <Input id="edit-title" value={editForm.title} onChange={e => setEditForm({ ...editForm, title: e.target.value })} />
+            </div>
+            <div>
+              <Label htmlFor="edit-edition">Edition</Label>
+              <Input id="edit-edition" value={editForm.edition} onChange={e => setEditForm({ ...editForm, edition: e.target.value })} />
+            </div>
+            <div>
+              <Label htmlFor="edit-date">Event date</Label>
+              <Input id="edit-date" type="date" value={editForm.event_date} onChange={e => setEditForm({ ...editForm, event_date: e.target.value })} />
+            </div>
+            <div>
+              <Label htmlFor="edit-desc">Description</Label>
+              <textarea id="edit-desc" rows={3} value={editForm.description}
+                onChange={e => setEditForm({ ...editForm, description: e.target.value })}
+                className="w-full px-3 py-2 rounded-md border border-input bg-background text-sm resize-none" />
+            </div>
+            <div className="flex gap-2 pt-2">
+              <Button onClick={saveEdit} disabled={savingEdit || !editForm.title.trim()}>
+                {savingEdit && <Loader2 className="h-4 w-4 mr-1 animate-spin" />} Save changes
+              </Button>
+              <Button variant="outline" onClick={() => setEditOpen(false)}>Cancel</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
 
       {/* ── No competition empty state ── */}
       {!active ? (
