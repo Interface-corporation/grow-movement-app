@@ -120,6 +120,7 @@ export default function AdminSeedFundVotes() {
     if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
     toast({ title: 'Competition created' });
     setNewOpen(false); setActive(data); await reload();
+  };
 
   // ---- Edit / delete / publish ----
   const openEdit = (c: any) => {
