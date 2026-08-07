@@ -38,6 +38,11 @@ export default function AdminSeedFundVotes() {
   const [newEdition, setNewEdition] = useState(new Date().getFullYear().toString());
   const [newDate, setNewDate] = useState('');
 
+  const [editOpen, setEditOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState<any>(null);
+  const [editForm, setEditForm] = useState({ title: '', edition: '', description: '', event_date: '' });
+  const [savingEdit, setSavingEdit] = useState(false);
+
   const [addCandOpen, setAddCandOpen] = useState(false);
   const [pickEntId, setPickEntId] = useState('');
   const [raising, setRaising] = useState('');
