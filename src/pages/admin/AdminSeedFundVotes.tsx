@@ -16,7 +16,7 @@ import {
 import { toast } from '@/hooks/use-toast';
 import {
   Trophy, Play, Square, Plus, Trash2, Users, Vote, Crown, Filter, Search, Loader2, Calendar,
-  Settings, Mail, Key, KeyRound, Download, FileSpreadsheet, ShieldCheck, RefreshCw,
+  Settings, Mail, Key, KeyRound, Download, FileSpreadsheet, ShieldCheck, RefreshCw, Pencil, Globe, EyeOff,
 } from 'lucide-react';
 
 const sb = supabase as any;
