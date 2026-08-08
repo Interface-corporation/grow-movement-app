@@ -16,6 +16,8 @@ import ApplyCoach from '@/pages/ApplyCoach';
 import Contact from '@/pages/Contact';
 import Donate from '@/pages/Donate';
 import SeedFund from '@/pages/SeedFund';
+import TestimonialsPage from '@/pages/Testimonials';
+
 import AdminSeedFundVotes from '@/pages/admin/AdminSeedFundVotes';
 import AdminLayout from '@/components/admin/AdminLayout';
 import DashboardHome from '@/pages/admin/DashboardHome';
