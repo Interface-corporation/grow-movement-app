@@ -21,20 +21,21 @@ CREATE POLICY "impact_cases_coach_all" ON public.project_impact_cases
     EXISTS (
       SELECT 1
       FROM public.projects p
-      JOIN public.coaches c ON c.id = p.coach_id
+      JOIN public.profiles pr ON pr.coach_id = p.coach_id
       WHERE p.id = project_impact_cases.project_id
-        AND c.user_id = auth.uid()
+        AND pr.user_id = auth.uid()
     )
   )
   WITH CHECK (
     EXISTS (
       SELECT 1
       FROM public.projects p
-      JOIN public.coaches c ON c.id = p.coach_id
+      JOIN public.profiles pr ON pr.coach_id = p.coach_id
       WHERE p.id = project_impact_cases.project_id
-        AND c.user_id = auth.uid()
+        AND pr.user_id = auth.uid()
     )
   );
+
 
 -- ── Public view ───────────────────────────────────────────
 DROP VIEW IF EXISTS public.public_testimonials;
