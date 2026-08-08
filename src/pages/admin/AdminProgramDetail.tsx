@@ -580,131 +580,14 @@ export default function AdminProgramDetail() {
                 </div>
               )}
 
-              {/* ── Impact Case Studies ── */}
-              <div className="border-t border-border pt-4">
-                <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-                  <h4 className="font-bold flex items-center gap-2">
-                    <Award className="h-4 w-4 text-primary" /> Impact Case Studies ({impactCases.length})
-                  </h4>
-                  {canCreate && (
-                    <Button size="sm" onClick={() => {
-                      setImpactForm(emptyImpactForm); setEditingImpact(null); setShowImpactForm(true);
-                    }}>
-                      <Plus className="h-3.5 w-3.5 mr-1" /> Impact Case Study
-                    </Button>
-                  )}
-                </div>
+              {/* ── Impact Case Studies (shared component) ── */}
+              <ImpactCaseStudies
+                projectId={selectedProject.id}
+                entrepreneurName={getEntName(selectedProject.entrepreneur_id)}
+                coachName={getCoachName(selectedProject.coach_id)}
+                canEdit={canCreate}
+              />
 
-                {showImpactForm && (
-                  <div className="bg-secondary/30 rounded-xl p-4 mb-4 space-y-3">
-                    <h5 className="text-sm font-semibold">{editingImpact ? 'Edit' : 'New'} Impact Case Study</h5>
-                    <div>
-                      <label className="block text-xs font-medium mb-1">Title</label>
-                      <input value={impactForm.title} onChange={e => setImpactForm({ ...impactForm, title: e.target.value })}
-                        placeholder="e.g. Revenue tripled after 6 coaching sessions"
-                        className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm" />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium mb-1">Entrepreneur's Review</label>
-                      <textarea value={impactForm.entrepreneur_review} onChange={e => setImpactForm({ ...impactForm, entrepreneur_review: e.target.value })}
-                        placeholder="What the entrepreneur says about the coaching journey..."
-                        className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm resize-none" rows={4} />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium mb-1">Coach's Review</label>
-                      <textarea value={impactForm.coach_review} onChange={e => setImpactForm({ ...impactForm, coach_review: e.target.value })}
-                        placeholder="What the coach observed and achieved with the entrepreneur..."
-                        className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm resize-none" rows={4} />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium mb-1">Video Testimonial Link</label>
-                      <input value={impactForm.video_url} onChange={e => setImpactForm({ ...impactForm, video_url: e.target.value })}
-                        placeholder="YouTube, Vimeo or Google Drive link"
-                        className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm" />
-                      <p className="text-[11px] text-muted-foreground mt-1">Paste any share link — it is converted into an embedded player automatically.</p>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      <Button size="sm" onClick={handleSaveImpact} disabled={savingImpact}>
-                        {savingImpact ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : null}
-                        {editingImpact ? 'Update' : 'Save'} Case Study
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={() => { setShowImpactForm(false); setEditingImpact(null); }}>Cancel</Button>
-                      {!editingImpact && (
-                        <Button size="sm" variant="outline" title="Clear form"
-                          onClick={() => { setImpactForm(emptyImpactForm); clearImpactAutoSave(); toast.info('Form cleared'); }}>
-                          <RotateCcw className="h-3.5 w-3.5" />
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                <div className="space-y-4">
-                  {impactCases.map(ic => {
-                    const embed = toEmbedUrl(ic.video_url);
-                    return (
-                      <div key={ic.id} className="border border-border rounded-2xl p-4 space-y-4">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="min-w-0">
-                            <p className="font-semibold text-sm">{ic.title || 'Impact Case Study'}</p>
-                            <p className="text-xs text-muted-foreground">{new Date(ic.created_at).toLocaleDateString()}</p>
-                          </div>
-                          {canCreate && (
-                            <div className="flex gap-1 shrink-0">
-                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => {
-                                setImpactForm({
-                                  title: ic.title || '',
-                                  entrepreneur_review: ic.entrepreneur_review || '',
-                                  coach_review: ic.coach_review || '',
-                                  video_url: ic.video_url || '',
-                                });
-                                setEditingImpact(ic.id); setShowImpactForm(true);
-                              }}><Pencil className="h-3 w-3" /></Button>
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteImpact(ic.id)}>
-                                <Trash2 className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Video testimonial */}
-                        {embed && (
-                          <div className="rounded-xl overflow-hidden bg-black aspect-video">
-                            {isDirectVideoFile(embed)
-                              ? <video src={embed} controls className="w-full h-full" />
-                              : <iframe src={embed} title={ic.title || 'Testimonial'} className="w-full h-full"
-                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"
-                                  allowFullScreen />}
-                          </div>
-                        )}
-                        {ic.video_url && !embed && (
-                          <a href={ic.video_url} target="_blank" rel="noreferrer"
-                            className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
-                            <PlayCircle className="h-3.5 w-3.5" /> Open video link
-                          </a>
-                        )}
-
-                        {/* Reviews */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          {ic.entrepreneur_review && (
-                            <ReviewBlock label="Entrepreneur's review" author={getEntName(selectedProject.entrepreneur_id)}
-                              text={ic.entrepreneur_review} accent="text-primary" />
-                          )}
-                          {ic.coach_review && (
-                            <ReviewBlock label="Coach's review" author={getCoachName(selectedProject.coach_id)}
-                              text={ic.coach_review} accent="text-accent" />
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                  {impactCases.length === 0 && !showImpactForm && (
-                    <p className="text-sm text-muted-foreground text-center py-4">
-                      No impact case study yet. Add reviews and a video testimonial to document this project's impact.
-                    </p>
-                  )}
-                </div>
-              </div>
 
 
               {/* Sessions */}
