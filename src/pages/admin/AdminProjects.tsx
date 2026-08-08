@@ -415,7 +415,16 @@ export default function AdminProjects() {
             </div>
             {selectedProject.description && <p className="text-sm text-muted-foreground mb-4">{selectedProject.description}</p>}
 
+            {/* Impact Case Studies (shared with the Programs tab) */}
+            <ImpactCaseStudies
+              projectId={selectedProject.id}
+              entrepreneurName={getEntName(selectedProject.entrepreneur_id)}
+              coachName={getCoachName(selectedProject.coach_id)}
+              canEdit={canCreate || userRole === 'coach'}
+            />
+
             {/* Sessions Section */}
+
             <div className="border-t border-border pt-4">
               <div className="flex items-center justify-between mb-4">
                 <h4 className="font-bold flex items-center gap-2"><MessageSquare className="h-4 w-4" /> Sessions ({sessions.length})</h4>
