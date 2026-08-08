@@ -189,62 +189,12 @@ export default function AdminProgramDetail() {
     await fetchComments(sessionId);
   };
 
-  // ── Impact case studies ──
-  const fetchImpactCases = async (projectId: string) => {
-    const { data } = await (supabase as any)
-      .from('project_impact_cases')
-      .select('*')
-      .eq('project_id', projectId)
-      .order('created_at', { ascending: false });
-    setImpactCases(data || []);
-  };
-
-  const handleSaveImpact = async () => {
-    if (!selectedProject) return;
-    if (!impactForm.entrepreneur_review.trim() && !impactForm.coach_review.trim() && !impactForm.video_url.trim()) {
-      toast.error('Add at least one review or a video link');
-      return;
-    }
-    setSavingImpact(true);
-    const payload = {
-      title: impactForm.title.trim() || null,
-      entrepreneur_review: impactForm.entrepreneur_review.trim() || null,
-      coach_review: impactForm.coach_review.trim() || null,
-      video_url: impactForm.video_url.trim() || null,
-    };
-    let error: any = null;
-    if (editingImpact) {
-      ({ error } = await (supabase as any).from('project_impact_cases').update(payload).eq('id', editingImpact));
-    } else {
-      ({ error } = await (supabase as any).from('project_impact_cases').insert({
-        ...payload, project_id: selectedProject.id, created_by: user?.id,
-      }));
-    }
-    setSavingImpact(false);
-    if (error) { toast.error('Failed to save impact case: ' + error.message); return; }
-    toast.success(editingImpact ? 'Impact case study updated' : 'Impact case study added');
-    clearImpactAutoSave();
-    setImpactForm(emptyImpactForm);
-    setEditingImpact(null);
-    setShowImpactForm(false);
-    await fetchImpactCases(selectedProject.id);
-  };
-
-  const handleDeleteImpact = async (caseId: string) => {
-    if (!confirm('Delete this impact case study?')) return;
-    await (supabase as any).from('project_impact_cases').delete().eq('id', caseId);
-    toast.success('Impact case study deleted');
-    if (selectedProject) await fetchImpactCases(selectedProject.id);
-  };
-
   const handleOpenProject = async (project: any) => {
     setSelectedProject(project);
     setExpandedSession(null);
-    setShowImpactForm(false);
-    setEditingImpact(null);
-    setImpactCases([]);
-    await Promise.all([fetchSessions(project.id), fetchImpactCases(project.id)]);
+    await fetchSessions(project.id);
   };
+
 
   // Match status controls
   const handleEndCoaching = async (match: any) => {
