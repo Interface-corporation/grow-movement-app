@@ -7,6 +7,8 @@ import { Search, Loader2, Plus, X, Pencil, Trash2, MessageSquare, FolderKanban, 
 import { toast } from 'sonner';
 import { logActivity } from '@/lib/activityLog';
 import { useAutoSave } from '@/hooks/useAutoSave';
+import ImpactCaseStudies from '@/components/admin/ImpactCaseStudies';
+
 
 const emptyForm = { name: '', description: '', status: 'Active', program_id: '', entrepreneur_id: '', coach_id: '' };
 
