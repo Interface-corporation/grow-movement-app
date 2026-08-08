@@ -16,6 +16,8 @@ import ApplyCoach from '@/pages/ApplyCoach';
 import Contact from '@/pages/Contact';
 import Donate from '@/pages/Donate';
 import SeedFund from '@/pages/SeedFund';
+import TestimonialsPage from '@/pages/Testimonials';
+
 import AdminSeedFundVotes from '@/pages/admin/AdminSeedFundVotes';
 import AdminLayout from '@/components/admin/AdminLayout';
 import DashboardHome from '@/pages/admin/DashboardHome';
@@ -74,6 +76,8 @@ export default function App() {
             <Route path="/contact" element={<PublicLayout><Contact /></PublicLayout>} />
             <Route path="/donate" element={<PublicLayout><Donate /></PublicLayout>} />
             <Route path="/seed-fund" element={<PublicLayout><SeedFund /></PublicLayout>} />
+            <Route path="/testimonials" element={<PublicLayout><TestimonialsPage /></PublicLayout>} />
+
             <Route path="/blog/:slug" element={<PublicLayout><BlogPost /></PublicLayout>} />
             <Route path="/blog" element={<PublicLayout><Blog /></PublicLayout>} />
             {/* Auth */}
