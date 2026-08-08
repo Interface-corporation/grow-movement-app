@@ -17,7 +17,9 @@ export function Navbar() {
     { to: '/', label: 'Home' },
     { to: '/entrepreneurs', label: 'Entrepreneurs' },
     { to: '/seed-fund', label: 'Seed Fund' },
+    { to: '/testimonials', label: 'Testimonials' },
     { to: '/blog', label: 'Blog' },
+
     { to: '/apply', label: 'Apply' },
     { to: '/contact', label: 'Contact' },
     { to: '/admin', label: 'Login' },
