@@ -2,12 +2,44 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Award, Plus, Pencil, Trash2, Loader2, RotateCcw, PlayCircle, Quote, Eye, EyeOff } from 'lucide-react';
+import { Award, Plus, Pencil, Trash2, Loader2, RotateCcw, PlayCircle, Quote, Eye, EyeOff, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAutoSave } from '@/hooks/useAutoSave';
 import { toEmbedUrl, isDirectVideoFile } from '@/lib/videoEmbed';
 
-const emptyImpactForm = { title: '', entrepreneur_review: '', coach_review: '', video_url: '' };
+const emptyImpactForm = { title: '', entrepreneur_review: '', coach_review: '', video_url: '', rating: 0 };
+
+/** Clickable 1–5 star rating input. */
+function StarRatingInput({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+  const [hover, setHover] = useState(0);
+  const active = hover || value;
+  return (
+    <div className="flex items-center gap-1" onMouseLeave={() => setHover(0)}>
+      {[1, 2, 3, 4, 5].map(n => (
+        <button key={n} type="button" aria-label={`Rate ${n} out of 5`}
+          onMouseEnter={() => setHover(n)}
+          onClick={() => onChange(value === n ? 0 : n)}
+          className="p-0.5 transition-transform hover:scale-110">
+          <Star className={`h-5 w-5 ${n <= active ? 'fill-grow-gold text-grow-gold' : 'text-muted-foreground'}`} />
+        </button>
+      ))}
+      <span className="ml-2 text-xs text-muted-foreground">
+        {value ? `${value} / 5` : 'Not rated'}
+      </span>
+    </div>
+  );
+}
+
+/** Read-only star row. */
+function StarRow({ rating }: { rating: number }) {
+  return (
+    <div className="flex items-center gap-0.5">
+      {[1, 2, 3, 4, 5].map(n => (
+        <Star key={n} className={`h-3.5 w-3.5 ${n <= rating ? 'fill-grow-gold text-grow-gold' : 'text-muted-foreground/40'}`} />
+      ))}
+    </div>
+  );
+}
 
 /** Review block with a Read more / Show less toggle. */
 function ReviewBlock({ label, author, text, accent }: { label: string; author: string; text: string; accent: string }) {
