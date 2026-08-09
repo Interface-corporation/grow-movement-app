@@ -7,6 +7,7 @@ export interface PublicTestimonial {
   entrepreneur_review: string | null;
   coach_review: string | null;
   video_url: string | null;
+  rating: number | null;
   created_at: string;
   project_id: string;
   project_name: string | null;

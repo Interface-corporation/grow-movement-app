@@ -2,12 +2,44 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Award, Plus, Pencil, Trash2, Loader2, RotateCcw, PlayCircle, Quote, Eye, EyeOff } from 'lucide-react';
+import { Award, Plus, Pencil, Trash2, Loader2, RotateCcw, PlayCircle, Quote, Eye, EyeOff, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAutoSave } from '@/hooks/useAutoSave';
 import { toEmbedUrl, isDirectVideoFile } from '@/lib/videoEmbed';
 
-const emptyImpactForm = { title: '', entrepreneur_review: '', coach_review: '', video_url: '' };
+const emptyImpactForm = { title: '', entrepreneur_review: '', coach_review: '', video_url: '', rating: 0 };
+
+/** Clickable 1–5 star rating input. */
+function StarRatingInput({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+  const [hover, setHover] = useState(0);
+  const active = hover || value;
+  return (
+    <div className="flex items-center gap-1" onMouseLeave={() => setHover(0)}>
+      {[1, 2, 3, 4, 5].map(n => (
+        <button key={n} type="button" aria-label={`Rate ${n} out of 5`}
+          onMouseEnter={() => setHover(n)}
+          onClick={() => onChange(value === n ? 0 : n)}
+          className="p-0.5 transition-transform hover:scale-110">
+          <Star className={`h-5 w-5 ${n <= active ? 'fill-grow-gold text-grow-gold' : 'text-muted-foreground'}`} />
+        </button>
+      ))}
+      <span className="ml-2 text-xs text-muted-foreground">
+        {value ? `${value} / 5` : 'Not rated'}
+      </span>
+    </div>
+  );
+}
+
+/** Read-only star row. */
+function StarRow({ rating }: { rating: number }) {
+  return (
+    <div className="flex items-center gap-0.5">
+      {[1, 2, 3, 4, 5].map(n => (
+        <Star key={n} className={`h-3.5 w-3.5 ${n <= rating ? 'fill-grow-gold text-grow-gold' : 'text-muted-foreground/40'}`} />
+      ))}
+    </div>
+  );
+}
 
 /** Review block with a Read more / Show less toggle. */
 function ReviewBlock({ label, author, text, accent }: { label: string; author: string; text: string; accent: string }) {
@@ -80,6 +112,7 @@ export default function ImpactCaseStudies({ projectId, entrepreneurName, coachNa
       entrepreneur_review: form.entrepreneur_review.trim() || null,
       coach_review: form.coach_review.trim() || null,
       video_url: form.video_url.trim() || null,
+      rating: form.rating || null,
     };
     let error: any = null;
     if (editing) {
@@ -158,6 +191,11 @@ export default function ImpactCaseStudies({ projectId, entrepreneurName, coachNa
               className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm" />
             <p className="text-[11px] text-muted-foreground mt-1">Paste any share link — it is converted into an embedded player automatically.</p>
           </div>
+          <div>
+            <label className="block text-xs font-medium mb-1">Entrepreneur's Rating</label>
+            <StarRatingInput value={form.rating} onChange={v => setForm({ ...form, rating: v })} />
+            <p className="text-[11px] text-muted-foreground mt-1">Shown as stars on the public testimonials page.</p>
+          </div>
           <div className="flex flex-wrap gap-2">
             <Button size="sm" onClick={handleSave} disabled={saving}>
               {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : null}
@@ -182,8 +220,9 @@ export default function ImpactCaseStudies({ projectId, entrepreneurName, coachNa
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <p className="font-semibold text-sm">{ic.title || 'Impact Case Study'}</p>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <p className="text-xs text-muted-foreground">{new Date(ic.created_at).toLocaleDateString()}</p>
+                    {ic.rating ? <StarRow rating={ic.rating} /> : null}
                     <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
                       ic.is_published ? 'bg-accent/10 text-accent' : 'bg-muted text-muted-foreground'
                     }`}>{ic.is_published ? 'Published' : 'Draft'}</span>
@@ -204,6 +243,7 @@ export default function ImpactCaseStudies({ projectId, entrepreneurName, coachNa
                         entrepreneur_review: ic.entrepreneur_review || '',
                         coach_review: ic.coach_review || '',
                         video_url: ic.video_url || '',
+                        rating: ic.rating || 0,
                       });
                       setEditing(ic.id); setShowForm(true);
                     }}><Pencil className="h-3 w-3" /></Button>
