@@ -112,6 +112,7 @@ export default function ImpactCaseStudies({ projectId, entrepreneurName, coachNa
       entrepreneur_review: form.entrepreneur_review.trim() || null,
       coach_review: form.coach_review.trim() || null,
       video_url: form.video_url.trim() || null,
+      rating: form.rating || null,
     };
     let error: any = null;
     if (editing) {
