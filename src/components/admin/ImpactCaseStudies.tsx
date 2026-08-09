@@ -215,8 +215,9 @@ export default function ImpactCaseStudies({ projectId, entrepreneurName, coachNa
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <p className="font-semibold text-sm">{ic.title || 'Impact Case Study'}</p>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <p className="text-xs text-muted-foreground">{new Date(ic.created_at).toLocaleDateString()}</p>
+                    {ic.rating ? <StarRow rating={ic.rating} /> : null}
                     <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
                       ic.is_published ? 'bg-accent/10 text-accent' : 'bg-muted text-muted-foreground'
                     }`}>{ic.is_published ? 'Published' : 'Draft'}</span>
