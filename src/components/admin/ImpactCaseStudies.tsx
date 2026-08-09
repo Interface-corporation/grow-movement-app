@@ -236,6 +236,7 @@ export default function ImpactCaseStudies({ projectId, entrepreneurName, coachNa
                         entrepreneur_review: ic.entrepreneur_review || '',
                         coach_review: ic.coach_review || '',
                         video_url: ic.video_url || '',
+                        rating: ic.rating || 0,
                       });
                       setEditing(ic.id); setShowForm(true);
                     }}><Pencil className="h-3 w-3" /></Button>
