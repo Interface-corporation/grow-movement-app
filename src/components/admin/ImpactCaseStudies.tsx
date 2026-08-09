@@ -191,6 +191,11 @@ export default function ImpactCaseStudies({ projectId, entrepreneurName, coachNa
               className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm" />
             <p className="text-[11px] text-muted-foreground mt-1">Paste any share link — it is converted into an embedded player automatically.</p>
           </div>
+          <div>
+            <label className="block text-xs font-medium mb-1">Entrepreneur's Rating</label>
+            <StarRatingInput value={form.rating} onChange={v => setForm({ ...form, rating: v })} />
+            <p className="text-[11px] text-muted-foreground mt-1">Shown as stars on the public testimonials page.</p>
+          </div>
           <div className="flex flex-wrap gap-2">
             <Button size="sm" onClick={handleSave} disabled={saving}>
               {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : null}
