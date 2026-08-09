@@ -138,56 +138,75 @@ function TestimonialDialog({ t, onClose }: { t: PublicTestimonial | null; onClos
   const embed = t ? toEmbedUrl(t.video_url) : null;
   return (
     <Dialog open={!!t} onOpenChange={o => { if (!o) onClose(); }}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto rounded-3xl">
+      <DialogContent className="max-w-3xl h-[90vh] p-0 rounded-3xl overflow-hidden flex flex-col">
         {t && (
           <>
-            <DialogHeader>
+            <DialogHeader className="shrink-0 px-6 pt-6 pb-4">
               <DialogTitle className="font-display text-xl md:text-2xl font-black pr-6 text-left">
                 {t.title || `${t.entrepreneur_name || 'A Grow entrepreneur'}'s story`}
               </DialogTitle>
             </DialogHeader>
 
-            <div className="flex flex-wrap items-center gap-3">
-              <Stars rating={t.rating ?? 5} className="h-4 w-4" />
-              <p className="text-xs text-muted-foreground">
-                {[t.entrepreneur_name, t.business_name, t.country ? `${countryFlag(t.country)} ${t.country}` : null]
-                  .filter(Boolean).join(' · ')}
-              </p>
+            <div className="shrink-0 px-6 pb-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <Stars rating={t.rating ?? 5} className="h-4 w-4" />
+                <p className="text-xs text-muted-foreground">
+                  {[t.entrepreneur_name, t.business_name, t.country ? `${countryFlag(t.country)} ${t.country}` : null]
+                    .filter(Boolean).join(' · ')}
+                </p>
+              </div>
             </div>
 
-            {embed && <VideoFrame embed={embed} title={t.title || 'Impact video'} />}
-            {t.video_url && !embed && (
-              <a href={t.video_url} target="_blank" rel="noreferrer"
-                className="inline-flex items-center gap-1 text-sm font-bold text-primary hover:underline">
-                <PlayCircle className="h-4 w-4" /> Open video link
-              </a>
-            )}
+            <div className="flex-1 overflow-y-auto px-6 pb-6">
+              {embed && (
+                <div className="mb-6">
+                  <VideoFrame embed={embed} title={t.title || 'Impact video'} />
+                </div>
+              )}
 
-            {t.entrepreneur_review && (
-              <section>
-                <h4 className="font-display text-sm font-bold uppercase tracking-wider text-primary mb-2">
-                  Entrepreneur's review
-                </h4>
-                <p className="text-sm leading-relaxed whitespace-pre-line text-foreground/90">{t.entrepreneur_review}</p>
-              </section>
-            )}
+              {t.video_url && !embed && (
+                <a href={t.video_url} target="_blank" rel="noreferrer"
+                  className="inline-flex items-center gap-1 text-sm font-bold text-primary hover:underline mb-6">
+                  <PlayCircle className="h-4 w-4" /> Open video link
+                </a>
+              )}
 
-            {t.coach_review && (
-              <section className="rounded-2xl bg-secondary/40 border border-border p-4">
-                <h4 className="font-display text-sm font-bold uppercase tracking-wider text-accent mb-2">
-                  Coach's feedback{t.coach_name ? ` — ${t.coach_name}` : ''}
-                </h4>
-                <p className="text-sm leading-relaxed whitespace-pre-line text-muted-foreground">{t.coach_review}</p>
-              </section>
-            )}
+              {t.entrepreneur_review && (
+                <section className="mb-6">
+                  <h4 className="font-display text-sm font-bold uppercase tracking-wider text-primary mb-3">
+                    Entrepreneur's review
+                  </h4>
+                  <div className="rounded-2xl bg-secondary/30 border border-border p-5">
+                    <Quote className="h-5 w-5 text-primary/40 mb-2" />
+                    <p className="text-sm leading-relaxed whitespace-pre-line text-foreground/90">
+                      {t.entrepreneur_review}
+                    </p>
+                  </div>
+                </section>
+              )}
 
-            {t.entrepreneur_id && (
-              <Link to={`/entrepreneurs/${t.entrepreneur_id}`} onClick={onClose}>
-                <Button variant="outline" className="rounded-2xl w-full">
-                  View full profile <ArrowRight className="h-4 w-4 ml-2" />
-                </Button>
-              </Link>
-            )}
+              {t.coach_review && (
+                <section className="mb-6">
+                  <h4 className="font-display text-sm font-bold uppercase tracking-wider text-accent mb-3">
+                    Coach's feedback{t.coach_name ? ` — ${t.coach_name}` : ''}
+                  </h4>
+                  <div className="rounded-2xl bg-secondary/40 border border-border p-5">
+                    <Quote className="h-5 w-5 text-accent/40 mb-2" />
+                    <p className="text-sm leading-relaxed whitespace-pre-line text-muted-foreground">
+                      {t.coach_review}
+                    </p>
+                  </div>
+                </section>
+              )}
+
+              {t.entrepreneur_id && (
+                <Link to={`/entrepreneurs/${t.entrepreneur_id}`} onClick={onClose}>
+                  <Button variant="outline" className="rounded-2xl w-full">
+                    View full profile <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </Link>
+              )}
+            </div>
           </>
         )}
       </DialogContent>
