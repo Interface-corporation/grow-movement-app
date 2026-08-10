@@ -109,6 +109,7 @@ export default function ImpactCaseStudies({ projectId, entrepreneurName, coachNa
     setSaving(true);
     const payload = {
       title: form.title.trim() || null,
+      project_brief: form.project_brief.trim() || null,
       entrepreneur_review: form.entrepreneur_review.trim() || null,
       coach_review: form.coach_review.trim() || null,
       video_url: form.video_url.trim() || null,
