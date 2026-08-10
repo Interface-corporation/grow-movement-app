@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { usePublicTestimonials, type PublicTestimonial } from '@/hooks/usePublicTestimonials';
 import { toEmbedUrl, isDirectVideoFile } from '@/lib/videoEmbed';
 import { countryFlag } from '@/lib/countryFlag';
-import heroImage from '@/assets/testimonials-hero.jpg';
+import heroImage from '@/assets/growImage/applyHero.png';
 
 function initials(name?: string | null) {
   return (name || '?').split(' ').filter(Boolean).slice(0, 2).map(n => n[0]).join('').toUpperCase();
@@ -70,7 +70,7 @@ function TestimonialCard({ t, index, onOpen }: { t: PublicTestimonial; index: nu
         {embed && (
           <span className="absolute inset-0 flex items-center justify-center bg-foreground/25 group-hover:bg-foreground/40 transition-colors">
             <span className="flex items-center gap-2 rounded-full bg-card/95 px-4 py-2 text-xs sm:text-sm font-bold text-foreground shadow-lg">
-              <PlayCircle className="h-5 w-5 text-primary" /> Watch impact video
+              <PlayCircle className="h-10 w-10 text-primary" /> 
             </span>
           </span>
         )}
@@ -245,7 +245,7 @@ export default function TestimonialsPage() {
           transition={{ duration: 14, ease: 'easeOut' }}
           className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/70 to-background/20" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/100 to-background/80" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/40" />
         <div className="absolute -top-24 -left-16 w-80 h-80 rounded-full bg-primary/25 blur-3xl animate-pulse" />
         <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full bg-grow-gold/20 blur-3xl animate-pulse" />
@@ -254,17 +254,15 @@ export default function TestimonialsPage() {
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}
             className="max-w-2xl">
             <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-card/70 backdrop-blur px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-primary">
-              <Sparkles className="h-4 w-4" /> Real Impact, Real Voices
-            </span>
+              From Coaching to Impact</span>
             <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-black mt-6 mb-5 leading-[1.05]">
-              Stories that prove{' '}
+              Reflections, Results and Stories from{' '}
               <span className="bg-[length:200%_200%] bg-gradient-to-r from-grow-coral via-orange-400 to-grow-gold bg-clip-text text-transparent animate-gradient">
-                coaching changes lives
+                Entrepreneurs and Coaches.
               </span>
             </h1>
-            <p className="text-lg text-muted-foreground max-w-xl">
-              Every story below comes from a completed coaching journey — told by the entrepreneur,
-              and confirmed by the coach who walked beside them.
+            <p className="text-lg  max-w-xl text-secondary-foreground">
+              Each Story Reflects the Shared Journey of an Entrepreneur and a Coach, Highlighting the Progress, outcomes and Impact Achieved Through Their Collaboration.
             </p>
             <div className="flex flex-wrap items-center gap-8 mt-9">
               <div><span className="font-display text-3xl font-black text-primary">{testimonials.length}</span>
