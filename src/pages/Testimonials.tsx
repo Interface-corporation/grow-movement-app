@@ -284,7 +284,7 @@ export default function TestimonialsPage() {
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative pt-28 pb-16">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}
-            className="max-w-2xl">
+            className="max-w-3xl">
             <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-card/70 backdrop-blur px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-primary">
               From Coaching to Impact</span>
             <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-black mt-6 mb-5 leading-[1.05]">
@@ -293,7 +293,7 @@ export default function TestimonialsPage() {
                 Entrepreneurs and Coaches.
               </span>
             </h1>
-            <p className="text-lg  max-w-xl text-secondary-foreground">
+            <p className="text-lg  max-w-2xl text-secondary-foreground">
               Each Story Reflects the Shared Journey of an Entrepreneur and a Coach, Highlighting the Progress, outcomes and Impact Achieved Through Their Collaboration.
             </p>
             <div className="flex flex-wrap items-center gap-8 mt-9">
@@ -310,7 +310,7 @@ export default function TestimonialsPage() {
 
       {/* Filters + grid */}
       <section className="py-12 md:py-16 bg-background">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1500px]">
           <div className="flex flex-col sm:flex-row gap-3 mb-10">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -336,7 +336,7 @@ export default function TestimonialsPage() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 xl:gap-7 items-stretch">
               {filtered.map((t, i) => (
                 <TestimonialCard key={t.id} t={t} index={i} onOpen={() => setActive(t)} />
               ))}
@@ -349,7 +349,7 @@ export default function TestimonialsPage() {
 
       {/* CTA */}
       <section className="py-16 bg-secondary/30">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl text-center">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl text-center">
           <h2 className="font-display text-3xl md:text-4xl font-black mb-4">Want your story here next?</h2>
           <p className="text-muted-foreground mb-8">
             Join Grow Movement as an entrepreneur or volunteer as a coach and help write the next chapter of impact.
