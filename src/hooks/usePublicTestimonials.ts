@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 export interface PublicTestimonial {
   id: string;
   title: string | null;
+  project_brief: string | null;
   entrepreneur_review: string | null;
   coach_review: string | null;
   video_url: string | null;

@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { useAutoSave } from '@/hooks/useAutoSave';
 import { toEmbedUrl, isDirectVideoFile } from '@/lib/videoEmbed';
 
-const emptyImpactForm = { title: '', entrepreneur_review: '', coach_review: '', video_url: '', rating: 0 };
+const emptyImpactForm = { title: '', project_brief: '', entrepreneur_review: '', coach_review: '', video_url: '', rating: 0 };
 
 /** Clickable 1–5 star rating input. */
 function StarRatingInput({ value, onChange }: { value: number; onChange: (v: number) => void }) {
@@ -109,6 +109,7 @@ export default function ImpactCaseStudies({ projectId, entrepreneurName, coachNa
     setSaving(true);
     const payload = {
       title: form.title.trim() || null,
+      project_brief: form.project_brief.trim() || null,
       entrepreneur_review: form.entrepreneur_review.trim() || null,
       coach_review: form.coach_review.trim() || null,
       video_url: form.video_url.trim() || null,
@@ -173,6 +174,13 @@ export default function ImpactCaseStudies({ projectId, entrepreneurName, coachNa
               className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm" />
           </div>
           <div>
+            <label className="block text-xs font-medium mb-1">Brief Project Description</label>
+            <textarea value={form.project_brief} onChange={e => setForm({ ...form, project_brief: e.target.value })}
+              placeholder="A short summary of what this project was about, the goal and the coaching focus..."
+              className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm resize-none" rows={3} />
+            <p className="text-[11px] text-muted-foreground mt-1">Hidden on the public testimonial card — only shown when a visitor opens the story.</p>
+          </div>
+          <div>
             <label className="block text-xs font-medium mb-1">Entrepreneur's Review</label>
             <textarea value={form.entrepreneur_review} onChange={e => setForm({ ...form, entrepreneur_review: e.target.value })}
               placeholder="What the entrepreneur says about the coaching journey..."
@@ -220,7 +228,10 @@ export default function ImpactCaseStudies({ projectId, entrepreneurName, coachNa
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <p className="font-semibold text-sm">{ic.title || 'Impact Case Study'}</p>
-                  <div className="flex flex-wrap items-center gap-2">
+                  {ic.project_brief && (
+                    <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2 whitespace-pre-line">{ic.project_brief}</p>
+                  )}
+                  <div className="flex flex-wrap items-center gap-2 mt-1">
                     <p className="text-xs text-muted-foreground">{new Date(ic.created_at).toLocaleDateString()}</p>
                     {ic.rating ? <StarRow rating={ic.rating} /> : null}
                     <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
@@ -240,6 +251,7 @@ export default function ImpactCaseStudies({ projectId, entrepreneurName, coachNa
                     <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => {
                       setForm({
                         title: ic.title || '',
+                        project_brief: ic.project_brief || '',
                         entrepreneur_review: ic.entrepreneur_review || '',
                         coach_review: ic.coach_review || '',
                         video_url: ic.video_url || '',
