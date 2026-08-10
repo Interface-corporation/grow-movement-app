@@ -116,9 +116,10 @@ function TestimonialCard({ t, index, onOpen }: { t: PublicTestimonial; index: nu
 
         <div className="mt-auto pt-4 border-t border-border flex items-center gap-3">
           {t.entrepreneur_photo_url ? (
-            <img src={t.entrepreneur_photo_url} alt="" loading="lazy" className="w-10 h-10 rounded-full object-cover" />
+            <img src={t.entrepreneur_photo_url} alt="" loading="lazy"
+              className="w-14 h-14 rounded-full object-cover object-top ring-2 ring-primary/20 shrink-0" />
           ) : (
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
+            <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary shrink-0">
               {initials(t.entrepreneur_name)}
             </div>
           )}
