@@ -56,21 +56,25 @@ function TestimonialCard({ t, index, onOpen }: { t: PublicTestimonial; index: nu
       transition={{ duration: 0.5, delay: (index % 3) * 0.08 }}
       className="group h-full bg-card border border-border rounded-3xl overflow-hidden flex flex-col hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
     >
-      {/* Media — fixed 16:9 on every device */}
-      <button onClick={onOpen} className="relative block w-full aspect-video bg-secondary overflow-hidden text-left"
+      {/* Media — fixed ratio, full portrait always visible */}
+      <button onClick={onOpen} className="relative block w-full aspect-[4/3] bg-secondary overflow-hidden text-left"
         aria-label={embed ? 'Play impact video' : 'Read full story'}>
         {t.entrepreneur_photo_url ? (
-          <img src={t.entrepreneur_photo_url} alt={`${t.entrepreneur_name || 'Entrepreneur'} — Grow Movement testimonial`}
-            loading="lazy" className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition-transform duration-700" />
+          <>
+            <img src={t.entrepreneur_photo_url} alt="" aria-hidden loading="lazy"
+              className="absolute inset-0 h-full w-full object-cover scale-110 blur-2xl opacity-40" />
+            <img src={t.entrepreneur_photo_url} alt={`${t.entrepreneur_name || 'Entrepreneur'} — Grow Movement testimonial`}
+              loading="lazy" className="absolute inset-0 h-full w-full object-contain group-hover:scale-[1.03] transition-transform duration-700" />
+          </>
         ) : (
           <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/15 via-accent/10 to-grow-gold/15">
             <span className="font-display text-4xl font-black text-primary/70">{initials(t.entrepreneur_name)}</span>
           </div>
         )}
         {embed && (
-          <span className="absolute inset-0 flex items-center justify-center bg-foreground/25 group-hover:bg-foreground/40 transition-colors">
-            <span className="flex items-center gap-2 rounded-full bg-card/95 px-4 py-2 text-xs sm:text-sm font-bold text-foreground shadow-lg">
-              <PlayCircle className="h-10 w-10 text-primary" /> 
+          <span className="absolute inset-0 flex items-center justify-center bg-foreground/20 group-hover:bg-foreground/35 transition-colors">
+            <span className="flex items-center justify-center rounded-full bg-card/95 p-2 shadow-lg">
+              <PlayCircle className="h-10 w-10 text-primary" />
             </span>
           </span>
         )}
