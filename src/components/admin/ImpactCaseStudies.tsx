@@ -174,6 +174,13 @@ export default function ImpactCaseStudies({ projectId, entrepreneurName, coachNa
               className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm" />
           </div>
           <div>
+            <label className="block text-xs font-medium mb-1">Brief Project Description</label>
+            <textarea value={form.project_brief} onChange={e => setForm({ ...form, project_brief: e.target.value })}
+              placeholder="A short summary of what this project was about, the goal and the coaching focus..."
+              className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm resize-none" rows={3} />
+            <p className="text-[11px] text-muted-foreground mt-1">Hidden on the public testimonial card — only shown when a visitor opens the story.</p>
+          </div>
+          <div>
             <label className="block text-xs font-medium mb-1">Entrepreneur's Review</label>
             <textarea value={form.entrepreneur_review} onChange={e => setForm({ ...form, entrepreneur_review: e.target.value })}
               placeholder="What the entrepreneur says about the coaching journey..."
