@@ -143,47 +143,74 @@ function TestimonialDialog({ t, onClose }: { t: PublicTestimonial | null; onClos
   const embed = t ? toEmbedUrl(t.video_url) : null;
   return (
     <Dialog open={!!t} onOpenChange={o => { if (!o) onClose(); }}>
-      <DialogContent className="max-w-3xl h-[90vh] p-0 rounded-3xl overflow-hidden flex flex-col">
+      <DialogContent className="max-w-4xl max-h-[92vh] p-0 rounded-3xl overflow-hidden">
         {t && (
-          <>
-            <DialogHeader className="shrink-0 px-6 pt-6 pb-4">
-              <DialogTitle className="font-display text-xl md:text-2xl font-black pr-6 text-left">
-                {t.title || `${t.entrepreneur_name || 'A Grow entrepreneur'}'s story`}
-              </DialogTitle>
-            </DialogHeader>
+          <div className="max-h-[92vh] overflow-y-auto overscroll-contain">
+            {/* Header band */}
+            <div className="bg-gradient-to-br from-primary/10 via-accent/5 to-grow-gold/10 border-b border-border px-6 pt-6 pb-5 md:px-8">
+              <DialogHeader className="text-left space-y-0">
+                <DialogTitle className="font-display text-xl md:text-3xl font-black pr-10 leading-tight text-left">
+                  {t.title || `${t.entrepreneur_name || 'A Grow entrepreneur'}'s story`}
+                </DialogTitle>
+              </DialogHeader>
 
-            <div className="shrink-0 px-6 pb-4">
-              <div className="flex flex-wrap items-center gap-3">
-                <Stars rating={t.rating ?? 5} className="h-4 w-4" />
-                <p className="text-xs text-muted-foreground">
-                  {[t.entrepreneur_name, t.business_name, t.country ? `${countryFlag(t.country)} ${t.country}` : null]
-                    .filter(Boolean).join(' · ')}
-                </p>
+              <div className="mt-4 flex items-center gap-4">
+                {t.entrepreneur_photo_url ? (
+                  <img src={t.entrepreneur_photo_url} alt={t.entrepreneur_name || 'Entrepreneur'}
+                    className="w-16 h-16 md:w-20 md:h-20 rounded-2xl object-cover object-top ring-2 ring-primary/25 shrink-0" />
+                ) : (
+                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-primary/10 flex items-center justify-center font-display font-black text-primary shrink-0">
+                    {initials(t.entrepreneur_name)}
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <p className="font-semibold">{t.entrepreneur_name || 'Grow entrepreneur'}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {[t.business_name, t.country ? `${countryFlag(t.country)} ${t.country}` : null, t.sector]
+                      .filter(Boolean).join(' · ')}
+                  </p>
+                  <div className="mt-1.5"><Stars rating={t.rating ?? 5} className="h-4 w-4" /></div>
+                </div>
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-6 pb-6">
+            <div className="px-6 py-6 md:px-8 space-y-6">
+              {/* Brief project description — only visible here, never on the card */}
+              {t.project_brief && (
+                <section>
+                  <h4 className="font-display text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground mb-2">
+                    About the project
+                  </h4>
+                  <p className="text-sm md:text-base leading-relaxed whitespace-pre-line text-foreground/90">
+                    {t.project_brief}
+                  </p>
+                </section>
+              )}
+
               {embed && (
-                <div className="mb-6">
+                <section>
+                  <h4 className="font-display text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground mb-2">
+                    Impact video
+                  </h4>
                   <VideoFrame embed={embed} title={t.title || 'Impact video'} />
-                </div>
+                </section>
               )}
 
               {t.video_url && !embed && (
                 <a href={t.video_url} target="_blank" rel="noreferrer"
-                  className="inline-flex items-center gap-1 text-sm font-bold text-primary hover:underline mb-6">
+                  className="inline-flex items-center gap-1 text-sm font-bold text-primary hover:underline">
                   <PlayCircle className="h-4 w-4" /> Open video link
                 </a>
               )}
 
               {t.entrepreneur_review && (
-                <section className="mb-6">
+                <section>
                   <h4 className="font-display text-sm font-bold uppercase tracking-wider text-primary mb-3">
                     Entrepreneur's review
                   </h4>
                   <div className="rounded-2xl bg-secondary/30 border border-border p-5">
                     <Quote className="h-5 w-5 text-primary/40 mb-2" />
-                    <p className="text-sm leading-relaxed whitespace-pre-line text-foreground/90">
+                    <p className="text-sm md:text-base leading-relaxed whitespace-pre-line text-foreground/90">
                       {t.entrepreneur_review}
                     </p>
                   </div>
@@ -191,13 +218,13 @@ function TestimonialDialog({ t, onClose }: { t: PublicTestimonial | null; onClos
               )}
 
               {t.coach_review && (
-                <section className="mb-6">
+                <section>
                   <h4 className="font-display text-sm font-bold uppercase tracking-wider text-accent mb-3">
                     Coach's feedback{t.coach_name ? ` — ${t.coach_name}` : ''}
                   </h4>
                   <div className="rounded-2xl bg-secondary/40 border border-border p-5">
                     <Quote className="h-5 w-5 text-accent/40 mb-2" />
-                    <p className="text-sm leading-relaxed whitespace-pre-line text-muted-foreground">
+                    <p className="text-sm md:text-base leading-relaxed whitespace-pre-line text-muted-foreground">
                       {t.coach_review}
                     </p>
                   </div>
@@ -212,7 +239,7 @@ function TestimonialDialog({ t, onClose }: { t: PublicTestimonial | null; onClos
                 </Link>
               )}
             </div>
-          </>
+          </div>
         )}
       </DialogContent>
     </Dialog>
