@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { useAutoSave } from '@/hooks/useAutoSave';
 import { toEmbedUrl, isDirectVideoFile } from '@/lib/videoEmbed';
 
-const emptyImpactForm = { title: '', entrepreneur_review: '', coach_review: '', video_url: '', rating: 0 };
+const emptyImpactForm = { title: '', project_brief: '', entrepreneur_review: '', coach_review: '', video_url: '', rating: 0 };
 
 /** Clickable 1–5 star rating input. */
 function StarRatingInput({ value, onChange }: { value: number; onChange: (v: number) => void }) {
