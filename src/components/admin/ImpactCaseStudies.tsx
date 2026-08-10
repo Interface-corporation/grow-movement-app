@@ -228,7 +228,10 @@ export default function ImpactCaseStudies({ projectId, entrepreneurName, coachNa
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <p className="font-semibold text-sm">{ic.title || 'Impact Case Study'}</p>
-                  <div className="flex flex-wrap items-center gap-2">
+                  {ic.project_brief && (
+                    <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2 whitespace-pre-line">{ic.project_brief}</p>
+                  )}
+                  <div className="flex flex-wrap items-center gap-2 mt-1">
                     <p className="text-xs text-muted-foreground">{new Date(ic.created_at).toLocaleDateString()}</p>
                     {ic.rating ? <StarRow rating={ic.rating} /> : null}
                     <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
@@ -248,6 +251,7 @@ export default function ImpactCaseStudies({ projectId, entrepreneurName, coachNa
                     <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => {
                       setForm({
                         title: ic.title || '',
+                        project_brief: ic.project_brief || '',
                         entrepreneur_review: ic.entrepreneur_review || '',
                         coach_review: ic.coach_review || '',
                         video_url: ic.video_url || '',
