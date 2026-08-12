@@ -266,48 +266,89 @@ export default function TestimonialsPage() {
 
   return (
     <>
-      {/* Cinematic hero */}
-      <section className="relative min-h-[78vh] flex items-center overflow-hidden">
-        <motion.img
-          src={heroImage}
-          alt="Grow Movement entrepreneur smiling in her shop at golden hour"
-          width={1920} height={1088}
-          initial={{ scale: 1.15 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 14, ease: 'easeOut' }}
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/100 to-background/80" />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/40" />
-        <div className="absolute -top-24 -left-16 w-80 h-80 rounded-full bg-primary/25 blur-3xl animate-pulse" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full bg-grow-gold/20 blur-3xl animate-pulse" />
+    {/* Cinematic hero */}
+<section className="relative overflow-hidden min-h-[700px] flex items-center">
 
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative pt-28 pb-16">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}
-            className="max-w-3xl">
-            <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-card/70 backdrop-blur px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-primary">
-              From Coaching to Impact</span>
-            <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-black mt-6 mb-5 leading-[1.05]">
-              Reflections, Results and Stories from{' '}
-              <span className="bg-[length:200%_200%] bg-gradient-to-r from-grow-coral via-orange-400 to-grow-gold bg-clip-text text-transparent animate-gradient">
-                Entrepreneurs and Coaches.
-              </span>
-            </h1>
-            <p className="text-lg  max-w-2xl text-secondary-foreground">
-              Each Story Reflects the Shared Journey of an Entrepreneur and a Coach, Highlighting the Progress, outcomes and Impact Achieved Through Their Collaboration.
-            </p>
-            <div className="flex flex-wrap items-center gap-8 mt-9">
-              <div><span className="font-display text-3xl font-black text-primary">{testimonials.length}</span>
-                <span className="text-muted-foreground ml-2 text-sm">stories</span></div>
-              <div><span className="font-display text-3xl font-black text-accent">{videoCount}</span>
-                <span className="text-muted-foreground ml-2 text-sm">video testimonials</span></div>
-              <div className="flex items-center gap-2"><Stars rating={5} className="h-4 w-4" />
-                <span className="text-muted-foreground text-sm">rated by entrepreneurs</span></div>
-            </div>
-          </motion.div>
+  {/* Background image */}
+  <motion.img
+    src={heroImage}
+    alt="Grow Movement entrepreneur smiling in her shop at golden hour"
+    width={1920}
+    height={1088}
+    initial={{ scale: 1.15 }}
+    animate={{ scale: 1 }}
+    transition={{ duration: 14, ease: "easeOut" }}
+    className="absolute inset-0 h-full w-full object-cover bg-gradient-to-r from-black/35 via-black/25 to-black/10"
+  />
+
+  {/* Dark cinematic overlay */}
+  <div className="absolute inset-0 bg-black/35" />
+
+  {/* Stronger gradient behind the text */}
+  <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-black/20" />
+
+  {/* Bottom cinematic fade */}
+  <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-background via-background/50 to-transparent" />
+
+  {/* Content */}
+  <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-28 pb-16">
+
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7 }}
+      className="max-w-3xl"
+    >
+
+      <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-black/30 backdrop-blur-md px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-primary">
+        From Coaching to Impact
+      </span>
+
+      <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-black mt-6 mb-5 leading-[1.05] text-white drop-shadow-2xl">
+        Reflections, Results and Stories from{" "}
+        <span className="bg-[length:200%_200%] bg-gradient-to-r from-grow-coral via-orange-400 to-grow-gold bg-clip-text text-transparent animate-gradient">
+          Entrepreneurs and Coaches.
+        </span>
+      </h1>
+
+      <p className="text-lg md:text-xl max-w-2xl text-white/85 leading-relaxed drop-shadow-lg">
+        Each Story Reflects the Shared Journey of an Entrepreneur and a Coach,
+        Highlighting the Progress, outcomes and Impact Achieved Through Their
+        Collaboration.
+      </p>
+
+      <div className="flex flex-wrap items-center gap-8 mt-9">
+
+        <div>
+          <span className="font-display text-3xl font-black text-primary">
+            {testimonials.length}
+          </span>
+          <span className="text-white/70 ml-2 text-sm">
+            stories
+          </span>
         </div>
-      </section>
 
+        <div>
+          <span className="font-display text-3xl font-black text-accent">
+            {videoCount}
+          </span>
+          <span className="text-white/70 ml-2 text-sm">
+            video testimonials
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Stars rating={5} className="h-4 w-4" />
+          <span className="text-white/70 text-sm">
+            rated by entrepreneurs
+          </span>
+        </div>
+
+      </div>
+
+    </motion.div>
+  </div>
+</section>
       {/* Filters + grid */}
       <section className="py-12 md:py-16 bg-background">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1500px]">
@@ -356,7 +397,7 @@ export default function TestimonialsPage() {
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             <Link to="/apply"><Button size="lg" className="rounded-2xl">Apply now <ArrowRight className="h-4 w-4 ml-2" /></Button></Link>
-            <Link to="/donate"><Button size="lg" variant="outline" className="rounded-2xl">Support the movement</Button></Link>
+            {/* <Link to="/donate"><Button size="lg" variant="outline" className="rounded-2xl">Support the movement</Button></Link> */}
           </div>
         </div>
       </section>
