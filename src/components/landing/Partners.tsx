@@ -123,8 +123,8 @@ function PartnerCard({ p, i }: { p: typeof partners[0]; i: number }) {
 // ─── Section ──────────────────────────────────────────────────────────────────
 export function Partners() {
   return (
-    <section id="partners" className="py-16 md:py-20 bg-background">
-      <div className="container mx-auto px-6 lg:px-8">
+    <section id="partners" className="py-10 md:py-14 bg-background">
+      <div className="container mx-auto px-5 sm:px-6 lg:px-8">
 
         {/* Header */}
         <motion.div
@@ -132,7 +132,7 @@ export function Partners() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-14 max-w-2xl mx-auto"
+          className="text-center mb-10 max-w-2xl mx-auto"
         >
           <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-grow-coral/10 text-grow-coral text-[11px] font-bold tracking-[0.22em] uppercase mb-5">
             In Partnership With
@@ -149,7 +149,7 @@ export function Partners() {
         </motion.div>
 
         {/* Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 max-w-6xl mx-auto">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 w-full">
           {partners.map((p, i) => (
             <PartnerCard key={p.name} p={p} i={i} />
           ))}

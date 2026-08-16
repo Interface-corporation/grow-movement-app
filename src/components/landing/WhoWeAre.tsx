@@ -12,7 +12,7 @@ export function WhoWeAre() {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <section id="about" className="relative py-16 md:py-20 bg-background overflow-hidden">
+    <section id="about" className="relative py-10 md:py-14 bg-background overflow-hidden">
       {/* Ambient futuristic backdrop */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-0">
         <div className="absolute -top-32 -left-24 h-[28rem] w-[28rem] rounded-full bg-primary/10 blur-3xl animate-pulse" style={{ animationDuration: '9s' }} />
@@ -29,8 +29,8 @@ export function WhoWeAre() {
         />
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center max-w-6xl mx-auto">
+      <div className="container mx-auto px-5 sm:px-6 lg:px-8 relative">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center w-full">
           {/* Left: text */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}

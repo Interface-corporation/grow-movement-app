@@ -47,7 +47,7 @@ function Counter({ to, suffix }: { to: number; suffix: string }) {
 export function StatsBar() {
   return (
     <section className="relative -mt-16 z-20">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto px-5 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}

@@ -42,17 +42,17 @@ export function SuccessStories() {
   const story = stories[index];
 
   return (
-    <section id="stories" className="py-16 md:py-20 bg-grow-navy text-white relative overflow-hidden">
+    <section id="stories" className="py-10 md:py-14 bg-grow-navy text-white relative overflow-hidden">
       <div className="absolute top-1/2 left-0 w-96 h-96 bg-primary/20 rounded-full blur-3xl -translate-y-1/2" />
       <div className="absolute top-1/2 right-0 w-96 h-96 bg-accent/20 rounded-full blur-3xl -translate-y-1/2" />
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
+      <div className="container mx-auto px-5 sm:px-6 lg:px-8 relative">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-12 max-w-2xl mx-auto"
+          className="text-center mb-10 max-w-2xl mx-auto"
         >
           <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Success Stories</span>
           <h2 className="font-display text-4xl md:text-5xl font-black mt-3 mb-4 leading-tight">
@@ -77,7 +77,7 @@ export function SuccessStories() {
           </p>
         </motion.div>
 
-        <div className="max-w-6xl mx-auto">
+        <div className="w-full">
           <AnimatePresence mode="wait">
             <motion.div
               key={index}

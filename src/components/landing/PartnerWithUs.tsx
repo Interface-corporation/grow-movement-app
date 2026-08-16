@@ -48,7 +48,7 @@ const tracks = [
 
 export function PartnerWithUs() {
   return (
-    <section id="partner-with-us" className="relative py-16 md:py-20 overflow-hidden bg-gradient-to-b from-background via-secondary/30 to-background">
+    <section id="partner-with-us" className="relative py-10 md:py-14 overflow-hidden bg-gradient-to-b from-background via-secondary/30 to-background">
       {/* ambient shapes */}
       <motion.div
         aria-hidden
@@ -63,7 +63,7 @@ export function PartnerWithUs() {
         transition={{ duration: 16, repeat: Infinity, ease: 'easeInOut' }}
       />
 
-      <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative container mx-auto px-5 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
