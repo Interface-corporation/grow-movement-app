@@ -15,7 +15,7 @@ export function FAQ() {
   return (
     <section id="faq" className="py-10 md:py-14 bg-background">
       <div className="container mx-auto px-5 sm:px-6 lg:px-8">
-        <div className="max-w-3xl mx-auto">
+        <div className="w-full">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -52,7 +52,7 @@ export function FAQ() {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
           >
-            <Accordion type="single" collapsible className="space-y-3">
+            <Accordion type="single" collapsible className="grid grid-cols-1 lg:grid-cols-2 gap-3 items-start">
               {faqs.map((f, i) => (
                 <AccordionItem
                   key={i}
