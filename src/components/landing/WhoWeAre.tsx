@@ -29,7 +29,7 @@ export function WhoWeAre() {
         />
       </div>
 
-      <div className="container mx-auto px-5 sm:px-5 sm:px-6 lg:px-8 relative">
+      <div className="container mx-auto px-5 sm:px-6 lg:px-8 relative">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center w-full">
           {/* Left: text */}
           <motion.div

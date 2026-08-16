@@ -46,7 +46,7 @@ export function Testimonials() {
 
   return (
     <section className="py-10 md:py-14 bg-background overflow-hidden">
-      <div className="container mx-auto px-5 sm:px-5 sm:px-6 lg:px-8">
+      <div className="container mx-auto px-5 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -68,7 +68,7 @@ export function Testimonials() {
       </div>
 
       <div className="overflow-hidden" ref={emblaRef}>
-        <div className="flex gap-6 px-5 sm:px-5 sm:px-6 lg:px-8">
+        <div className="flex gap-6 px-5 sm:px-6 lg:px-8">
           {[...slides, ...slides].map((t, i) => (
             <div key={i} className="shrink-0 w-[85%] sm:w-[440px]">
               <div className="bg-card border border-border rounded-3xl p-7 h-full hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
@@ -105,7 +105,7 @@ export function Testimonials() {
         </div>
       </div>
 
-      <div className="container mx-auto px-5 sm:px-5 sm:px-6 lg:px-8 mt-10 text-center">
+      <div className="container mx-auto px-5 sm:px-6 lg:px-8 mt-10 text-center">
         <Link to="/testimonials">
           <Button size="lg" className="rounded-2xl">
             See all real testimonials <ArrowRight className="h-4 w-4 ml-2" />

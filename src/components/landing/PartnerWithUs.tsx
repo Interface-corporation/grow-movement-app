@@ -63,7 +63,7 @@ export function PartnerWithUs() {
         transition={{ duration: 16, repeat: Infinity, ease: 'easeInOut' }}
       />
 
-      <div className="relative container mx-auto px-5 sm:px-5 sm:px-6 lg:px-8">
+      <div className="relative container mx-auto px-5 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
