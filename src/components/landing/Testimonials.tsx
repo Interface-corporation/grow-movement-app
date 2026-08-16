@@ -45,14 +45,14 @@ export function Testimonials() {
     name.split(' ').filter(Boolean).slice(0, 2).map(n => n[0]).join('').toUpperCase();
 
   return (
-    <section className="py-16 md:py-20 bg-background overflow-hidden">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-10 md:py-14 bg-background overflow-hidden">
+      <div className="container mx-auto px-5 sm:px-5 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-12 max-w-2xl mx-auto"
+          className="text-center mb-10 max-w-2xl mx-auto"
         >
           <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Testimonials</span>
           <h2 className="font-display text-4xl md:text-5xl font-black mt-3 mb-4 leading-tight">
@@ -68,7 +68,7 @@ export function Testimonials() {
       </div>
 
       <div className="overflow-hidden" ref={emblaRef}>
-        <div className="flex gap-6 px-4 sm:px-6 lg:px-8">
+        <div className="flex gap-6 px-5 sm:px-5 sm:px-6 lg:px-8">
           {[...slides, ...slides].map((t, i) => (
             <div key={i} className="shrink-0 w-[85%] sm:w-[440px]">
               <div className="bg-card border border-border rounded-3xl p-7 h-full hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
@@ -105,7 +105,7 @@ export function Testimonials() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 mt-10 text-center">
+      <div className="container mx-auto px-5 sm:px-5 sm:px-6 lg:px-8 mt-10 text-center">
         <Link to="/testimonials">
           <Button size="lg" className="rounded-2xl">
             See all real testimonials <ArrowRight className="h-4 w-4 ml-2" />

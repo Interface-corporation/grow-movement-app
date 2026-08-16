@@ -83,7 +83,7 @@ export function HeroSlider() {
       />
 
       {/* Content */}
-      <div className="relative z-10 h-full container mx-auto px-4 sm:px-6 lg:px-8 flex items-center pt-20">
+      <div className="relative z-10 h-full container mx-auto px-5 sm:px-5 sm:px-6 lg:px-8 flex items-center pt-20">
         <div className="max-w-3xl">
           <AnimatePresence mode="wait">
             <motion.div
@@ -138,7 +138,7 @@ export function HeroSlider() {
       </div>
 
       {/* Slide controls */}
-      <div className="absolute bottom-8 left-0 right-0 z-20 container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="absolute bottom-8 left-0 right-0 z-20 container mx-auto px-5 sm:px-5 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           {/* Indicators */}
           <div className="flex items-center gap-3">

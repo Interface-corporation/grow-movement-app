@@ -10,9 +10,9 @@ const features = [
 
 export function PlatformPreview() {
   return (
-    <section className="py-16 md:py-20 bg-grow-cream">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 items-center max-w-6xl mx-auto">
+    <section className="py-10 md:py-14 bg-grow-cream">
+      <div className="container mx-auto px-5 sm:px-5 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 items-center w-full">
           {/* Left text */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
