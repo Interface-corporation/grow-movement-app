@@ -123,7 +123,7 @@ export function WhoWeAre() {
     transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
     className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-gradient-to-br from-grow-gold to-primary shadow-xl shadow-primary/40 z-10"
   />
-  <div className="relative aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl bg-black ring-1 ring-white/10">
+  <div className="relative aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl bg-black ring-1 ring-white/10">
 
 
     {/* Only show iframe after clicking Play */}
